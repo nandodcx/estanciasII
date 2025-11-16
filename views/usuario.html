@@ -15,7 +15,7 @@
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link rel="stylesheet" href="../assets/css/usuario.css">
     <!-- Configuración de Tailwind -->
     <script>
         tailwind.config = {
@@ -43,8 +43,7 @@
         }
     </script>
 
-    <!-- Enlace al archivo CSS externo -->
-    <link rel="stylesheet" href="../assets/css/usuario.css">
+
 </head>
 <body class="bg-background-light dark:bg-background-dark font-display">
     <!-- HEADER CORREGIDO -->
@@ -55,24 +54,35 @@
                     <img src="../assets/img/logo2.jpg" alt="UNIPOLI Logo" class="logo-img">
                 </div>
                 <div class="university-name">
-                    <div class="university-line1">Universidad Politécnica de Durango</div>
+                    <div class="university-line1">Universidad Politécnica de</div>
+                    <div class="university-line1">Durango</div>
                 </div>
             </div>
             
             <div class="user-profile">
-                <div class="user-image-container">
-                    <div class="user-initials" id="user-initials-btn">
-                        DG
+                <div class="user-profile-clickable">
+                    <div class="user-image-container">
+                        <div class="user-initials" id="user-initials-btn">
+                            DG
+                        </div>
                     </div>
-                </div>
-                <div class="user-name">
-                    Dr. Garcia
+                    <div class="user-name">
+                        Dr. Garcia
+                    </div>
                 </div>
                 <div class="hamburger-menu" id="hamburger-menu">
                     <span></span>
                     <span></span>
                     <span></span>
                 </div>
+            </div>
+        </div>
+        
+        <!-- MENÚ DE PERFIL (MODIFICADO - SIN "MI PERFIL") -->
+        <div class="profile-menu" id="profile-menu">
+            <div class="profile-menu-item cerrar-sesion" onclick="abrirModalCerrarSesion()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
             </div>
         </div>
         
@@ -91,10 +101,6 @@
                 </div>
             </div>
             
-            <div class="mobile-menu-item" onclick="mostrarPerfil()">
-                <i class="fas fa-user"></i>
-                <span>Perfil</span>
-            </div>
             <div class="mobile-menu-item cerrar-sesion" onclick="abrirModalCerrarSesion()">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Cerrar Sesión</span>
@@ -607,7 +613,6 @@
         </div>
     </div>
 
-    <!-- Enlace al archivo JavaScript externo -->
     <script src="../assets/js/usuario.js"></script>
 </body>
 </html>

@@ -1,278 +1,417 @@
 /* HEADER MEJORADO - CON IMAGEN */
-.header-container {
-    background-color: white;
-    border-bottom: 1px solid #ddd;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    position: relative;
-}
+        .header-container {
+            background-color: white;
+            border-bottom: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: relative;
+        }
 
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 20px;
-    max-width: 100%;
-    margin: 0;
-}
+        .dark .header-container {
+            background-color: #1f2937;
+            border-bottom-color: #374151;
+        }
 
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            max-width: 100%;
+            margin: 0;
+        }
 
-.logo-container {
-    display: flex;
-    align-items: center;
-}
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
-.logo-img {
-    height: 50px;
-    width: auto;
-    object-fit: contain;
-}
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
 
-.university-name {
-    font-size: 18px;
-    font-weight: 700;
-    color: #003300;
-    line-height: 1.2;
-}
+        .logo-img {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
+        }
 
-.university-line1 {
-    font-size: 20px;
-}
+        .university-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #003300;
+            line-height: 1.2;
+        }
 
-.user-profile {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
+        .dark .university-name {
+            color: #10b981;
+        }
 
-.user-image-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
+        .university-line1 {
+            font-size: 20px;
+        }
 
-.user-initials {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #10b981, #9BD86B);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
 
-.user-initials:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
+        .user-profile-clickable {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
 
-.user-name {
-    font-weight: 500;
-    color: #333;
-}
+        .user-profile-clickable:hover {
+            background-color: #f5f5f5;
+        }
 
-/* MENÚ HAMBURGUESA */
-.hamburger-menu {
-    display: none;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 30px;
-    height: 21px;
-    cursor: pointer;
-}
+        .dark .user-profile-clickable:hover {
+            background-color: #374151;
+        }
 
-.hamburger-menu span {
-    display: block;
-    height: 3px;
-    width: 100%;
-    background-color: #333;
-    border-radius: 3px;
-    transition: all 0.3s ease;
-}
+        .user-image-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-.mobile-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background-color: white;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    z-index: 1000;
-    padding: 15px;
-    width: 250px;
-    border-radius: 0 0 0 8px;
-}
+        .user-initials {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981, #9BD86B);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
-.mobile-menu.active {
-    display: block;
-}
+        .user-initials:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
 
-/* Información del usuario en menú móvil */
-.mobile-user-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 15px 0;
-    border-bottom: 1px solid #eee;
-    margin-bottom: 10px;
-}
+        .user-name {
+            font-weight: 500;
+            color: #333;
+        }
 
-.mobile-user-image {
-    display: flex;
-    align-items: center;
-}
+        .dark .user-name {
+            color: #f3f4f6;
+        }
 
-.mobile-user-details {
-    display: flex;
-    flex-direction: column;
-}
+        /* MENÚ DE PERFIL */
+        .profile-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            z-index: 1001;
+            width: 200px;
+            padding: 8px 0;
+            margin-top: 8px;
+        }
 
-.mobile-user-name {
-    font-weight: 600;
-    color: #333;
-    font-size: 16px;
-}
+        .dark .profile-menu {
+            background-color: #1f2937;
+            border: 1px solid #374151;
+        }
 
-.mobile-user-role {
-    color: #666;
-    font-size: 14px;
-}
+        .profile-menu.active {
+            display: block;
+            animation: slideDown 0.2s ease-out;
+        }
 
-.mobile-menu-item {
-    padding: 12px 0;
-    border-bottom: 1px solid #eee;
-    font-weight: 500;
-    color: #333;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-.mobile-menu-item:last-child {
-    border-bottom: none;
-}
+        .profile-menu-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-size: 14px;
+            color: #333;
+        }
 
-.mobile-menu-item i {
-    color: #9BD86B;
-    width: 20px;
-}
+        .dark .profile-menu-item {
+            color: #f3f4f6;
+        }
 
-.mobile-menu-item:hover {
-    background-color: #f5f5f5;
-    padding-left: 10px;
-    border-radius: 4px;
-}
+        .profile-menu-item:hover {
+            background-color: #f5f5f5;
+        }
 
-.mobile-menu-item.cerrar-sesion {
-    color: #e74c3c;
-}
+        .dark .profile-menu-item:hover {
+            background-color: #374151;
+        }
 
-.mobile-menu-item.cerrar-sesion i {
-    color: #e74c3c;
-}
+        .profile-menu-item i {
+            width: 16px;
+            text-align: center;
+            color: #9BD86B;
+        }
 
-/* Animaciones para modales */
-.fade-in {
-    animation: fadeIn 0.3s ease-in-out;
-}
+        .profile-menu-item.cerrar-sesion {
+            color: #e74c3c;
+        }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
+        .profile-menu-item.cerrar-sesion i {
+            color: #e74c3c;
+        }
 
-.slide-in {
-    animation: slideIn 0.3s ease-out;
-}
+        /* MENÚ HAMBURGUESA */
+        .hamburger-menu {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            cursor: pointer;
+        }
 
-@keyframes slideIn {
-    from { transform: translateY(-20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
+        .hamburger-menu span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background-color: #333;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
 
-/* RESPONSIVE DESIGN - CORREGIDO */
-@media (max-width: 768px) {
-    .header {
-        padding: 10px 15px;
-    }
-    
-    .logo-img {
-        height: 40px;
-    }
-    
-    .university-name {
-        font-size: 14px;
-    }
-    
-    .university-line1 {
-        font-size: 14px;
-    }
-    
-    /* CORRECCIÓN: Ocultar SOLO los elementos del usuario, NO el menú hamburguesa */
-    .user-image-container {
-        display: none !important;
-    }
-    
-    .user-name {
-        display: none !important;
-    }
-    
-    /* Asegurar que el menú hamburguesa se muestre */
-    .hamburger-menu {
-        display: flex !important;
-    }
-    
-    /* Ajustar el user-profile para que solo muestre el menú hamburguesa */
-    .user-profile {
-        gap: 0;
-        justify-content: flex-end;
-    }
-}
+        .dark .hamburger-menu span {
+            background-color: #f3f4f6;
+        }
 
-/* Media query adicional para pantallas muy pequeñas */
-@media (max-width: 480px) {
-    .header-left {
-        gap: 10px;
-    }
-    
-    .university-name {
-        font-size: 12px;
-    }
-    
-    .university-line1 {
-        font-size: 12px;
-    }
-    
-    .hamburger-menu {
-        width: 25px;
-        height: 18px;
-    }
-    
-    .mobile-menu {
-        width: 220px;
-    }
-    
-    .mobile-user-info {
-        gap: 10px;
-        padding: 12px 0;
-    }
-    
-    .mobile-user-name {
-        font-size: 14px;
-    }
-    
-    .mobile-user-role {
-        font-size: 12px;
-    }
-}
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 15px;
+            width: 250px;
+            border-radius: 0 0 0 8px;
+        }
+
+        .dark .mobile-menu {
+            background-color: #1f2937;
+            border: 1px solid #374151;
+        }
+
+        .mobile-menu.active {
+            display: block;
+        }
+
+        /* Información del usuario en menú móvil */
+        .mobile-user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 10px;
+        }
+
+        .dark .mobile-user-info {
+            border-bottom-color: #374151;
+        }
+
+        .mobile-user-image {
+            display: flex;
+            align-items: center;
+        }
+
+        .mobile-user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mobile-user-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .dark .mobile-user-name {
+            color: #f3f4f6;
+        }
+
+        .mobile-user-role {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .dark .mobile-user-role {
+            color: #9ca3af;
+        }
+
+        .mobile-menu-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            font-weight: 500;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dark .mobile-menu-item {
+            color: #f3f4f6;
+            border-bottom-color: #374151;
+        }
+
+        .mobile-menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .mobile-menu-item i {
+            color: #9BD86B;
+            width: 20px;
+        }
+
+        .mobile-menu-item:hover {
+            background-color: #f5f5f5;
+            padding-left: 10px;
+            border-radius: 4px;
+        }
+
+        .dark .mobile-menu-item:hover {
+            background-color: #374151;
+        }
+
+        .mobile-menu-item.cerrar-sesion {
+            color: #e74c3c;
+        }
+
+        .mobile-menu-item.cerrar-sesion i {
+            color: #e74c3c;
+        }
+
+        /* Animaciones para modales */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* RESPONSIVE DESIGN - CORREGIDO */
+        @media (max-width: 768px) {
+            .header {
+                padding: 10px 15px;
+            }
+            
+            .logo-img {
+                height: 40px;
+            }
+            
+            .university-name {
+                font-size: 14px;
+            }
+            
+            .university-line1 {
+                font-size: 14px;
+            }
+            
+            /* CORRECCIÓN: Ocultar SOLO los elementos del usuario, NO el menú hamburguesa */
+            .user-image-container {
+                display: none !important;
+            }
+            
+            .user-name {
+                display: none !important;
+            }
+            
+            /* Asegurar que el menú hamburguesa se muestre */
+            .hamburger-menu {
+                display: flex !important;
+            }
+            
+            /* Ajustar el user-profile para que solo muestre el menú hamburguesa */
+            .user-profile {
+                gap: 0;
+                justify-content: flex-end;
+            }
+
+            .profile-menu {
+                display: none !important;
+            }
+        }
+
+        /* Media query adicional para pantallas muy pequeñas */
+        @media (max-width: 480px) {
+            .header-left {
+                gap: 10px;
+            }
+            
+            .university-name {
+                font-size: 12px;
+            }
+            
+            .university-line1 {
+                font-size: 12px;
+            }
+            
+            .hamburger-menu {
+                width: 25px;
+                height: 18px;
+            }
+            
+            .mobile-menu {
+                width: 220px;
+            }
+            
+            .mobile-user-info {
+                gap: 10px;
+                padding: 12px 0;
+            }
+            
+            .mobile-user-name {
+                font-size: 14px;
+            }
+            
+            .mobile-user-role {
+                font-size: 12px;
+            }
+        }

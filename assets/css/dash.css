@@ -1,0 +1,585 @@
+/* Configuración de Tailwind - Esto debe ir en el HTML, no en CSS */
+/* Se elimina la configuración de tailwind del CSS */
+
+body {
+    font-family: 'Public Sans', sans-serif;
+}
+
+/* Estilos para los toggles */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 30px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: #9BD86B;
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(30px);
+}
+
+/* HEADER MEJORADO - CON IMAGEN */
+.header-container {
+    background-color: white;
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.dark .header-container {
+    background-color: #1f2937;
+    border-bottom: 1px solid #374151;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    max-width: 100%;
+    margin: 0;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.logo-img {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+}
+
+.university-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #003300;
+    line-height: 1.2;
+}
+
+.dark .university-name {
+    color: #ffffff;
+}
+
+.university-line1 {
+    font-size: 20px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-image-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-initials {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10b981, #9BD86B);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.user-initials:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.user-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.dark .user-name {
+    color: #f9fafb;
+}
+
+/* MENÚ HAMBURGUESA */
+.hamburger-menu {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 21px;
+    cursor: pointer;
+}
+
+.hamburger-menu span {
+    display: block;
+    height: 3px;
+    width: 100%;
+    background-color: #333;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.dark .hamburger-menu span {
+    background-color: #f9fafb;
+}
+
+.mobile-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1001;
+    padding: 15px;
+    width: 250px;
+    border-radius: 0 0 0 8px;
+}
+
+.dark .mobile-menu {
+    background-color: #1f2937;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.mobile-menu.active {
+    display: block;
+}
+
+/* Información del usuario en menú móvil */
+.mobile-user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 10px;
+}
+
+.dark .mobile-user-info {
+    border-bottom: 1px solid #374151;
+}
+
+.mobile-user-image {
+    display: flex;
+    align-items: center;
+}
+
+.mobile-user-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.mobile-user-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 16px;
+}
+
+.dark .mobile-user-name {
+    color: #f9fafb;
+}
+
+.mobile-user-role {
+    color: #666;
+    font-size: 14px;
+}
+
+.dark .mobile-user-role {
+    color: #d1d5db;
+}
+
+.mobile-menu-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+    font-weight: 500;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dark .mobile-menu-item {
+    border-bottom: 1px solid #374151;
+    color: #f9fafb;
+}
+
+.mobile-menu-item:last-child {
+    border-bottom: none;
+}
+
+.mobile-menu-item i {
+    color: #9BD86B;
+    width: 20px;
+}
+
+.mobile-menu-item:hover {
+    background-color: #f5f5f5;
+    padding-left: 10px;
+    border-radius: 4px;
+}
+
+.dark .mobile-menu-item:hover {
+    background-color: #374151;
+}
+
+.mobile-menu-item.cerrar-sesion {
+    color: #e74c3c;
+}
+
+.mobile-menu-item.cerrar-sesion i {
+    color: #e74c3c;
+}
+
+/* RESPONSIVE DESIGN - CORREGIDO */
+@media (max-width: 768px) {
+    .header {
+        padding: 10px 15px;
+    }
+    
+    .logo-img {
+        height: 40px;
+    }
+    
+    .university-name {
+        font-size: 14px;
+    }
+    
+    .university-line1 {
+        font-size: 14px;
+    }
+    
+    .user-image-container {
+        display: none !important;
+    }
+    
+    .user-name {
+        display: none !important;
+    }
+    
+    .hamburger-menu {
+        display: flex !important;
+    }
+    
+    .user-profile {
+        gap: 0;
+        justify-content: flex-end;
+    }
+}
+
+/* Media query adicional para pantallas muy pequeñas */
+@media (max-width: 480px) {
+    .header-left {
+        gap: 10px;
+    }
+    
+    .university-name {
+        font-size: 12px;
+    }
+    
+    .university-line1 {
+        font-size: 12px;
+    }
+    
+    .hamburger-menu {
+        width: 25px;
+        height: 18px;
+    }
+    
+    .mobile-menu {
+        width: 220px;
+    }
+    
+    .mobile-user-info {
+        gap: 10px;
+        padding: 12px 0;
+    }
+    
+    .mobile-user-name {
+        font-size: 14px;
+    }
+    
+    .mobile-user-role {
+        font-size: 12px;
+    }
+}
+
+/* Estilos originales del dashboard */
+.sortable:hover {
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.sortable.dark:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.sort-icon {
+    margin-left: 5px;
+    opacity: 0.5;
+}
+
+.active-sort {
+    background-color: rgba(155, 216, 107, 0.1);
+}
+
+.active-sort.dark {
+    background-color: rgba(155, 216, 107, 0.3);
+}
+
+.sidebar {
+    transition: all 0.3s ease;
+}
+
+.dashboard-card {
+    transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.mobile-menu-open {
+    transform: translateX(0);
+}
+
+.mobile-menu-closed {
+    transform: translateX(-100%);
+}
+
+@media (min-width: 768px) {
+    .mobile-menu-closed {
+        transform: translateX(0);
+    }
+}
+
+/* Estilos para la tabla de horarios - CORREGIDOS */
+.schedule-container {
+    margin-bottom: 30px;
+}
+
+.schedule-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.schedule-legend {
+    display: flex;
+    gap: 15px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+}
+
+.legend-color {
+    width: 15px;
+    height: 15px;
+    border-radius: 3px;
+}
+
+.schedule-wrapper {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 15px;
+    overflow-x: auto;
+}
+
+.dark .schedule-wrapper {
+    background-color: #1f2937;
+}
+
+.schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+}
+
+.dark .schedule-table {
+    background-color: #374151;
+}
+
+.schedule-table th, .schedule-table td {
+    border: 1px solid #e5e7eb;
+    padding: 8px;
+    text-align: center;
+}
+
+.dark .schedule-table th, 
+.dark .schedule-table td {
+    border: 1px solid #4b5563;
+}
+
+.schedule-table th {
+    background-color: #f3f4f6;
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.875rem;
+}
+
+.dark .schedule-table th {
+    background-color: #4b5563;
+    color: #f9fafb;
+}
+
+.time-slot {
+    height: 40px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+}
+
+.time-slot.available {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.time-slot.occupied {
+    background-color: #fecaca;
+    color: #dc2626;
+}
+
+.time-slot.selected {
+    background-color: #9BD86B;
+    color: white;
+}
+
+.time-slot:hover {
+    transform: scale(1.05);
+}
+
+.selected-slots-container {
+    background-color: #f0f9ff;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+    display: none;
+}
+
+.selected-slot {
+    display: inline-block;
+    background-color: #9BD86B;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin: 5px;
+    font-size: 14px;
+}
+
+/* Estilos para el botón de cerrar sesión en el sidebar - ADAPTADOS DEL CÓDIGO MÁS PEQUEÑO */
+.logout-sidebar {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    padding: 0 16px;
+}
+
+.logout-sidebar .logout-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: #e74c3c !important;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.logout-sidebar .logout-link:hover {
+    background-color: #fee2e2;
+}
+
+.dark .logout-sidebar .logout-link:hover {
+    background-color: #7f1d1d;
+}
+
+.logout-sidebar .logout-link i {
+    color: #e74c3c !important;
+}
+
+/* Asegurar que el sidebar tenga posición relativa para el posicionamiento absoluto del logout */
+.sidebar-container {
+    position: relative;
+    height: 100%;
+}
