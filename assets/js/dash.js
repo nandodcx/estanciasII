@@ -474,7 +474,7 @@ function loadSettings() {
     applySettings();
 }
 
-// Aplicar configuración a la interfaz
+// Aplicar configuración a la interfaz - VERSIÓN MEJORADA
 function applySettings() {
     // Modo oscuro
     if (appSettings.darkMode) {
@@ -483,7 +483,7 @@ function applySettings() {
         document.documentElement.classList.remove('dark');
     }
     
-    // Actualizar controles
+    // Actualizar controles con los valores actuales de appSettings
     const darkModeToggle = document.getElementById('dark-mode-toggle');
     const emailNotificationsToggle = document.getElementById('email-notifications');
     const languageSelect = document.getElementById('language');
@@ -494,6 +494,8 @@ function applySettings() {
     
     // Aplicar traducciones
     applyTranslations(appSettings.language);
+    
+    console.log('Configuración aplicada:', appSettings);
 }
 
 // Aplicar traducciones
@@ -511,15 +513,14 @@ function applyTranslations(language) {
     });
 }
 
-// Configurar listeners de configuración
+// Configurar listeners de configuración - VERSIÓN CORREGIDA
 function setupSettingsListeners() {
     // Modo oscuro
     const darkModeToggle = document.getElementById('dark-mode-toggle');
     if (darkModeToggle) {
         darkModeToggle.addEventListener('change', function() {
             appSettings.darkMode = this.checked;
-            applySettings();
-            saveSettings();
+            // NO guardar automáticamente aquí - solo cuando se presione el botón Guardar
         });
     }
 
@@ -528,7 +529,7 @@ function setupSettingsListeners() {
     if (emailNotificationsToggle) {
         emailNotificationsToggle.addEventListener('change', function() {
             appSettings.emailNotifications = this.checked;
-            saveSettings();
+            // NO guardar automáticamente aquí - solo cuando se presione el botón Guardar
         });
     }
 
@@ -537,17 +538,24 @@ function setupSettingsListeners() {
     if (languageSelect) {
         languageSelect.addEventListener('change', function() {
             appSettings.language = this.value;
-            applySettings();
-            saveSettings();
+            // NO guardar automáticamente aquí - solo cuando se presione el botón Guardar
         });
     }
 
-    // Guardar configuración
+    // Guardar configuración - CORREGIDO
     const saveSettingsBtn = document.getElementById('save-settings');
     if (saveSettingsBtn) {
-        saveSettingsBtn.addEventListener('click', function() {
+        saveSettingsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Aplicar TODOS los cambios pendientes
+            applySettings();
             saveSettings();
+            
+            // Mostrar mensaje de éxito específico
             showSuccessMessage('Configuración guardada correctamente');
+            
+            console.log('Configuración guardada:', appSettings);
         });
     }
 }
@@ -556,8 +564,7 @@ function setupSettingsListeners() {
 function saveSettings() {
     localStorage.setItem('appSettings', JSON.stringify(appSettings));
     
-    // Aplicar cambios inmediatamente
-    applySettings();
+    console.log('Configuración guardada en localStorage:', appSettings);
 }
 
 // Configurar funcionalidades del header
