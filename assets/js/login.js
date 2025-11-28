@@ -90,4 +90,3 @@ form.addEventListener('submit', async (e) => {
 function showAlert(msg) {
   alerta.textContent = msg;
   alerta.style.display = 'block';
-}
