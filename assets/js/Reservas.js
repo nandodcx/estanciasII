@@ -346,3 +346,22 @@ function escapeHtml(str) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
+
+
+
+// ================= Cerrar modal haciendo clic afuera =================
+function activarCierrePorFondo(idModal) {
+    const modal = document.getElementById(idModal);
+    if (!modal) return;
+
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            modal.classList.add("hidden");
+        }
+    });
+}
+
+// Activar para tus modales:
+activarCierrePorFondo("modalNuevaPractica");
+activarCierrePorFondo("modalEditar");
+activarCierrePorFondo("modalEliminar");
