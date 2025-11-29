@@ -1,0 +1,51 @@
+<!-- Agenda View - CORREGIDA -->
+<div id="agenda-view" class="hidden fade-in">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white" data-i18n="agenda.title">Agenda - Disponibilidad</h1>
+        <button id="add-practice-agenda-btn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
+            <i class="fas fa-plus"></i>
+            <span data-i18n="practices.newPractice">Nueva Práctica</span>
+        </button>
+    </div>
+    
+    <!-- Tabla de Disponibilidad - CORREGIDA -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+        <div class="schedule-container">
+            <div class="schedule-header">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white" data-i18n="agenda.weeklyAvailability">Disponibilidad Semanal</h3>
+                <div class="schedule-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #fecaca;"></div>
+                        <span class="text-gray-600 dark:text-gray-300" data-i18n="agenda.occupied">Ocupado</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #d1fae5;"></div>
+                        <span class="text-gray-600 dark:text-gray-300" data-i18n="agenda.available">Disponible</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="schedule-wrapper">
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white" data-i18n="agenda.timeDay">Hora/Día</th>
+                            <th class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white" data-i18n="days.monday">Lunes</th>
+                            <th class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white" data-i18n="days.tuesday">Martes</th>
+                            <th class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white" data-i18n="days.wednesday">Miércoles</th>
+                            <th class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white" data-i18n="days.thursday">Jueves</th>
+                            <th class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white" data-i18n="days.friday">Viernes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schedule-body-agenda">
+                        <!-- Las celdas se generarán con JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                <p data-i18n="agenda.description">La tabla muestra la disponibilidad de los laboratorios para la semana actual.</p>
+            </div>
+        </div>
+    </div>
+</div>

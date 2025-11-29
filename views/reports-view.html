@@ -1,0 +1,87 @@
+<!-- Reports View - MODIFICADO -->
+<div id="reports-view" class="hidden fade-in">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white" data-i18n="reports.title">Reportes de Prácticas</h1>
+        <button id="export-reports-btn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
+            <i class="fas fa-file-export"></i>
+            <span data-i18n="reports.exportReport">Exportar Reporte</span>
+        </button>
+    </div>
+    
+    <!-- Controles de Filtrado -->
+    <div class="mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Búsqueda -->
+            <div>
+                <label for="reports-search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="common.search">Buscar</label>
+                <input type="text" id="reports-search" placeholder="Buscar en la tabla..." 
+                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
+            </div>
+            
+            <!-- Filtro por profesor -->
+            <div>
+                <label for="reports-professor-filter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="practices.filterByProfessor">Filtrar por profesor</label>
+                <select id="reports-professor-filter" 
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
+                    <option value="" data-i18n="common.all">Todos los profesores</option>
+                    <option value="Dr. Fued">Dr. Fued</option>
+                    <option value="Prof. Estefano">Prof. Estefano</option>
+                    <option value="Prof. Ricardo">Prof. Ricardo</option>
+                    <option value="Prof. Valeria">Prof. Valeria</option>
+                </select>
+            </div>
+            
+            <!-- Filtro por estado -->
+            <div>
+                <label for="reports-status-filter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="practices.filterByStatus">Filtrar por estado</label>
+                <select id="reports-status-filter" 
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
+                    <option value="" data-i18n="common.all">Todos los estados</option>
+                    <option value="programada" data-i18n="status.scheduled">Programada</option>
+                    <option value="confirmada" data-i18n="status.confirmed">Confirmada</option>
+                    <option value="en-curso" data-i18n="status.inProgress">En curso</option>
+                    <option value="completada" data-i18n="status.completed">Completada</option>
+                    <option value="cancelada" data-i18n="status.cancelled">Cancelada</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tabla de Reportes -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+        <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" id="reports-table">
+                <thead class="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" data-i18n="practices.table.date">
+                            FECHA
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" data-i18n="practices.table.practice">
+                            PRÁCTICA
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" data-i18n="reports.table.objective">
+                            OBJETIVO
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" data-i18n="practices.table.professor">
+                            PROFESOR
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" data-i18n="practices.table.subject">
+                            ASIGNATURA
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" data-i18n="practices.table.actions">
+                            ACCIONES
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-background-dark divide-y divide-gray-200 dark:divide-gray-700" id="reports-table-body">
+                    <!-- Las filas se generarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Información de resultados -->
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
+            <span data-i18n="common.showing">Mostrando</span> <span id="reports-results-count">0</span> <span data-i18n="common.of">de</span> <span id="reports-total-count">0</span> <span data-i18n="practices.practices">prácticas</span>
+        </div>
+    </div>
+</div>

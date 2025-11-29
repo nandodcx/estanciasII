@@ -1,0 +1,98 @@
+<!-- Practices View -->
+<div id="practices-view" class="hidden fade-in">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white" data-i18n="practices.title">Gestión de Prácticas</h1>
+        <button id="add-practice-btn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
+            <i class="fas fa-plus"></i>
+            <span data-i18n="practices.newPractice">Nueva Práctica</span>
+        </button>
+    </div>
+    
+    <!-- Controles de Interactividad -->
+    <div class="mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div class="flex flex-wrap gap-4 items-center">
+            <!-- Búsqueda -->
+            <div class="flex-1 min-w-[200px]">
+                <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="common.search">Buscar</label>
+                <input type="text" id="search" placeholder="Buscar en la tabla..." 
+                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
+            </div>
+            
+            <!-- Filtro por profesor -->
+            <div class="flex-1 min-w-[200px]">
+                <label for="professor-filter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="practices.filterByProfessor">Filtrar por profesor</label>
+                <select id="professor-filter" 
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
+                    <option value="" data-i18n="common.all">Todos los profesores</option>
+                </select>
+            </div>
+            
+            <!-- Filtro por estado -->
+            <div class="flex-1 min-w-[200px]">
+                <label for="status-filter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="practices.filterByStatus">Filtrar por estado</label>
+                <select id="status-filter" 
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
+                    <option value="" data-i18n="common.all">Todos los estados</option>
+                    <option value="programada" data-i18n="status.scheduled">Programada</option>
+                    <option value="confirmada" data-i18n="status.confirmed">Confirmada</option>
+                    <option value="en-curso" data-i18n="status.inProgress">En curso</option>
+                    <option value="completada" data-i18n="status.completed">Completada</option>
+                    <option value="cancelada" data-i18n="status.cancelled">Cancelada</option>
+                </select>
+            </div>
+            
+            <!-- Botones de acción -->
+            <div class="flex gap-2 items-end">
+                <button id="reset-filters" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" data-i18n="common.reset">
+                    Restablecer
+                </button>
+                <button id="export-pdf-btn" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-green-700 transition-colors" data-i18n="common.exportPDF">
+                    Exportar PDF
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tabla de Prácticas -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+        <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700" id="table-container">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" id="data-table">
+                <thead class="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider sortable" data-column="date" scope="col">
+                            <span data-i18n="practices.table.date">FECHA</span>
+                            <span class="sort-icon">↕</span>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider sortable" data-column="practice" scope="col">
+                            <span data-i18n="practices.table.practice">PRÁCTICA</span>
+                            <span class="sort-icon">↕</span>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider sortable" data-column="professor" scope="col">
+                            <span data-i18n="practices.table.professor">PROFESOR</span>
+                            <span class="sort-icon">↕</span>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider sortable" data-column="subject" scope="col">
+                            <span data-i18n="practices.table.subject">ASIGNATURA</span>
+                            <span class="sort-icon">↕</span>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider sortable" data-column="status" scope="col">
+                            <span data-i18n="practices.table.status">ESTADO</span>
+                            <span class="sort-icon">↕</span>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <span data-i18n="practices.table.actions">ACCIONES</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="table-body" class="bg-white dark:bg-background-dark divide-y divide-gray-200 dark:divide-gray-700">
+                    <!-- Los datos se cargarán dinámicamente con JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Información de resultados -->
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
+            <span data-i18n="common.showing">Mostrando</span> <span id="results-count">0</span> <span data-i18n="common.of">de</span> <span id="total-count">0</span> <span data-i18n="practices.practices">prácticas</span>
+        </div>
+    </div>
+</div>

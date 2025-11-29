@@ -1,0 +1,332 @@
+<!-- Modal de Edición de Práctica - MODIFICADO SIN CAMPO DÍA -->
+<div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl mx-4 slide-in">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white" id="edit-modal-title" data-i18n="practices.editPractice">Editar Práctica</h3>
+                <button id="close-edit-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <form id="edit-practice-form" class="p-6">
+            <input type="hidden" id="edit-practice-id">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label for="edit-practice-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <span data-i18n="practices.form.date">Fecha de Práctica</span> <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" id="edit-practice-date" required
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white transition-colors">
+                </div>
+                
+                <div>
+                    <label for="edit-practice-time" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <span>Hora de Práctica</span> <span class="text-red-500">*</span>
+                    </label>
+                    <select id="edit-practice-time" required
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white transition-colors">
+                        <option value="">Seleccione una hora</option>
+                        <option value="7:00">7:00 - 8:00</option>
+                        <option value="8:00">8:00 - 9:00</option>
+                        <option value="9:00">9:00 - 10:00</option>
+                        <option value="10:00">10:00 - 11:00</option>
+                        <option value="11:00">11:00 - 12:00</option>
+                        <option value="12:00">12:00 - 13:00</option>
+                        <option value="13:00">13:00 - 14:00</option>
+                        <option value="14:00">14:00 - 15:00</option>
+                        <option value="15:00">15:00 - 16:00</option>
+                        <option value="16:00">16:00 - 17:00</option>
+                        <option value="17:00">17:00 - 18:00</option>
+                        <option value="18:00">18:00 - 19:00</option>
+                        <option value="19:00">19:00 - 20:00</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label for="edit-practice-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <span data-i18n="practices.form.name">Nombre de Práctica</span> <span class="text-red-500">*</span>
+                </label>
+                <input type="text" id="edit-practice-name" required placeholder="Ej: Laboratorio de Química"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white transition-colors">
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label for="edit-practice-professor" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <span data-i18n="practices.form.professor">Profesor</span> <span class="text-red-500">*</span>
+                    </label>
+                    <select id="edit-practice-professor" required
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white transition-colors">
+                        <option value="" data-i18n="practices.form.selectProfessor">Seleccione un profesor</option>
+                        <option value="Dr. Fued">Dr. Fued</option>
+                        <option value="Prof. Estefano">Prof. Estefano</option>
+                        <option value="Prof. Ricardo">Prof. Ricardo</option>
+                        <option value="Prof. Valeria">Prof. Valeria</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="edit-practice-subject" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <span data-i18n="practices.form.subject">Asignatura</span> <span class="text-red-500">*</span>
+                    </label>
+                    <select id="edit-practice-subject" required
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white transition-colors">
+                        <option value="" data-i18n="practices.form.selectSubject">Seleccione una asignatura</option>
+                        <option value="Programación Concurrente">Programación Concurrente</option>
+                        <option value="Sistemas Operativos">Sistemas Operativos</option>
+                        <option value="Programación I">Programación I</option>
+                        <option value="Liderazgo eq. Alto desempeño">Liderazgo eq. Alto desempeño</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label for="edit-practice-objective" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <span data-i18n="practices.form.objective">Objetivo de la Práctica</span> <span class="text-red-500">*</span>
+                </label>
+                <textarea id="edit-practice-objective" required rows="3" placeholder="Describa el objetivo principal de esta práctica..."
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white transition-colors"></textarea>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label for="edit-practice-lab" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="practices.form.lab">
+                        Laboratorio / Aula
+                    </label>
+                    <input type="text" id="edit-practice-lab" placeholder="Ej: Laboratorio 3A"
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white transition-colors">
+                </div>
+                
+                <div>
+                    <label for="edit-practice-status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <span data-i18n="practices.form.status">Estado</span> <span class="text-red-500">*</span>
+                    </label>
+                    <select id="edit-practice-status" required
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white transition-colors">
+                        <option value="programada" data-i18n="status.scheduled">Programada</option>
+                        <option value="confirmada" data-i18n="status.confirmed">Confirmada</option>
+                        <option value="en-curso" data-i18n="status.inProgress">En curso</option>
+                        <option value="completada" data-i18n="status.completed">Completada</option>
+                        <option value="cancelada" data-i18n="status.cancelled">Cancelada</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <button type="button" id="cancel-edit" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" data-i18n="common.cancel">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
+                    <i class="fas fa-save"></i>
+                    <span data-i18n="common.saveChanges">Guardar Cambios</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal de Eliminación de Práctica -->
+<div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md mx-4 slide-in">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white" data-i18n="practices.confirmDelete">Confirmar Eliminación</h3>
+                <button id="close-delete-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="p-6">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="p-3 bg-red-100 dark:bg-red-900 rounded-full">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800 dark:text-white" data-i18n="practices.deleteConfirmation">¿Está seguro de eliminar esta práctica?</h4>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1" data-i18n="practices.deleteWarning">Esta acción no se puede deshacer.</p>
+                </div>
+            </div>
+            
+            <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg mb-6">
+                <p class="text-sm text-gray-800 dark:text-white font-medium" id="delete-practice-name"></p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" id="delete-practice-details"></p>
+            </div>
+            
+            <input type="hidden" id="delete-practice-id">
+            
+            <div class="flex justify-end gap-3">
+                <button type="button" id="cancel-delete" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" data-i18n="common.cancel">
+                    Cancelar
+                </button>
+                <button type="button" id="confirm-delete" class="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2">
+                    <i class="fas fa-trash"></i>
+                    <span data-i18n="practices.deletePractice">Eliminar Práctica</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Edición de Usuario -->
+<div id="edit-user-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl mx-4 slide-in">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white" id="edit-user-modal-title" data-i18n="users.editUser">Editar Usuario</h3>
+                <button id="close-edit-user-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <form id="edit-user-form" class="p-6">
+            <input type="hidden" id="edit-user-id">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label for="edit-user-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <span data-i18n="users.form.fullName">Nombre Completo</span> <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="edit-user-name" required placeholder="Ej: Juan Pérez"
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white transition-colors">
+                </div>
+                
+                <div>
+                    <label for="edit-user-username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <span data-i18n="users.form.username">Usuario</span> <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="edit-user-username" required placeholder="Ej: juanperez"
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white transition-colors">
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label for="edit-user-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <span data-i18n="users.form.email">Correo Electrónico</span> <span class="text-red-500">*</span>
+                    </label>
+                    <input type="email" id="edit-user-email" required placeholder="Ej: juan@universidad.edu"
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white transition-colors">
+                </div>
+                
+                <div>
+                    <label for="edit-user-role" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <span data-i18n="users.form.role">Rol</span> <span class="text-red-500">*</span>
+                    </label>
+                    <select id="edit-user-role" required
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white transition-colors">
+                        <option value="" data-i18n="users.form.selectRole">Seleccione un rol</option>
+                        <option value="Administrador" data-i18n="roles.admin">Administrador</option>
+                        <option value="Profesor" data-i18n="roles.teacher">Profesor</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label for="edit-user-status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <span data-i18n="users.form.status">Estado</span> <span class="text-red-500">*</span>
+                    </label>
+                    <select id="edit-user-status" required
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white transition-colors">
+                        <option value="Activo" data-i18n="status.active">Activo</option>
+                        <option value="Inactivo" data-i18n="status.inactive">Inactivo</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <button type="button" id="cancel-edit-user" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" data-i18n="common.cancel">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
+                    <i class="fas fa-save"></i>
+                    <span data-i18n="common.saveChanges">Guardar Cambios</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal de Eliminación de Usuario -->
+<div id="delete-user-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md mx-4 slide-in">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white" data-i18n="users.confirmDelete">Confirmar Eliminación</h3>
+                <button id="close-delete-user-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="p-6">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="p-3 bg-red-100 dark:bg-red-900 rounded-full">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800 dark:text-white" data-i18n="users.deleteConfirmation">¿Está seguro de eliminar este usuario?</h4>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1" data-i18n="users.deleteWarning">Esta acción no se puede deshacer.</p>
+                </div>
+            </div>
+            
+            <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg mb-6">
+                <p class="text-sm text-gray-800 dark:text-white font-medium" id="delete-user-name"></p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" id="delete-user-details"></p>
+            </div>
+            
+            <input type="hidden" id="delete-user-id">
+            
+            <div class="flex justify-end gap-3">
+                <button type="button" id="cancel-delete-user" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" data-i18n="common.cancel">
+                    Cancelar
+                </button>
+                <button type="button" id="confirm-delete-user" class="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2">
+                    <i class="fas fa-trash"></i>
+                    <span data-i18n="users.deleteUser">Eliminar Usuario</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Cerrar Sesión - ADAPTADO DEL CÓDIGO MÁS PEQUEÑO -->
+<div id="logout-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md mx-4 slide-in">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white" data-i18n="menu.logout">Cerrar Sesión</h3>
+                <button id="close-logout-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="p-6">
+            <div class="flex items-center justify-center mb-4">
+                <div class="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                    <i class="fas fa-sign-out-alt text-blue-500 text-2xl"></i>
+                </div>
+            </div>
+            <p class="text-center text-gray-600 dark:text-gray-300 mb-6" data-i18n="logout.confirmation">
+                ¿Está seguro de que desea cerrar sesión?
+            </p>
+            
+            <div class="flex justify-end gap-3 pt-4">
+                <button id="cancel-logout" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" data-i18n="common.cancel">
+                    Cancelar
+                </button>
+                <button id="confirm-logout" class="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span data-i18n="menu.logout">Cerrar Sesión</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

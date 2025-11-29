@@ -1,0 +1,99 @@
+<!-- Dashboard View -->
+<div id="dashboard-view" class="fade-in">
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-6" data-i18n="dashboard.title">Dashboard de Administración</h1>
+    
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="dashboard-card bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400" data-i18n="dashboard.totalPractices">Total Prácticas</p>
+                    <p class="text-2xl font-bold text-gray-800 dark:text-white" id="total-practices">0</p>
+                </div>
+                 <div class="p-3 rounded-lg" style="background-color: #AED5F5;">
+                    <i class="fas fa-laptop-code text-blue-600 text-2xl"></i>
+                </div>
+            </div>
+            <div class="mt-4">
+                <div class="flex items-center text-sm text-green-500">
+                    <i class="fas fa-arrow-up mr-1"></i>
+                    <span data-i18n="dashboard.stats.increase">12% más que el mes pasado</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-card bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400" data-i18n="dashboard.monthPractices">Prácticas Este Mes</p>
+                    <p class="text-2xl font-bold text-gray-800 dark:text-white" id="month-practices">0</p>
+                </div>
+                <div class="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
+                    <i class="fas fa-calendar-check text-green-500 text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-4">
+                <div class="flex items-center text-sm text-green-500">
+                    <i class="fas fa-arrow-up mr-1"></i>
+                    <span data-i18n="dashboard.stats.weeklyIncrease">5% más que la semana pasada</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-card bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400" data-i18n="dashboard.professors">Profesores</p>
+                    <p class="text-2xl font-bold text-gray-800 dark:text-white" id="total-professors">0</p>
+                </div>
+                <div class="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                    <i class="fas fa-user-tie text-purple-500 text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-4">
+                <div class="flex items-center text-sm text-gray-500">
+                    <span data-i18n="dashboard.stats.noChanges">Sin cambios</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-card bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400" data-i18n="dashboard.subjects">Asignaturas</p>
+                    <p class="text-2xl font-bold text-gray-800 dark:text-white" id="total-subjects">0</p>
+                </div>
+                <div class="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+                    <i class="fas fa-book text-yellow-500 text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-4">
+                <div class="flex items-center text-sm text-green-500">
+                    <i class="fas fa-arrow-up mr-1"></i>
+                    <span data-i18n="dashboard.stats.newThisMonth">2 nuevas este mes</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activities and Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Recent Activities -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-white" data-i18n="dashboard.recentActivities">Actividad Reciente</h2>
+            </div>
+            <div class="space-y-4 flex-1" id="recent-activities">
+                <!-- Las actividades se cargarán dinámicamente -->
+            </div>
+        </div>
+        
+        <!-- Upcoming Practices -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4" data-i18n="dashboard.upcomingPractices">Próximas Prácticas</h2>
+            <div class="space-y-4" id="upcoming-practices">
+                <!-- Las prácticas próximas se cargarán dinámicamente -->
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,61 @@
+<!-- Mobile Sidebar - CORREGIDO Z-INDEX -->
+<div id="mobile-sidebar" class="mobile-menu-closed md:hidden fixed inset-0 z-30 bg-black bg-opacity-50 transition-opacity">
+    <div class="sidebar w-64 bg-white dark:bg-gray-800 h-full shadow-md border-r border-gray-200 dark:border-gray-700 transform transition-transform sidebar-container">
+        <div class="p-4 h-full flex flex-col">
+            <div class="flex-1">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-lg font-bold text-gray-800 dark:text-white" data-i18n="menu.title">Menú</span>
+                    <button id="close-mobile-menu" class="p-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <ul class="space-y-2">
+                    <li>
+                        <a href="#" id="mobile-dashboard-link" class="flex items-center gap-3 p-3 rounded-lg bg-primary text-white">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span data-i18n="menu.dashboard">Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="mobile-practices-link" class="flex items-center gap-3 p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-laptop-code"></i>
+                            <span data-i18n="menu.practices">Prácticas</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="mobile-agenda-link" class="flex items-center gap-3 p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span data-i18n="menu.agenda">Agenda</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="mobile-users-link" class="flex items-center gap-3 p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-users"></i>
+                            <span data-i18n="menu.users">Usuarios</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="mobile-reports-link" class="flex items-center gap-3 p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-chart-bar"></i>
+                            <span data-i18n="menu.reports">Reportes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="mobile-settings-link" class="flex items-center gap-3 p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-cog"></i>
+                            <span data-i18n="menu.settings">Configuración</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Botón Cerrar Sesión en color rojo -->
+            <div class="logout-sidebar">
+                <a href="#" id="mobile-logout-link" class="logout-link" onclick="abrirModalCerrarSesion()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span data-i18n="menu.logout">Cerrar Sesión</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

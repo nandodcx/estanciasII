@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Universitario - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/dash.css">
+    <style>
+        /* Estilos de carga */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        /* FIX TEMPORAL PARA HEADER */
+        .header-container {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            height: 64px !important;
+            background: white !important;
+            border-bottom: 1px solid #e5e7eb !important;
+            z-index: 1000 !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        .dark .header-container {
+            background: #1f2937 !important;
+            border-bottom-color: #374151 !important;
+        }
+
+        .header {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0 1rem !important;
+        }
+
+        .logo-img {
+            height: 40px !important;
+            width: auto !important;
+        }
+
+        .user-initials {
+            width: 40px !important;
+            height: 40px !important;
+            border-radius: 50% !important;
+            background: linear-gradient(135deg, #10b981, #9BD86B) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: white !important;
+            font-weight: bold !important;
+        }
+
+        body {
+            padding-top: 64px !important;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+    
+    <!-- Header -->
+    <div id="header-container">
+        <div class="p-4 text-center text-gray-500">Cargando header...</div>
+    </div>
+
+    <div class="flex pt-16">
+        <!-- Mobile Sidebar -->
+        <div id="mobile-sidebar-container">
+            <div class="p-4 text-center text-gray-500">Cargando menú móvil...</div>
+        </div>
+
+        <!-- Desktop Sidebar -->
+        <div id="desktop-sidebar-container">
+            <div class="p-4 text-center text-gray-500">Cargando sidebar...</div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-6 md:ml-64 mt-0">
+            <!-- Views Container -->
+            <div id="views-container">
+                <div class="text-center py-12">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                    <p class="mt-4 text-gray-600">Cargando Sistema Universitario...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals Container -->
+    <div id="modals-container"></div>
+
+    <!-- Mensaje de éxito -->
+    <div id="success-message" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 hidden fade-in">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-check-circle"></i>
+            <span id="success-text">¡Operación completada exitosamente!</span>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de rutas BASE
+        const getBasePath = () => {
+            const path = window.location.pathname;
+            if (path.includes('estanciasII')) {
+                return path.split('estanciasII')[0] + 'estanciasII/';
+            }
+            return '/';
+        };
+
+        const BASE_PATH = getBasePath();
+        console.log('Base path:', BASE_PATH);
+
+        // Estado global de la aplicación
+        const appState = {
+            currentView: 'dashboard',
+            basePath: BASE_PATH,
+            views: {
+                'dashboard': `${BASE_PATH}views/dashboard-view.html`,
+                'practices': `${BASE_PATH}views/practices-view.html`,
+                'agenda': `${BASE_PATH}views/agenda-view.html`,
+                'users': `${BASE_PATH}views/users-view.html`,
+                'reports': `${BASE_PATH}views/reports-view.html`,
+                'settings': `${BASE_PATH}views/settings-view.html`
+            }
+        };
+
+        // Función para corregir rutas en el HTML cargado
+        function fixResourcePaths(html, basePath) {
+            return html
+                .replace(/src="assets\//g, `src="${basePath}assets/`)
+                .replace(/href="assets\//g, `href="${basePath}assets/`)
+                .replace(/src="\.\.\/assets\//g, `src="${basePath}assets/`)
+                .replace(/href="\.\.\/assets\//g, `href="${basePath}assets/`);
+        }
+
+        // Función para cargar un archivo HTML
+        async function loadHTML(url, containerId) {
+            try {
+                console.log('📥 Loading:', url);
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                let html = await response.text();
+                
+                // Corregir rutas de recursos si no es el archivo principal
+                if (containerId !== 'views-container') {
+                    html = fixResourcePaths(html, BASE_PATH);
+                }
+                
+                document.getElementById(containerId).innerHTML = html;
+                console.log('✅ Successfully loaded:', url);
+                return true;
+            } catch (error) {
+                console.error('❌ Failed to load:', url, error);
+                document.getElementById(containerId).innerHTML = `
+                    <div class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                        <strong>Error cargando:</strong> ${url}<br>
+                        <small>${error.message}</small>
+                    </div>
+                `;
+                return false;
+            }
+        }
+
+        // Cargar las secciones al iniciar
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                console.log('🚀 Initializing application...');
+                
+                // Cargar secciones principales
+                const sections = [
+                    { file: `${BASE_PATH}views/header.html`, container: 'header-container' },
+                    { file: `${BASE_PATH}views/sidebar-mobile.html`, container: 'mobile-sidebar-container' },
+                    { file: `${BASE_PATH}views/sidebar-desktop.html`, container: 'desktop-sidebar-container' },
+                    { file: `${BASE_PATH}views/modals.html`, container: 'modals-container' }
+                ];
+
+                const loadPromises = sections.map(section => 
+                    loadHTML(section.file, section.container)
+                );
+
+                await Promise.allSettled(loadPromises);
+                
+                // Cargar vista inicial
+                await showView('dashboard-view');
+                initializeEventListeners();
+
+                console.log('🎉 Application initialized successfully');
+
+            } catch (error) {
+                console.error('💥 Error initializing application:', error);
+                document.getElementById('views-container').innerHTML = `
+                    <div class="p-6 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                        <h2 class="text-lg font-bold">Error de Inicialización</h2>
+                        <p>${error.message}</p>
+                        <button onclick="location.reload()" class="mt-3 px-4 py-2 bg-primary text-white rounded hover:bg-green-700">
+                            Recargar Página
+                        </button>
+                    </div>
+                `;
+            }
+        });
+
+        // Función para cargar vistas
+        async function loadView(viewName) {
+            try {
+                const viewFile = appState.views[viewName];
+                if (!viewFile) {
+                    throw new Error(`Vista no encontrada: ${viewName}`);
+                }
+
+                console.log('🔄 Loading view:', viewName);
+                
+                const success = await loadHTML(viewFile, 'views-container');
+                
+                if (success) {
+                    appState.currentView = viewName;
+                    updateActiveSidebarLink(viewName);
+                    initializeViewComponents(viewName);
+                }
+                
+            } catch (error) {
+                console.error('Error loading view:', error);
+                document.getElementById('views-container').innerHTML = `
+                    <div class="p-6 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded-lg">
+                        <h2 class="text-lg font-bold">Vista no disponible</h2>
+                        <p>No se pudo cargar: ${viewName}</p>
+                        <div class="mt-3 space-x-2">
+                            <button onclick="showView('dashboard-view')" class="px-4 py-2 bg-primary text-white rounded hover:bg-green-700">
+                                Ir al Dashboard
+                            </button>
+                            <button onclick="location.reload()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                                Recargar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Función para mostrar vistas
+        function showView(viewId) {
+            const viewName = viewId.replace('-view', '');
+            return loadView(viewName);
+        }
+
+        function updateActiveSidebarLink(activeView) {
+            setTimeout(() => {
+                const allLinks = document.querySelectorAll('[id$="-link"]');
+                
+                allLinks.forEach(link => {
+                    link.classList.remove('bg-primary', 'text-white');
+                    link.classList.add('text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+                });
+                
+                const activeLinks = document.querySelectorAll(`#${activeView}-link, #mobile-${activeView}-link`);
+                activeLinks.forEach(link => {
+                    if (link) {
+                        link.classList.add('bg-primary', 'text-white');
+                        link.classList.remove('text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+                    }
+                });
+            }, 100);
+        }
+
+        function initializeViewComponents(viewName) {
+            console.log('Initializing components for:', viewName);
+            
+            setTimeout(() => {
+                try {
+                    // Aquí puedes inicializar componentes específicos de cada vista
+                    switch(viewName) {
+                        case 'dashboard':
+                            if (window.initializeDashboard) initializeDashboard();
+                            break;
+                        case 'practices':
+                            if (window.initializePractices) initializePractices();
+                            break;
+                        case 'agenda':
+                            if (window.initializeAgenda) initializeAgenda();
+                            break;
+                        case 'users':
+                            if (window.initializeUsers) initializeUsers();
+                            break;
+                        case 'reports':
+                            if (window.initializeReports) initializeReports();
+                            break;
+                        case 'settings':
+                            if (window.initializeSettings) initializeSettings();
+                            break;
+                    }
+                } catch (error) {
+                    console.error(`Error initializing ${viewName} components:`, error);
+                }
+            }, 200);
+        }
+
+        // FUNCIÓN ACTUALIZADA - ESTE ES EL PASO 3
+        function initializeEventListeners() {
+            setTimeout(() => {
+                // Navegación del sidebar
+                document.addEventListener('click', function(e) {
+                    const target = e.target.closest('a') || e.target;
+                    
+                    const navigationMap = {
+                        '#dashboard-link, #mobile-dashboard-link': 'dashboard',
+                        '#practices-link, #mobile-practices-link': 'practices', 
+                        '#agenda-link, #mobile-agenda-link': 'agenda',
+                        '#users-link, #mobile-users-link': 'users',
+                        '#reports-link, #mobile-reports-link': 'reports',
+                        '#settings-link, #mobile-settings-link': 'settings'
+                    };
+
+                    for (const [selector, view] of Object.entries(navigationMap)) {
+                        if (target.matches(selector)) {
+                            e.preventDefault();
+                            showView(`${view}-view`);
+                            break;
+                        }
+                    }
+                });
+
+                // Hamburger menu - delegación de eventos MEJORADA
+                document.addEventListener('click', function(e) {
+                    // Hamburger menu
+                    if (e.target.matches('#hamburger-menu') || e.target.closest('#hamburger-menu')) {
+                        const mobileMenu = document.getElementById('mobile-menu');
+                        if (mobileMenu) {
+                            mobileMenu.classList.toggle('active');
+                        }
+                    }
+                    
+                    // Cerrar menú al hacer clic fuera
+                    if (!e.target.closest('#mobile-menu') && !e.target.closest('#hamburger-menu')) {
+                        const mobileMenu = document.getElementById('mobile-menu');
+                        if (mobileMenu) {
+                            mobileMenu.classList.remove('active');
+                        }
+                    }
+                    
+                    // User initials click
+                    if (e.target.matches('#user-initials-btn') || e.target.closest('#user-initials-btn')) {
+                        abrirModalCerrarSesion();
+                    }
+                });
+
+            }, 500);
+        }
+
+        // Funciones globales para compatibilidad
+        window.showView = showView;
+        window.loadView = loadView;
+        window.closeMobileMenu = function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu) {
+                mobileMenu.classList.remove('active');
+            }
+        };
+        window.abrirModalCerrarSesion = function() {
+            const logoutModal = document.getElementById('logout-modal');
+            if (logoutModal) {
+                logoutModal.classList.remove('hidden');
+            }
+        };
+
+        // Tailwind config
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#9BD86B",
+                        "secondary": "#10b981",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111721",
+                        "new-practice": "#9BD86B"
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+</body>
+</html>

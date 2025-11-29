@@ -1,0 +1,42 @@
+<!-- Users View -->
+<div id="users-view" class="hidden fade-in">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white" data-i18n="users.title">Gestión de Usuarios</h1>
+        <button id="add-user-btn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
+            <i class="fas fa-user-plus"></i>
+            <span data-i18n="users.addUser">Agregar Usuario</span>
+        </button>
+    </div>
+    
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" id="users-table">
+                <thead class="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" data-i18n="users.table.user">
+                            Usuario
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" data-i18n="users.table.role">
+                            Rol
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" data-i18n="users.table.email">
+                            Correo
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" data-i18n="users.table.status">
+                            Estado
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" data-i18n="users.table.lastAccess">
+                            Último Acceso
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" data-i18n="users.table.actions">
+                            Acciones
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-body" class="bg-white dark:bg-background-dark divide-y divide-gray-200 dark:divide-gray-700">
+                    <!-- Los datos se cargarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

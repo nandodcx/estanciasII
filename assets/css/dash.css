@@ -828,3 +828,103 @@ input:checked + .toggle-slider:before {
 .dark .empty-state {
     color: #9ca3af;
 }
+/* CORRECCIONES ESPECÍFICAS PARA EL HEADER */
+
+/* Asegurar que el header tenga la altura correcta */
+.header-container {
+    height: 64px !important; /* 4rem */
+}
+
+/* Logo más pequeño */
+.logo-img {
+    height: 40px !important;
+    width: auto;
+    object-fit: contain;
+}
+
+/* Nombre de la universidad mejorado */
+.university-name {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.university-line1 {
+    font-size: 14px !important;
+    font-weight: 600;
+    color: #003300;
+}
+
+.university-line2 {
+    font-size: 16px !important;
+    font-weight: 700;
+    color: #003300;
+}
+
+.dark .university-line1,
+.dark .university-line2 {
+    color: #ffffff;
+}
+
+/* User profile mejorado */
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-image-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-initials {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10b981, #9BD86B);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.user-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.dark .user-name {
+    color: #ffffff;
+}
+
+/* Ocultar user-name en móvil */
+@media (max-width: 768px) {
+    .user-name {
+        display: none;
+    }
+    
+    .user-image-container {
+        gap: 0;
+    }
+}
+
+/* Asegurar que el contenido principal no se oculte detrás del header */
+body {
+    padding-top: 64px;
+}
+
+/* Corrección para el main content */
+.flex-1.p-6.md\:ml-64.mt-0 {
+    margin-top: 0 !important;
+}
+
+.pt-16 {
+    padding-top: 4rem !important; /* 64px */
+}
