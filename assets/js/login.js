@@ -78,7 +78,7 @@ form.addEventListener('submit', async (e) => {
 
     // 🔥 REDIRECCIÓN REAL
     setTimeout(() => {
-      window.location.href = "dash.html";
+      window.location.href = "dashboard.html";
     }, 1500);
 
   } catch (err) {
