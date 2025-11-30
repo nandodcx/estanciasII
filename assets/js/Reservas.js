@@ -7,11 +7,14 @@ const API_URL_LABS = "/api/laboratorios";
 document.addEventListener("DOMContentLoaded", () => {
     initUserAndUI();
     initEvents();
-    cargarReservas();
+    cargarReservas().then(actualizarContadores);
     cargarLaboratorios();
     cargarAsignaturas();
 });
 
+// =============================
+// INICIALIZAR USUARIO Y MODO OSCURO
+// =============================
 function initUserAndUI() {
     let usuario = null;
     try { usuario = JSON.parse(localStorage.getItem("usuario")); } catch(e) { usuario = null; }
@@ -87,6 +90,7 @@ let eliminarId = null;
 async function cargarReservas() {
     const tablaBody = document.getElementById("tablaReservas");
     if (!tablaBody) return;
+
     tablaBody.innerHTML = "";
 
     try {
@@ -123,9 +127,12 @@ async function cargarReservas() {
             btn.addEventListener("click", e => abrirEditar(e.currentTarget.dataset.id))
         );
 
+        return data;
+
     } catch (err) {
         console.error("Error cargando reservas:", err);
         tablaBody.innerHTML = `<tr><td colspan="5">Error cargando reservas.</td></tr>`;
+        return [];
     }
 }
 
@@ -183,7 +190,7 @@ async function cargarAsignaturas() {
 }
 
 // =============================
-// GUARDAR NUEVA
+// GUARDAR NUEVA RESERVA
 // =============================
 async function guardarNueva() {
     const fecha = document.getElementById("fecha").value;
@@ -198,13 +205,13 @@ async function guardarNueva() {
     const nueva = {
         id_usuario: usuario.id_usuario,
         id_laboratorio,
-        fecha,                      // ✔ ahora coincide con la BD
+        fecha,
         hora_inicio: "00:00:00",
         hora_fin: "00:00:00",
         clase,
-        descripcion: "",            // ✔ agregado porque tu BD lo tiene
+        descripcion: "",
         estado: "pendiente",
-        nombre_laboratorio: ""      // ✔ campo existente en tu BD
+        nombre_laboratorio: ""
     };
 
     try {
@@ -213,14 +220,16 @@ async function guardarNueva() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(nueva)
         });
+
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
     } catch (e) {
         console.error("Error creando reserva:", e);
         alert("Error creando reserva.");
     }
 
     document.getElementById("modalNuevaPractica").classList.add("hidden");
-    cargarReservas();
+    cargarReservas().then(actualizarContadores);
 }
 
 // =============================
@@ -248,7 +257,7 @@ async function guardarEdicion() {
 
     const body = {
         id_laboratorio,
-        fecha,         // ✔ corregido
+        fecha,
         clase
     };
 
@@ -258,14 +267,16 @@ async function guardarEdicion() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body)
         });
+
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
     } catch (e) {
         console.error("Error guardando edición:", e);
         alert("Error al guardar cambios.");
     }
 
     document.getElementById("modalEditar").classList.add("hidden");
-    cargarReservas();
+    cargarReservas().then(actualizarContadores);
 }
 
 // =============================
@@ -282,7 +293,39 @@ async function confirmarEliminarReserva() {
     });
 
     document.getElementById("modalEliminar").classList.add("hidden");
-    cargarReservas();
+    cargarReservas().then(actualizarContadores);
+}
+
+// =============================
+// CONTADORES DEL DASHBOARD
+// =============================
+async function actualizarContadores() {
+    const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
+    if (!usuario.id_usuario) return;
+
+    try {
+        const res = await fetch(API_URL_RESERVAS);
+        if (!res.ok) throw new Error("Error al obtener reservas");
+
+        const reservas = await res.json();
+
+        const mis = reservas.filter(r => r.id_usuario == usuario.id_usuario);
+        const proximas = mis.filter(r => (r.estado || "") === "Programada");
+        const completadas = mis.filter(r => (r.estado || "") === "completada");
+
+        const asignaturasUnicas = [
+            ...new Set(mis.map(r => r.clase).filter(Boolean))
+        ];
+
+        // IDs CORRECTOS DEL HTML
+        document.getElementById("stat-mis-practicas").textContent = mis.length;
+        document.getElementById("stat-proximas").textContent = proximas.length;
+        document.getElementById("stat-completadas").textContent = completadas.length;
+        document.getElementById("stat-asignaturas").textContent = asignaturasUnicas.length;
+
+    } catch (err) {
+        console.error("Error actualizando contadores:", err);
+    }
 }
 
 // =============================
