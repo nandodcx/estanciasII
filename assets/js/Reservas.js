@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
     cargarLaboratorios();
     cargarAsignaturas();
     cargarEstados();
+    cargarProximas();
+
 });
 
 // =============================
@@ -134,6 +136,56 @@ async function cargarReservas() {
         console.error("Error cargando reservas:", err);
         tablaBody.innerHTML = `<tr><td colspan="5">Error cargando reservas.</td></tr>`;
         return [];
+    }
+}
+// =============================
+// CARGAR PRÓXIMAS PRÁCTICAS (SOLO ESTE BLOQUE)
+// =============================
+async function cargarProximas() {
+    const cont = document.getElementById("proximasContainer");
+    if (!cont) return;
+
+    cont.innerHTML = ""; // Limpia para evitar duplicados
+
+    try {
+        const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
+        const res = await fetch(API_URL_RESERVAS);
+        const data = await res.json();
+
+        // Filtrar SOLO mis reservas y SOLO si están pendientes o programadas
+        const proximas = data.filter(r =>
+            r.id_usuario == usuario.id_usuario &&
+            ["pendiente", "programada"].includes((r.estado || "").toLowerCase())
+        );
+
+        // Si no hay próximas
+        if (proximas.length === 0) {
+            cont.innerHTML = `
+                <p class="text-gray-500 dark:text-gray-300 text-sm">
+                    No tienes próximas prácticas programadas.
+                </p>`;
+            return;
+        }
+
+        // Pintar tarjetas SIN duplicar datos de la tabla
+        proximas.forEach(r => {
+            const fecha = (r.fecha || "").slice(0, 10);
+            const lab = r.nombre_laboratorio || "Sin laboratorio";
+            const clase = r.clase || "Sin asignatura";
+
+            cont.innerHTML += `
+                <div class="p-4 rounded-lg bg-gray-100 dark:bg-gray-700 shadow">
+                    <p><strong>Fecha:</strong> ${fecha}</p>
+                    <p><strong>Laboratorio:</strong> ${escapeHtml(lab)}</p>
+                    <p><strong>Asignatura:</strong> ${escapeHtml(clase)}</p>
+                    <p><strong>Estado:</strong> ${escapeHtml(r.estado)}</p>
+                </div>
+            `;
+        });
+
+    } catch (e) {
+        console.error("Error cargando próximas:", e);
+        cont.innerHTML = `<p class="text-red-500">Error cargando próximas prácticas.</p>`;
     }
 }
 
@@ -322,7 +374,9 @@ async function confirmarEliminarReserva() {
     document.getElementById("modalEliminar").classList.add("hidden");
     cargarReservas().then(actualizarContadores);
 }
+//
 
+//
 // =============================
 // CONTADORES DEL DASHBOARD
 // =============================
