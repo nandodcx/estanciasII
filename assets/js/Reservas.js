@@ -1,5 +1,5 @@
 // Reservas.js
-// SOLO se modificó lo necesario para coincidir con tu backend y BD.
+// VERSION COMPLETA Y CORREGIDA
 
 const API_URL_RESERVAS = "/api/reservas";
 const API_URL_LABS = "/api/laboratorios";
@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     cargarReservas().then(actualizarContadores);
     cargarLaboratorios();
     cargarAsignaturas();
+    cargarEstados();
 });
 
 // =============================
@@ -190,6 +191,28 @@ async function cargarAsignaturas() {
 }
 
 // =============================
+// CARGAR ESTADOS DESDE BD
+// =============================
+async function cargarEstados() {
+    try {
+        const res = await fetch(API_URL_RESERVAS);
+        const data = await res.json();
+
+        const estados = [...new Set(data.map(r => r.estado).filter(Boolean))];
+
+        const sel = document.getElementById("editEstado");
+        sel.innerHTML = "";
+
+        estados.forEach(e =>
+            sel.innerHTML += `<option value="${e}">${e}</option>`
+        );
+
+    } catch (err) {
+        console.error("Error cargando estados:", err);
+    }
+}
+
+// =============================
 // GUARDAR NUEVA RESERVA
 // =============================
 async function guardarNueva() {
@@ -245,6 +268,8 @@ async function abrirEditar(id) {
     document.getElementById("editPractica").value = r.id_laboratorio;
     document.getElementById("editAsignatura").value = r.clase;
 
+    document.getElementById("editEstado").value = r.estado; // ← CORREGIDO
+
     document.getElementById("modalEditar").classList.remove("hidden");
 }
 
@@ -254,11 +279,13 @@ async function guardarEdicion() {
     const fecha = document.getElementById("editFecha").value;
     const id_laboratorio = document.getElementById("editPractica").value;
     const clase = document.getElementById("editAsignatura").value;
+    const estado = document.getElementById("editEstado").value; // ← CORREGIDO
 
     const body = {
         id_laboratorio,
         fecha,
-        clase
+        clase,
+        estado
     };
 
     try {
@@ -310,14 +337,13 @@ async function actualizarContadores() {
         const reservas = await res.json();
 
         const mis = reservas.filter(r => r.id_usuario == usuario.id_usuario);
-        const proximas = mis.filter(r => (r.estado || "") === "Programada");
-        const completadas = mis.filter(r => (r.estado || "") === "completada");
 
-        const asignaturasUnicas = [
-            ...new Set(mis.map(r => r.clase).filter(Boolean))
-        ];
+        const proximas = mis.filter(r => (r.estado || "").toLowerCase() === "pendiente" || (r.estado || "").toLowerCase() === "programada");
 
-        // IDs CORRECTOS DEL HTML
+        const completadas = mis.filter(r => (r.estado || "").toLowerCase() === "completada");
+
+        const asignaturasUnicas = [...new Set(mis.map(r => r.clase).filter(Boolean))];
+
         document.getElementById("stat-mis-practicas").textContent = mis.length;
         document.getElementById("stat-proximas").textContent = proximas.length;
         document.getElementById("stat-completadas").textContent = completadas.length;

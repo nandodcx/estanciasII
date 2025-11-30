@@ -8,7 +8,7 @@
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
-    <!-- Tailwind config (DEBE IR DESPUÉS DEL SCRIPT) -->
+    <!-- Tailwind config -->
     <script>
         tailwind.config = {
             darkMode: "class",
@@ -25,7 +25,7 @@
         };
     </script>
 
-    <!-- Aplicar dark mode al iniciar -->
+    <!-- Aplicar dark mode -->
     <script>
         (function(){
             const theme = localStorage.getItem("theme");
@@ -63,19 +63,16 @@
 
                 <div class="user-name" id="user-name"></div>
 
-                <!-- Botón dark -->
                 <button id="darkModeBtn" class="ml-3 text-xl hover:scale-110">
                     <i class="fa-solid fa-moon"></i>
                 </button>
 
-                <!-- Menú móvil -->
                 <div class="hamburger-menu" id="hamburger-menu">
                     <span></span><span></span><span></span>
                 </div>
             </div>
         </div>
 
-        <!-- MENÚ MÓVIL -->
         <div class="mobile-menu" id="mobile-menu">
             <div class="mobile-user-info">
                 <div class="mobile-user-image">
@@ -154,13 +151,11 @@
         <!-- Próximas -->
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
             <h2 class="text-lg font-semibold mb-4">Próximas Prácticas</h2>
-
-            <!-- Contenedor para las tarjetas -->
             <div id="proximasContainer" class="space-y-4"></div>
         </div>
     </div>
 
-    <!-- MODALES -->
+    <!-- MODAL NUEVA -->
     <div id="modalNuevaPractica" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 p-6 rounded-xl w-96 shadow-lg">
             <h2 class="text-lg font-bold mb-4">Nueva Práctica</h2>
@@ -182,7 +177,7 @@
         </div>
     </div>
 
-    <!-- EDITAR -->
+    <!-- MODAL EDITAR -->
     <div id="modalEditar" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 p-6 rounded-xl w-96 shadow-lg">
             <h2 class="text-lg font-bold mb-4">Editar Práctica</h2>
@@ -200,11 +195,20 @@
                 <option value="">Seleccione asignatura</option>
             </select>
 
+            <!-- SELECT DE ESTADO (FUNCIONA CON TU JS) -->
+            <label class="text-sm">Estado</label>
+            <select id="editEstado" class="w-full p-2 mb-3 rounded bg-gray-100 dark:bg-gray-700 dark:text-white">
+                <option value="Pendiente">Pendiente</option>
+                <option value="Programada">Programada</option>
+                <option value="Completada">Completada</option>
+                <option value="Cancelada">Cancelada</option>
+            </select>
+
             <button id="editarBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded">Guardar Cambios</button>
         </div>
     </div>
 
-    <!-- ELIMINAR -->
+    <!-- MODAL ELIMINAR -->
     <div id="modalEliminar" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 p-6 rounded-xl w-80 shadow-lg text-center">
             <h2 class="text-lg font-bold mb-4">¿Eliminar práctica?</h2>
