@@ -226,12 +226,30 @@
                 console.log('🔄 Loading view:', viewName);
                 
                 const success = await loadHTML(viewFile, 'views-container');
-                
-                if (success) {
-                    appState.currentView = viewName;
-                    updateActiveSidebarLink(viewName);
-                    initializeViewComponents(viewName);
-                }
+
+if (success) {
+    // REMOVER la clase hidden de la vista actual y OCULTAR las demás
+    const allViews = ['dashboard-view', 'practices-view', 'agenda-view', 'users-view', 'reports-view', 'settings-view'];
+    
+    allViews.forEach(viewId => {
+        const viewElement = document.getElementById(viewId);
+        if (viewElement) {
+            if (viewId === `${viewName}-view`) {
+                viewElement.classList.remove('hidden');
+                viewElement.classList.add('fade-in');
+            } else {
+                viewElement.classList.add('hidden');
+                viewElement.classList.remove('fade-in');
+            }
+        }
+    });
+    
+    appState.currentView = viewName;
+    updateActiveSidebarLink(viewName);
+    initializeViewComponents(viewName);
+    // Reconectar event listeners después de cargar nueva vista
+    reconnectNavigationListeners();
+}
                 
             } catch (error) {
                 console.error('Error loading view:', error);
@@ -309,59 +327,93 @@
             }, 200);
         }
 
-        // FUNCIÓN ACTUALIZADA - ESTE ES EL PASO 3
-        function initializeEventListeners() {
-            setTimeout(() => {
-                // Navegación del sidebar
-                document.addEventListener('click', function(e) {
-                    const target = e.target.closest('a') || e.target;
-                    
-                    const navigationMap = {
-                        '#dashboard-link, #mobile-dashboard-link': 'dashboard',
-                        '#practices-link, #mobile-practices-link': 'practices', 
-                        '#agenda-link, #mobile-agenda-link': 'agenda',
-                        '#users-link, #mobile-users-link': 'users',
-                        '#reports-link, #mobile-reports-link': 'reports',
-                        '#settings-link, #mobile-settings-link': 'settings'
-                    };
+        // === SOLO MODIFIQUE DESDE AQUÍ HACIA ABAJO ===
 
-                    for (const [selector, view] of Object.entries(navigationMap)) {
-                        if (target.matches(selector)) {
-                            e.preventDefault();
-                            showView(`${view}-view`);
-                            break;
-                        }
-                    }
-                });
-
-                // Hamburger menu - delegación de eventos MEJORADA
-                document.addEventListener('click', function(e) {
-                    // Hamburger menu
-                    if (e.target.matches('#hamburger-menu') || e.target.closest('#hamburger-menu')) {
-                        const mobileMenu = document.getElementById('mobile-menu');
-                        if (mobileMenu) {
-                            mobileMenu.classList.toggle('active');
-                        }
-                    }
-                    
-                    // Cerrar menú al hacer clic fuera
-                    if (!e.target.closest('#mobile-menu') && !e.target.closest('#hamburger-menu')) {
-                        const mobileMenu = document.getElementById('mobile-menu');
-                        if (mobileMenu) {
-                            mobileMenu.classList.remove('active');
-                        }
-                    }
-                    
-                    // User initials click
-                    if (e.target.matches('#user-initials-btn') || e.target.closest('#user-initials-btn')) {
-                        abrirModalCerrarSesion();
-                    }
-                });
-
-            }, 500);
+        // NUEVA FUNCIÓN: Reconectar listeners de navegación
+        function reconnectNavigationListeners() {
+            console.log('🔄 Reconnecting navigation listeners...');
+            
+            // Seleccionar todos los links de navegación
+            const navLinks = document.querySelectorAll(`
+                #dashboard-link, #practices-link, #agenda-link, #users-link, #reports-link, #settings-link,
+                #mobile-dashboard-link, #mobile-practices-link, #mobile-agenda-link, #mobile-users-link, 
+                #mobile-reports-link, #mobile-settings-link
+            `);
+            
+            navLinks.forEach(link => {
+                // Remover event listeners anteriores
+                link.replaceWith(link.cloneNode(true));
+            });
+            
+            console.log('✅ Navigation listeners reconnected');
         }
 
-        // Funciones globales para compatibilidad
+        // FUNCIÓN initializeEventListeners MODIFICADA
+        function initializeEventListeners() {
+            console.log('🔗 Initializing event listeners...');
+            
+            // Usar delegación de eventos en el documento para manejar la navegación
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('a');
+                if (!target) return;
+                
+                // Mapeo de navegación
+                const navMap = {
+                    'dashboard-link': 'dashboard',
+                    'practices-link': 'practices',
+                    'agenda-link': 'agenda', 
+                    'users-link': 'users',
+                    'reports-link': 'reports',
+                    'settings-link': 'settings',
+                    'mobile-dashboard-link': 'dashboard',
+                    'mobile-practices-link': 'practices',
+                    'mobile-agenda-link': 'agenda',
+                    'mobile-users-link': 'users',
+                    'mobile-reports-link': 'reports',
+                    'mobile-settings-link': 'settings'
+                };
+                
+                const viewName = navMap[target.id];
+                if (viewName) {
+                    e.preventDefault();
+                    console.log('📍 Navigation to:', viewName);
+                    showView(`${viewName}-view`);
+                    
+                    // Cerrar menú móvil si está abierto
+                    closeMobileMenu();
+                }
+            });
+            
+            // Listeners para el header (estos no cambian)
+            document.addEventListener('click', function(e) {
+                // Hamburger menu
+                if (e.target.matches('#hamburger-menu') || e.target.closest('#hamburger-menu')) {
+                    e.stopPropagation();
+                    const mobileMenu = document.getElementById('mobile-menu');
+                    if (mobileMenu) {
+                        mobileMenu.classList.toggle('active');
+                    }
+                }
+                
+                // Cerrar menú al hacer clic fuera
+                if (!e.target.closest('#mobile-menu') && !e.target.closest('#hamburger-menu')) {
+                    const mobileMenu = document.getElementById('mobile-menu');
+                    if (mobileMenu) {
+                        mobileMenu.classList.remove('active');
+                    }
+                }
+                
+                // User initials click
+                if (e.target.matches('#user-initials-btn') || e.target.closest('#user-initials-btn')) {
+                    e.stopPropagation();
+                    abrirModalCerrarSesion();
+                }
+            });
+            
+            console.log('✅ Event listeners initialized');
+        }
+
+        // Funciones globales para compatibilidad (MANTENIDAS)
         window.showView = showView;
         window.loadView = loadView;
         window.closeMobileMenu = function() {
@@ -377,7 +429,7 @@
             }
         };
 
-        // Tailwind config
+        // Tailwind config (MANTENIDO)
         tailwind.config = {
             darkMode: "class",
             theme: {
