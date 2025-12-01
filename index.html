@@ -108,6 +108,9 @@
         </div>
     </div>
 
+    <!-- ✅ NUEVO: Cargar dash.js aquí -->
+    <script src="assets/js/dash.js"></script>
+
     <script>
         // Configuración de rutas BASE
         const getBasePath = () => {
@@ -176,6 +179,131 @@
             }
         }
 
+        // ✅ NUEVA FUNCIÓN: Inicializar dash.js después de cargar vistas
+        async function initializeDashJS() {
+            console.log('🚀 Initializing dash.js functionality...');
+            
+            try {
+                // Verificar si las funciones de dash.js están disponibles
+                if (typeof window.initializeDashboard === 'function') {
+                    console.log('✅ dash.js functions are available');
+                    
+                    // Inicializar componentes específicos según la vista actual
+                    switch(appState.currentView) {
+                        case 'dashboard':
+                            if (window.initializeDashboard) {
+                                window.initializeDashboard();
+                            }
+                            break;
+                        case 'practices':
+                            if (window.initializePracticesTable) {
+                                window.initializePracticesTable();
+                            }
+                            break;
+                        case 'agenda':
+                            if (window.generateAgendaSchedule) {
+                                window.generateAgendaSchedule();
+                            }
+                            break;
+                        case 'users':
+                            if (window.initializeUsersTable) {
+                                window.initializeUsersTable();
+                            }
+                            break;
+                        case 'reports':
+                            if (window.initializeReportsTable) {
+                                window.initializeReportsTable();
+                            }
+                            break;
+                        case 'settings':
+                            // Configuración se inicializa automáticamente
+                            break;
+                    }
+                    
+                    // ✅ CONECTAR EVENT LISTENERS ESPECÍFICOS DE DASH.JS
+                    reconnectDashListeners();
+                    
+                } else {
+                    console.warn('❌ dash.js functions not available yet');
+                    // Reintentar en 500ms
+                    setTimeout(initializeDashJS, 500);
+                }
+            } catch (error) {
+                console.error('Error initializing dash.js:', error);
+            }
+        }
+
+        // ✅ NUEVA FUNCIÓN: Reconectar listeners específicos de dash.js
+        function reconnectDashListeners() {
+            console.log('🔗 Reconnecting dash.js listeners...');
+            
+            try {
+                // Botones de prácticas
+                const addPracticeBtn = document.getElementById('add-practice-btn');
+                const addPracticeAgendaBtn = document.getElementById('add-practice-agenda-btn');
+                
+                if (addPracticeBtn) {
+                    addPracticeBtn.onclick = function() {
+                        if (window.openNewPracticeModal) {
+                            window.openNewPracticeModal();
+                        }
+                    };
+                }
+                
+                if (addPracticeAgendaBtn) {
+                    addPracticeAgendaBtn.onclick = function() {
+                        if (window.openNewPracticeModal) {
+                            window.openNewPracticeModal();
+                        }
+                    };
+                }
+                
+                // Botones de usuarios
+                const addUserBtn = document.getElementById('add-user-btn');
+                if (addUserBtn) {
+                    addUserBtn.onclick = function() {
+                        if (window.openNewUserModal) {
+                            window.openNewUserModal();
+                        }
+                    };
+                }
+                
+                // Botones de exportación
+                const exportPdfBtn = document.getElementById('export-pdf-btn');
+                const exportReportsBtn = document.getElementById('export-reports-btn');
+                
+                if (exportPdfBtn) {
+                    exportPdfBtn.onclick = function() {
+                        if (window.showSuccessMessage) {
+                            window.showSuccessMessage('Función no disponible');
+                        }
+                    };
+                }
+                
+                if (exportReportsBtn) {
+                    exportReportsBtn.onclick = function() {
+                        if (window.showSuccessMessage) {
+                            window.showSuccessMessage('Función no disponible');
+                        }
+                    };
+                }
+                
+                // Botones de filtros
+                const resetFiltersBtn = document.getElementById('reset-filters');
+                if (resetFiltersBtn) {
+                    resetFiltersBtn.onclick = function() {
+                        if (window.resetFilters) {
+                            window.resetFilters();
+                        }
+                    };
+                }
+                
+                console.log('✅ dash.js listeners reconnected');
+            } catch (error) {
+                console.error('Error reconnecting dash.js listeners:', error);
+            }
+        }
+
         // Cargar las secciones al iniciar
         document.addEventListener('DOMContentLoaded', async function() {
             try {
@@ -215,7 +343,7 @@
             }
         });
 
-        // Función para cargar vistas
+        // Función para cargar vistas - MEJORADA
         async function loadView(viewName) {
             try {
                 const viewFile = appState.views[viewName];
@@ -226,35 +354,40 @@
                 console.log('🔄 Loading view:', viewName);
                 
                 const success = await loadHTML(viewFile, 'views-container');
-
-if (success) {
-    // REMOVER la clase hidden de la vista actual y OCULTAR las demás
-    const allViews = ['dashboard-view', 'practices-view', 'agenda-view', 'users-view', 'reports-view', 'settings-view'];
-    
-    allViews.forEach(viewId => {
-        const viewElement = document.getElementById(viewId);
-        if (viewElement) {
-            if (viewId === `${viewName}-view`) {
-                viewElement.classList.remove('hidden');
-                viewElement.classList.add('fade-in');
-            } else {
-                viewElement.classList.add('hidden');
-                viewElement.classList.remove('fade-in');
-            }
-        }
-    });
-    
-    appState.currentView = viewName;
-    updateActiveSidebarLink(viewName);
-    initializeViewComponents(viewName);
-    // Reconectar event listeners después de cargar nueva vista
-    reconnectNavigationListeners();
-}
+                
+                if (success) {
+                    // Remover cualquier clase hidden que pueda tener el contenido cargado
+                    const viewsContainer = document.getElementById('views-container');
+                    const loadedView = viewsContainer.querySelector(`#${viewName}-view`);
+                    
+                    if (loadedView) {
+                        loadedView.classList.remove('hidden');
+                        loadedView.classList.add('fade-in');
+                    } else {
+                        // Si no encuentra por ID, remover hidden del primer div dentro del container
+                        const firstDiv = viewsContainer.querySelector('div');
+                        if (firstDiv) {
+                            firstDiv.classList.remove('hidden');
+                            firstDiv.classList.add('fade-in');
+                        }
+                    }
+                    
+                    appState.currentView = viewName;
+                    updateActiveSidebarLink(viewName);
+                    
+                    // ✅ INICIALIZAR DASH.JS DESPUÉS DE CARGAR LA VISTA
+                    setTimeout(() => {
+                        initializeDashJS();
+                    }, 300);
+                    
+                    // Reconectar event listeners después de cargar nueva vista
+                    reconnectNavigationListeners();
+                }
                 
             } catch (error) {
                 console.error('Error loading view:', error);
                 document.getElementById('views-container').innerHTML = `
-                    <div class="p-6 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded-lg">
+                    <div class="p-6 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded-lg fade-in">
                         <h2 class="text-lg font-bold">Vista no disponible</h2>
                         <p>No se pudo cargar: ${viewName}</p>
                         <div class="mt-3 space-x-2">
@@ -294,40 +427,6 @@ if (success) {
                 });
             }, 100);
         }
-
-        function initializeViewComponents(viewName) {
-            console.log('Initializing components for:', viewName);
-            
-            setTimeout(() => {
-                try {
-                    // Aquí puedes inicializar componentes específicos de cada vista
-                    switch(viewName) {
-                        case 'dashboard':
-                            if (window.initializeDashboard) initializeDashboard();
-                            break;
-                        case 'practices':
-                            if (window.initializePractices) initializePractices();
-                            break;
-                        case 'agenda':
-                            if (window.initializeAgenda) initializeAgenda();
-                            break;
-                        case 'users':
-                            if (window.initializeUsers) initializeUsers();
-                            break;
-                        case 'reports':
-                            if (window.initializeReports) initializeReports();
-                            break;
-                        case 'settings':
-                            if (window.initializeSettings) initializeSettings();
-                            break;
-                    }
-                } catch (error) {
-                    console.error(`Error initializing ${viewName} components:`, error);
-                }
-            }, 200);
-        }
-
-        // === SOLO MODIFIQUE DESDE AQUÍ HACIA ABAJO ===
 
         // NUEVA FUNCIÓN: Reconectar listeners de navegación
         function reconnectNavigationListeners() {
@@ -413,7 +512,7 @@ if (success) {
             console.log('✅ Event listeners initialized');
         }
 
-        // Funciones globales para compatibilidad (MANTENIDAS)
+        // Funciones globales para compatibilidad
         window.showView = showView;
         window.loadView = loadView;
         window.closeMobileMenu = function() {
@@ -429,7 +528,7 @@ if (success) {
             }
         };
 
-        // Tailwind config (MANTENIDO)
+        // Tailwind config
         tailwind.config = {
             darkMode: "class",
             theme: {

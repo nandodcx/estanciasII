@@ -1,3 +1,14 @@
+// Configuración de la API
+const API_CONFIG = {
+    BASE_URL: 'http://localhost:3000/api',
+    ENDPOINTS: {
+        RESERVAS: '/reservas',
+        USUARIOS: '/usuarios',
+        LABORATORIOS: '/laboratorios',
+        AUTH: '/auth'
+    }
+};
+
 // Estado de configuración
 const appSettings = {
     darkMode: true,
@@ -283,82 +294,92 @@ const translations = {
     }
 };
 
-// Datos de ejemplo actualizados para la tabla de prácticas - CORREGIDOS
-let practiceData = [
-    { 
-        id: 1, 
-        date: '2024-01-15', // Lunes
-        practice: 'Laboratorio MAC', 
-        professor: 'Dr. Fued', 
-        subject: 'Programación Concurrente', 
-        status: 'programada', 
-        time: '7:00',
-        objective: 'Programación de hilos en web.',
-        lab: 'Laboratorio 3A'
-    },
-    { 
-        id: 2, 
-        date: '2024-01-15', // Lunes
-        practice: 'Laboratorio Linux', 
-        professor: 'Prof. Estefano', 
-        subject: 'Sistemas Operativos', 
-        status: 'confirmada', 
-        time: '9:00',
-        objective: 'Instalación de un sistema operativo dual.',
-        lab: 'Laboratorio 2B'
-    },
-    { 
-        id: 3, 
-        date: '2024-01-16', // Martes
-        practice: 'Laboratorio Windows', 
-        professor: 'Prof. Ricardo', 
-        subject: 'Programación I', 
-        status: 'en-curso', 
-        time: '11:00',
-        objective: 'Instalación de un sistema operativo dual.',
-        lab: 'Laboratorio 1C'
-    },
-    { 
-        id: 4, 
-        date: '2024-01-17', // Miércoles
-        practice: 'Laboratorio Windows', 
-        professor: 'Prof. Valeria', 
-        subject: 'Liderazgo eq. Alto desempeño', 
-        status: 'cancelada', 
-        time: '14:00',
-        objective: 'Examen de conocimientos.',
-        lab: 'Aula 4'
-    },
-    { 
-        id: 5, 
-        date: '2024-01-18', // Jueves
-        practice: 'Laboratorio Windows', 
-        professor: 'Prof. Valeria', 
-        subject: 'Liderazgo eq. Alto desempeño', 
-        status: 'completada', 
-        time: '16:00',
-        objective: 'En cuesta de...',
-        lab: 'Aula 4'
-    }
-];
+// Datos de ejemplo para backup (si falla la API)
+function getDefaultPracticeData() {
+    return [
+        { 
+            id: 1, 
+            date: '2024-01-15',
+            practice: 'Laboratorio MAC', 
+            professor: 'Dr. Fued', 
+            subject: 'Programación Concurrente', 
+            status: 'programada', 
+            time: '7:00',
+            objective: 'Programación de hilos en web.',
+            lab: 'Laboratorio 3A'
+        },
+        { 
+            id: 2, 
+            date: '2024-01-15',
+            practice: 'Laboratorio Linux', 
+            professor: 'Prof. Estefano', 
+            subject: 'Sistemas Operativos', 
+            status: 'confirmada', 
+            time: '9:00',
+            objective: 'Instalación de un sistema operativo dual.',
+            lab: 'Laboratorio 2B'
+        },
+        { 
+            id: 3, 
+            date: '2024-01-16',
+            practice: 'Laboratorio Windows', 
+            professor: 'Prof. Ricardo', 
+            subject: 'Programación I', 
+            status: 'en-curso', 
+            time: '11:00',
+            objective: 'Instalación de un sistema operativo dual.',
+            lab: 'Laboratorio 1C'
+        },
+        { 
+            id: 4, 
+            date: '2024-01-17',
+            practice: 'Laboratorio Windows', 
+            professor: 'Prof. Valeria', 
+            subject: 'Liderazgo eq. Alto desempeño', 
+            status: 'cancelada', 
+            time: '14:00',
+            objective: 'Examen de conocimientos.',
+            lab: 'Aula 4'
+        },
+        { 
+            id: 5, 
+            date: '2024-01-18',
+            practice: 'Laboratorio Windows', 
+            professor: 'Prof. Valeria', 
+            subject: 'Liderazgo eq. Alto desempeño', 
+            status: 'completada', 
+            time: '16:00',
+            objective: 'En cuesta de...',
+            lab: 'Aula 4'
+        }
+    ];
+}
 
-// Datos de ejemplo para usuarios
-let usersData = [
-    { id: 1, name: 'Administrador', username: 'admin', email: 'admin@universidad.edu', role: 'Administrador', status: 'Activo', lastAccess: 'Hoy, 10:30 AM' }
-];
+function getDefaultUsersData() {
+    return [
+        { id: 1, name: 'Administrador', username: 'admin', email: 'admin@universidad.edu', role: 'Administrador', status: 'Activo', lastAccess: 'Hoy, 10:30 AM' },
+        { id: 2, name: 'Profesor Ejemplo', username: 'profesor', email: 'profesor@universidad.edu', role: 'Profesor', status: 'Activo', lastAccess: 'Ayer' }
+    ];
+}
 
-// Datos de ejemplo para reportes
-let reportsData = [
-    { id: 1, date: '2024-01-15', practice: 'Laboratorio MAC', objective: 'Programación de hilos en web.', professor: 'Dr. Fued', subject: 'Programación Concurrente' },
-    { id: 2, date: '2024-01-15', practice: 'Laboratorio Linux', objective: 'Instalación de un sistema operativo dual.', professor: 'Prof. Estefano', subject: 'Sistemas Operativos' },
-    { id: 3, date: '2024-01-16', practice: 'Laboratorio Windows', objective: 'Instalación de un sistema operativo dual.', professor: 'Prof. Ricardo', subject: 'Programación I' },
-    { id: 4, date: '2024-01-17', practice: 'Laboratorio Windows', objective: 'Examen de conocimientos.', professor: 'Prof. Valeria', subject: 'Liderazgo eq. Alto desempeño' },
-    { id: 5, date: '2024-01-18', practice: 'Laboratorio Windows', objective: 'En cuesta de...', professor: 'Prof. Valeria', subject: 'Liderazgo eq. Alto desempeño' }
-];
+function getDefaultReportsData() {
+    const practices = getDefaultPracticeData();
+    return practices.map(practice => ({
+        id: practice.id,
+        date: practice.date,
+        practice: practice.practice,
+        objective: practice.objective,
+        professor: practice.professor,
+        subject: practice.subject
+    }));
+}
 
 // Estado de la aplicación
-let currentData = [...practiceData];
-let currentReportsData = [...reportsData];
+let practiceData = [];
+let usersData = [];
+let reportsData = [];
+let currentData = [];
+let currentReportsData = [];
 let sortColumn = 'date';
 let sortDirection = 'asc';
 let currentFilters = {
@@ -372,18 +393,209 @@ let currentReportsFilters = {
     status: ''
 };
 
-// Horarios ocupados para la agenda - CORREGIDO
+// Horarios ocupados para la agenda
 let scheduleOccupancy = {};
-// Slot temporal seleccionado - NUEVO
 window.selectedTimeSlot = null;
 
-// Funciones para el modal de cerrar sesión - ADAPTADAS DEL CÓDIGO MÁS PEQUEÑO
+// =================== FUNCIONES DE API ===================
+async function fetchFromAPI(endpoint, options = {}) {
+    try {
+        const url = `${API_CONFIG.BASE_URL}${endpoint}`;
+        const defaultOptions = {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include'
+        };
+        
+        console.log(`Solicitando: ${url}`);
+        const response = await fetch(url, { ...defaultOptions, ...options });
+        
+        console.log(`Respuesta: ${response.status} ${response.statusText}`);
+        
+        if (response.status === 401 || response.status === 403) {
+            console.warn('Acceso no autorizado, redirigiendo a login...');
+            window.location.href = '/login';
+            return null;
+        }
+        
+        if (!response.ok) {
+            console.warn(`API ${endpoint} respondió con error: ${response.status}`);
+            return null;
+        }
+        
+        // Verificar si la respuesta tiene contenido
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return await response.json();
+        } else {
+            console.warn(`Respuesta no JSON de ${endpoint}`);
+            return null;
+        }
+    } catch (error) {
+        console.warn(`Error de red al conectar con ${endpoint}:`, error.message);
+        return null;
+    }
+}
+
+// Cargar reservas (prácticas) desde la API
+async function loadPracticesFromAPI() {
+    try {
+        console.log('Cargando prácticas desde API...');
+        const data = await fetchFromAPI(API_CONFIG.ENDPOINTS.RESERVAS);
+        
+        if (!data || !Array.isArray(data)) {
+            console.warn('API de prácticas no devolvió datos válidos, usando datos locales');
+            return false;
+        }
+        
+        // Transformar datos de la API al formato esperado por la UI
+        practiceData = data.map(reserva => ({
+            id: reserva.id_reserva || reserva.id || Date.now(),
+            date: reserva.fecha || new Date().toISOString().split('T')[0],
+            time: reserva.hora || '09:00',
+            practice: reserva.nombre_practica || `Práctica ${reserva.id_reserva || ''}`,
+            professor: reserva.nombre_usuario || reserva.profesor || 'Sin asignar',
+            subject: reserva.nombre_materia || reserva.materia || 'Sin asignatura',
+            status: mapStatus(reserva.estado),
+            objective: reserva.descripcion || reserva.objetivo || '',
+            lab: reserva.nombre_laboratorio || reserva.laboratorio || 'Sin laboratorio'
+        }));
+        
+        currentData = [...practiceData];
+        
+        // Generar datos para reportes
+        reportsData = practiceData.map(practice => ({
+            id: practice.id,
+            date: practice.date,
+            practice: practice.practice,
+            objective: practice.objective,
+            professor: practice.professor,
+            subject: practice.subject
+        }));
+        
+        currentReportsData = [...reportsData];
+        
+        console.log(`Prácticas cargadas: ${practiceData.length}`);
+        return true;
+    } catch (error) {
+        console.error('Error inesperado al cargar prácticas:', error);
+        return false;
+    }
+}
+
+// Cargar usuarios desde la API
+async function loadUsersFromAPI() {
+    try {
+        console.log('Cargando usuarios desde API...');
+        const data = await fetchFromAPI(API_CONFIG.ENDPOINTS.USUARIOS);
+        
+        if (!data || !Array.isArray(data)) {
+            console.warn('API de usuarios no devolvió datos válidos, usando datos locales');
+            return false;
+        }
+        
+        usersData = data.map(usuario => ({
+            id: usuario.id_usuario || usuario.id || Date.now(),
+            name: usuario.nombre_completo || usuario.nombre || usuario.email || 'Usuario',
+            username: usuario.username || (usuario.email ? usuario.email.split('@')[0] : 'user'),
+            email: usuario.email || 'sin-email@ejemplo.com',
+            role: mapRole(usuario.rol_id || usuario.rol),
+            status: usuario.activo || usuario.estado === 'activo' ? 'Activo' : 'Inactivo',
+            lastAccess: formatLastAccess(usuario.ultimo_login || usuario.last_login)
+        }));
+        
+        console.log(`Usuarios cargados: ${usersData.length}`);
+        return true;
+    } catch (error) {
+        console.error('Error inesperado al cargar usuarios:', error);
+        return false;
+    }
+}
+
+// Map de estado de la API al formato UI
+function mapStatus(estado) {
+    if (!estado) return 'programada';
+    
+    const statusMap = {
+        'pendiente': 'programada',
+        'confirmada': 'confirmada',
+        'en_progreso': 'en-curso',
+        'en progreso': 'en-curso',
+        'completada': 'completada',
+        'cancelada': 'cancelada',
+        'aprobada': 'confirmada',
+        'rechazada': 'cancelada',
+        'programada': 'programada'
+    };
+    return statusMap[estado.toLowerCase()] || 'programada';
+}
+
+// Map de rol de la API al formato UI
+function mapRole(rol) {
+    if (!rol) return 'Estudiante';
+    
+    // Si es número
+    if (typeof rol === 'number') {
+        const roleMap = {
+            1: 'Administrador',
+            2: 'Profesor',
+            3: 'Estudiante'
+        };
+        return roleMap[rol] || 'Estudiante';
+    }
+    
+    // Si es string
+    const roleMap = {
+        'admin': 'Administrador',
+        'administrador': 'Administrador',
+        'profesor': 'Profesor',
+        'teacher': 'Profesor',
+        'estudiante': 'Estudiante',
+        'student': 'Estudiante'
+    };
+    return roleMap[rol.toLowerCase()] || 'Estudiante';
+}
+
+// Formatear último acceso
+function formatLastAccess(timestamp) {
+    if (!timestamp) return 'Nunca';
+    
+    try {
+        const date = new Date(timestamp);
+        if (isNaN(date.getTime())) return 'Nunca';
+        
+        const now = new Date();
+        const diffMs = now - date;
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 0) {
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            if (diffHours === 0) {
+                const diffMinutes = Math.floor(diffMs / (1000 * 60));
+                return diffMinutes === 0 ? 'Hace unos momentos' : `Hace ${diffMinutes} minutos`;
+            }
+            return `Hace ${diffHours} horas`;
+        }
+        if (diffDays === 1) return 'Ayer';
+        if (diffDays < 7) return `Hace ${diffDays} días`;
+        
+        return date.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+    } catch (e) {
+        return 'Nunca';
+    }
+}
+
+// Funciones para el modal de cerrar sesión
 function abrirModalCerrarSesion() {
     const modal = document.getElementById('logout-modal');
     if (modal) {
         modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
-        // Oscurecer el header
         document.getElementById('header-container').classList.add('modal-open');
     }
 }
@@ -393,22 +605,20 @@ function cerrarModalCerrarSesion() {
     if (modal) {
         modal.classList.add('hidden');
         document.body.style.overflow = 'auto';
-        // Restaurar el header
         document.getElementById('header-container').classList.remove('modal-open');
     }
 }
 
 function confirmarCerrarSesion() {
     if (confirm('¿Está seguro de que desea cerrar sesión?')) {
-        alert('Cerrando sesión...');
-        // window.location.href = 'login.html';
-        cerrarModalCerrarSesion();
+        fetchFromAPI('/auth/logout', { method: 'POST' });
+        window.location.href = '/login';
     }
 }
 
-// Inicialización - CORREGIDA
-document.addEventListener('DOMContentLoaded', function() {
-    // Configurar listeners para el modal de cerrar sesión - ADAPTADO DEL CÓDIGO MÁS PEQUEÑO
+// Inicialización - VERSIÓN ROBUSTA
+document.addEventListener('DOMContentLoaded', async function() {
+    // Configurar listeners para el modal de cerrar sesión
     const closeLogoutModal = document.getElementById('close-logout-modal');
     const cancelLogout = document.getElementById('cancel-logout');
     const confirmLogout = document.getElementById('confirm-logout');
@@ -431,50 +641,137 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Primero cargar configuración para aplicar modo oscuro e idioma
+    // Primero cargar configuración
     loadSettings();
     
-    // Luego inicializar el resto de la aplicación
-    initializeDashboard();
-    initializePracticesTable();
-    initializeUsersTable();
-    initializeReportsTable();
-    setupEventListeners();
-    updateResultsCount();
-    updateReportsResultsCount();
-    generateAgendaSchedule();
+    // Mostrar loading
+    showLoading();
     
-    // Configurar menú hamburguesa y modales del header
-    setupHeaderFunctionality();
-    setupUserModalListeners();
-    setupModalListeners();
-    
-    // Configurar listeners de configuración
-    setupSettingsListeners();
-    
-    // Mostrar Dashboard por defecto
-    showView('dashboard-view');
-    
-    // Cargar las nuevas vistas de actividades y prácticas
-    loadRecentActivities();
-    loadUpcomingPractices();
+    try {
+        // Intentar cargar datos desde API
+        let practicesLoaded = false;
+        let usersLoaded = false;
+        
+        // Intentar cargar prácticas
+        try {
+            practicesLoaded = await loadPracticesFromAPI();
+        } catch (practiceError) {
+            console.warn('No se pudieron cargar prácticas desde API:', practiceError);
+            practicesLoaded = false;
+        }
+        
+        // Intentar cargar usuarios
+        try {
+            usersLoaded = await loadUsersFromAPI();
+        } catch (userError) {
+            console.warn('No se pudieron cargar usuarios desde API:', userError);
+            usersLoaded = false;
+        }
+        
+        // Si ninguna API funcionó, usar datos locales
+        if (!practicesLoaded && !usersLoaded) {
+            console.log('Usando datos de ejemplo locales');
+            practiceData = getDefaultPracticeData();
+            usersData = getDefaultUsersData();
+            reportsData = getDefaultReportsData();
+            currentData = [...practiceData];
+            currentReportsData = [...reportsData];
+        }
+        
+        // Inicializar el resto de la aplicación
+        initializeApplication();
+        
+    } catch (error) {
+        console.error('Error crítico durante inicialización:', error);
+        // En caso de error crítico, usar datos locales y continuar
+        practiceData = getDefaultPracticeData();
+        usersData = getDefaultUsersData();
+        reportsData = getDefaultReportsData();
+        currentData = [...practiceData];
+        currentReportsData = [...reportsData];
+        initializeApplication();
+    } finally {
+        // Ocultar loading
+        hideLoading();
+    }
 });
+
+// Función separada para inicializar la aplicación
+function initializeApplication() {
+    try {
+        initializeDashboard();
+        initializePracticesTable();
+        initializeUsersTable();
+        initializeReportsTable();
+        setupEventListeners();
+        updateResultsCount();
+        updateReportsResultsCount();
+        generateAgendaSchedule();
+        
+        setupHeaderFunctionality();
+        setupUserModalListeners();
+        setupModalListeners();
+        setupSettingsListeners();
+        
+        showView('dashboard-view');
+        
+        loadRecentActivities();
+        loadUpcomingPractices();
+        
+        console.log('Aplicación inicializada correctamente');
+    } catch (error) {
+        console.error('Error al inicializar componentes de la aplicación:', error);
+        alert('Error al cargar la interfaz. Algunas funciones pueden no estar disponibles.');
+    }
+}
+
+// Funciones de loading
+function showLoading() {
+    let loadingElement = document.getElementById('loading-overlay');
+    if (!loadingElement) {
+        loadingElement = document.createElement('div');
+        loadingElement.id = 'loading-overlay';
+        loadingElement.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        loadingElement.innerHTML = `
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl">
+                <div class="flex items-center space-x-3">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <span class="text-gray-700 dark:text-gray-300">Cargando datos...</span>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(loadingElement);
+    } else {
+        loadingElement.classList.remove('hidden');
+    }
+}
+
+function hideLoading() {
+    const loadingElement = document.getElementById('loading-overlay');
+    if (loadingElement) {
+        loadingElement.classList.add('hidden');
+    }
+}
 
 // Cargar configuración guardada
 function loadSettings() {
-    const savedSettings = localStorage.getItem('appSettings');
-    if (savedSettings) {
-        const settings = JSON.parse(savedSettings);
-        appSettings.darkMode = settings.darkMode;
-        appSettings.emailNotifications = settings.emailNotifications;
-        appSettings.language = settings.language;
-    }
+    try {
+        const savedSettings = localStorage.getItem('appSettings');
+        if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            appSettings.darkMode = settings.darkMode !== undefined ? settings.darkMode : true;
+            appSettings.emailNotifications = settings.emailNotifications !== undefined ? settings.emailNotifications : true;
+            appSettings.language = settings.language || 'es';
+        }
 
-    // Aplicar configuración
-    applySettings();
+        applySettings();
+    } catch (error) {
+        console.error('Error al cargar configuración:', error);
+        applySettings();
+    }
 }
 
-// Aplicar configuración a la interfaz - VERSIÓN MEJORADA
+// Aplicar configuración a la interfaz
 function applySettings() {
     // Modo oscuro
     if (appSettings.darkMode) {
@@ -483,88 +780,97 @@ function applySettings() {
         document.documentElement.classList.remove('dark');
     }
     
-    // Actualizar controles con los valores actuales de appSettings
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-    const emailNotificationsToggle = document.getElementById('email-notifications');
-    const languageSelect = document.getElementById('language');
-    
-    if (darkModeToggle) darkModeToggle.checked = appSettings.darkMode;
-    if (emailNotificationsToggle) emailNotificationsToggle.checked = appSettings.emailNotifications;
-    if (languageSelect) languageSelect.value = appSettings.language;
-    
-    // Aplicar traducciones
-    applyTranslations(appSettings.language);
-    
-    console.log('Configuración aplicada:', appSettings);
+    try {
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const emailNotificationsToggle = document.getElementById('email-notifications');
+        const languageSelect = document.getElementById('language');
+        
+        if (darkModeToggle) darkModeToggle.checked = appSettings.darkMode;
+        if (emailNotificationsToggle) emailNotificationsToggle.checked = appSettings.emailNotifications;
+        if (languageSelect) languageSelect.value = appSettings.language;
+        
+        applyTranslations(appSettings.language);
+    } catch (error) {
+        console.error('Error al aplicar configuración:', error);
+    }
 }
 
 // Aplicar traducciones
 function applyTranslations(language) {
-    const elements = document.querySelectorAll('[data-i18n]');
-    elements.forEach(element => {
-        const key = element.getAttribute('data-i18n');
-        if (translations[language] && translations[language][key]) {
-            if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
-                element.placeholder = translations[language][key];
-            } else {
-                element.textContent = translations[language][key];
+    try {
+        const elements = document.querySelectorAll('[data-i18n]');
+        elements.forEach(element => {
+            const key = element.getAttribute('data-i18n');
+            if (translations[language] && translations[language][key]) {
+                if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                    element.placeholder = translations[language][key];
+                } else if (element.textContent !== undefined) {
+                    element.textContent = translations[language][key];
+                }
             }
-        }
-    });
+        });
+    } catch (error) {
+        console.error('Error al aplicar traducciones:', error);
+    }
 }
 
-// Configurar listeners de configuración - VERSIÓN CORREGIDA
+// Configurar listeners de configuración
 function setupSettingsListeners() {
-    // Modo oscuro
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-    if (darkModeToggle) {
-        darkModeToggle.addEventListener('change', function() {
-            appSettings.darkMode = this.checked;
-            // NO guardar automáticamente aquí - solo cuando se presione el botón Guardar
-        });
-    }
+    try {
+        // Modo oscuro
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('change', function() {
+                appSettings.darkMode = this.checked;
+            });
+        }
 
-    // Notificaciones por email
-    const emailNotificationsToggle = document.getElementById('email-notifications');
-    if (emailNotificationsToggle) {
-        emailNotificationsToggle.addEventListener('change', function() {
-            appSettings.emailNotifications = this.checked;
-            // NO guardar automáticamente aquí - solo cuando se presione el botón Guardar
-        });
-    }
+        // Notificaciones por email
+        const emailNotificationsToggle = document.getElementById('email-notifications');
+        if (emailNotificationsToggle) {
+            emailNotificationsToggle.addEventListener('change', function() {
+                appSettings.emailNotifications = this.checked;
+            });
+        }
 
-    // Idioma
-    const languageSelect = document.getElementById('language');
-    if (languageSelect) {
-        languageSelect.addEventListener('change', function() {
-            appSettings.language = this.value;
-            // NO guardar automáticamente aquí - solo cuando se presione el botón Guardar
-        });
-    }
+        // Idioma
+        const languageSelect = document.getElementById('language');
+        if (languageSelect) {
+            languageSelect.addEventListener('change', function() {
+                appSettings.language = this.value;
+            });
+        }
 
-    // Guardar configuración - CORREGIDO
-    const saveSettingsBtn = document.getElementById('save-settings');
-    if (saveSettingsBtn) {
-        saveSettingsBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Aplicar TODOS los cambios pendientes
-            applySettings();
-            saveSettings();
-            
-            // Mostrar mensaje de éxito específico
-            showSuccessMessage('Configuración guardada correctamente');
-            
-            console.log('Configuración guardada:', appSettings);
-        });
+        // Guardar configuración
+        const saveSettingsBtn = document.getElementById('save-settings');
+        if (saveSettingsBtn) {
+            saveSettingsBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                try {
+                    applySettings();
+                    saveSettings();
+                    showSuccessMessage('Configuración guardada correctamente');
+                    console.log('Configuración guardada:', appSettings);
+                } catch (error) {
+                    console.error('Error al guardar configuración:', error);
+                    showSuccessMessage('Error al guardar configuración');
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error al configurar listeners de settings:', error);
     }
 }
 
 // Guardar configuración
 function saveSettings() {
-    localStorage.setItem('appSettings', JSON.stringify(appSettings));
-    
-    console.log('Configuración guardada en localStorage:', appSettings);
+    try {
+        localStorage.setItem('appSettings', JSON.stringify(appSettings));
+        console.log('Configuración guardada en localStorage:', appSettings);
+    } catch (error) {
+        console.error('Error al guardar configuración:', error);
+    }
 }
 
 // Configurar funcionalidades del header
@@ -580,7 +886,6 @@ function setupHeaderFunctionality() {
             hamburgerMenu.classList.toggle('active');
         });
         
-        // Cerrar menú al hacer clic fuera de él
         document.addEventListener('click', function(event) {
             if (!hamburgerMenu.contains(event.target) && !mobileMenu.contains(event.target)) {
                 mobileMenu.classList.remove('active');
@@ -589,11 +894,10 @@ function setupHeaderFunctionality() {
         });
     }
 
-    // Botón de iniciales del usuario - QUITADA LA FUNCIÓN DE CERRAR SESIÓN
+    // Botón de iniciales del usuario
     if (userInitialsBtn) {
         userInitialsBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            // Función eliminada - ya no abre el modal de cerrar sesión
             console.log("Inicial del usuario clickeada - función deshabilitada");
         });
     }
@@ -603,7 +907,6 @@ function setupHeaderFunctionality() {
 function setupUserModalListeners() {
     const addUserBtn = document.getElementById('add-user-btn');
     
-    // Botón para agregar usuario
     if (addUserBtn) {
         addUserBtn.addEventListener('click', function() {
             openNewUserModal();
@@ -613,18 +916,14 @@ function setupUserModalListeners() {
 
 // Abrir modal para nuevo usuario
 function openNewUserModal() {
-    // Limpiar el formulario
     document.getElementById('edit-user-form').reset();
     document.getElementById('edit-user-id').value = '';
     
-    // Cambiar título del modal
     document.getElementById('edit-user-modal-title').textContent = 'Agregar Usuario';
     
-    // Mostrar modal
     const editUserModal = document.getElementById('edit-user-modal');
     editUserModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
-    // Oscurecer el header
     document.getElementById('header-container').classList.add('modal-open');
 }
 
@@ -633,7 +932,6 @@ function openEditUserModal(userId) {
     const user = usersData.find(u => u.id === userId);
     if (!user) return;
     
-    // Llenar el formulario con los datos actuales
     document.getElementById('edit-user-id').value = user.id;
     document.getElementById('edit-user-name').value = user.name;
     document.getElementById('edit-user-username').value = user.username;
@@ -641,29 +939,23 @@ function openEditUserModal(userId) {
     document.getElementById('edit-user-role').value = user.role;
     document.getElementById('edit-user-status').value = user.status;
     
-    // Cambiar título del modal
     document.getElementById('edit-user-modal-title').textContent = 'Editar Usuario';
     
-    // Mostrar modal
     const editUserModal = document.getElementById('edit-user-modal');
     editUserModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
-    // Oscurecer el header
     document.getElementById('header-container').classList.add('modal-open');
 }
 
 // Abrir modal para eliminar usuario
 function openDeleteUserModal(userId, userName) {
-    // Llenar la información del usuario a eliminar
     document.getElementById('delete-user-id').value = userId;
     document.getElementById('delete-user-name').textContent = userName;
     document.getElementById('delete-user-details').textContent = `Usuario: ${userName}`;
     
-    // Mostrar modal
     const deleteUserModal = document.getElementById('delete-user-modal');
     deleteUserModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
-    // Oscurecer el header
     document.getElementById('header-container').classList.add('modal-open');
 }
 
@@ -684,267 +976,334 @@ function closeMobileMenu() {
     if (hamburgerMenu) hamburgerMenu.classList.remove('active');
 }
 
-// Hacer las funciones globales
-window.mostrarPerfil = mostrarPerfil;
-window.abrirModalCerrarSesion = abrirModalCerrarSesion;
-window.cerrarModalCerrarSesion = cerrarModalCerrarSesion;
-window.confirmarCerrarSesion = confirmarCerrarSesion;
-window.closeMobileMenu = closeMobileMenu;
-
 // Inicializar dashboard
 function initializeDashboard() {
-    updateDashboardStats();
-    loadRecentActivities();
-    loadUpcomingPractices();
+    try {
+        updateDashboardStats();
+        loadRecentActivities();
+        loadUpcomingPractices();
+    } catch (error) {
+        console.error('Error al inicializar dashboard:', error);
+    }
 }
 
 // Actualizar estadísticas del dashboard
 function updateDashboardStats() {
-    // Actualizar total de prácticas
-    document.getElementById('total-practices').textContent = practiceData.length;
-    
-    // Calcular prácticas del mes actual
-    const currentMonth = new Date().getMonth() + 1;
-    const currentYear = new Date().getFullYear();
-    const monthPractices = practiceData.filter(practice => {
-        const practiceDate = new Date(practice.date);
-        return practiceDate.getMonth() + 1 === currentMonth && practiceDate.getFullYear() === currentYear;
-    }).length;
-    document.getElementById('month-practices').textContent = monthPractices;
-    
-    // Calcular número de profesores únicos
-    const professors = [...new Set(practiceData.map(item => item.professor))];
-    document.getElementById('total-professors').textContent = professors.length;
-    
-    // Calcular número de asignaturas únicas
-    const subjects = [...new Set(practiceData.map(item => item.subject))];
-    document.getElementById('total-subjects').textContent = subjects.length;
+    try {
+        // Actualizar total de prácticas
+        const totalPracticesEl = document.getElementById('total-practices');
+        if (totalPracticesEl) {
+            totalPracticesEl.textContent = practiceData.length;
+        }
+        
+        // Calcular prácticas del mes actual
+        const currentMonth = new Date().getMonth() + 1;
+        const currentYear = new Date().getFullYear();
+        const monthPractices = practiceData.filter(practice => {
+            try {
+                const practiceDate = new Date(practice.date);
+                return practiceDate.getMonth() + 1 === currentMonth && practiceDate.getFullYear() === currentYear;
+            } catch (e) {
+                return false;
+            }
+        }).length;
+        
+        const monthPracticesEl = document.getElementById('month-practices');
+        if (monthPracticesEl) {
+            monthPracticesEl.textContent = monthPractices;
+        }
+        
+        // Calcular número de profesores únicos
+        const professors = [...new Set(practiceData.map(item => item.professor).filter(Boolean))];
+        const totalProfessorsEl = document.getElementById('total-professors');
+        if (totalProfessorsEl) {
+            totalProfessorsEl.textContent = professors.length;
+        }
+        
+        // Calcular número de asignaturas únicas
+        const subjects = [...new Set(practiceData.map(item => item.subject).filter(Boolean))];
+        const totalSubjectsEl = document.getElementById('total-subjects');
+        if (totalSubjectsEl) {
+            totalSubjectsEl.textContent = subjects.length;
+        }
+    } catch (error) {
+        console.error('Error al actualizar estadísticas:', error);
+    }
 }
 
-// === NUEVAS FUNCIONES PARA ACTIVIDADES RECIENTES Y PRÓXIMAS PRÁCTICAS ===
-
-// Cargar Actividades Recientes (con nuevo diseño)
+// Cargar Actividades Recientes
 function loadRecentActivities() {
     const activitiesContainer = document.getElementById('recent-activities');
     if (!activitiesContainer) return;
     
-    activitiesContainer.innerHTML = '';
-    
-    // Ordenar prácticas por fecha (más recientes primero)
-    const sortedPractices = [...practiceData].sort((a, b) => 
-        new Date(b.date) - new Date(a.date)
-    );
-    
-    // Tomar las 4 más recientes
-    const recentPractices = sortedPractices.slice(0, 4);
-    
-    if (recentPractices.length === 0) {
-        activitiesContainer.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-inbox"></i>
-                <p>No hay actividad reciente</p>
-            </div>
-        `;
-        return;
-    }
-    
-    recentPractices.forEach(practice => {
-        const activityDiv = document.createElement('div');
-        activityDiv.className = 'activity-item';
-        activityDiv.setAttribute('data-practice-id', practice.id);
+    try {
+        activitiesContainer.innerHTML = '';
         
-        // Determinar tipo de actividad basado en el estado
-        let activityType, activityIcon, activityIconBg;
-        
-        switch(practice.status) {
-            case 'programada':
-                activityType = 'Nueva práctica programada';
-                activityIcon = 'fas fa-plus-circle';
-                activityIconBg = 'bg-blue-100 text-blue-600';
-                break;
-            case 'confirmada':
-                activityType = 'Práctica Confirmada';
-                activityIcon = 'fas fa-check-circle';
-                activityIconBg = 'bg-green-100 text-green-600';
-                break;
-            case 'en-curso':
-                activityType = 'Práctica en Curso';
-                activityIcon = 'fas fa-play-circle';
-                activityIconBg = 'bg-yellow-100 text-yellow-600';
-                break;
-            case 'completada':
-                activityType = 'Práctica Completada';
-                activityIcon = 'fas fa-flag-checkered';
-                activityIconBg = 'bg-gray-100 text-gray-600';
-                break;
-            case 'cancelada':
-                activityType = 'Práctica Cancelada';
-                activityIcon = 'fas fa-exclamation-triangle';
-                activityIconBg = 'bg-red-100 text-red-600';
-                break;
-            default:
-                activityType = 'Actividad de Práctica';
-                activityIcon = 'fas fa-laptop-code';
-                activityIconBg = 'bg-primary-100 text-primary-600';
-        }
-        
-        // Calcular tiempo relativo
-        const practiceDate = new Date(practice.date);
-        const now = new Date();
-        const diffTime = Math.abs(now - practiceDate);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        let timeText = '';
-        
-        if (diffDays === 1) {
-            timeText = 'Hoy';
-        } else if (diffDays === 2) {
-            timeText = 'Ayer';
-        } else if (diffDays <= 7) {
-            timeText = `Hace ${diffDays - 1} días`;
-        } else {
-            timeText = formatDate(practice.date);
-        }
-        
-        activityDiv.innerHTML = `
-            <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${activityIconBg}">
-                <i class="${activityIcon} text-sm"></i>
-            </div>
-            <div class="activity-content">
-                <p class="activity-title">${activityType}</p>
-                <p class="activity-detail">${practice.practice} - ${practice.professor}</p>
-                <p class="activity-time">${timeText}</p>
-            </div>
-        `;
-        
-        // Agregar evento click para abrir detalles
-        activityDiv.addEventListener('click', function() {
-            openEditModal(practice.id);
+        // Ordenar prácticas por fecha (más recientes primero)
+        const sortedPractices = [...practiceData].sort((a, b) => {
+            try {
+                return new Date(b.date) - new Date(a.date);
+            } catch (e) {
+                return 0;
+            }
         });
         
-        activitiesContainer.appendChild(activityDiv);
-    });
+        // Tomar las 4 más recientes
+        const recentPractices = sortedPractices.slice(0, 4);
+        
+        if (recentPractices.length === 0) {
+            activitiesContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>No hay actividad reciente</p>
+                </div>
+            `;
+            return;
+        }
+        
+        recentPractices.forEach(practice => {
+            try {
+                const activityDiv = document.createElement('div');
+                activityDiv.className = 'activity-item';
+                activityDiv.setAttribute('data-practice-id', practice.id);
+                
+                let activityType, activityIcon, activityIconBg;
+                
+                switch(practice.status) {
+                    case 'programada':
+                        activityType = 'Nueva práctica programada';
+                        activityIcon = 'fas fa-plus-circle';
+                        activityIconBg = 'bg-blue-100 text-blue-600';
+                        break;
+                    case 'confirmada':
+                        activityType = 'Práctica Confirmada';
+                        activityIcon = 'fas fa-check-circle';
+                        activityIconBg = 'bg-green-100 text-green-600';
+                        break;
+                    case 'en-curso':
+                        activityType = 'Práctica en Curso';
+                        activityIcon = 'fas fa-play-circle';
+                        activityIconBg = 'bg-yellow-100 text-yellow-600';
+                        break;
+                    case 'completada':
+                        activityType = 'Práctica Completada';
+                        activityIcon = 'fas fa-flag-checkered';
+                        activityIconBg = 'bg-gray-100 text-gray-600';
+                        break;
+                    case 'cancelada':
+                        activityType = 'Práctica Cancelada';
+                        activityIcon = 'fas fa-exclamation-triangle';
+                        activityIconBg = 'bg-red-100 text-red-600';
+                        break;
+                    default:
+                        activityType = 'Actividad de Práctica';
+                        activityIcon = 'fas fa-laptop-code';
+                        activityIconBg = 'bg-primary-100 text-primary-600';
+                }
+                
+                // Calcular tiempo relativo
+                let timeText = 'Reciente';
+                try {
+                    const practiceDate = new Date(practice.date);
+                    if (!isNaN(practiceDate.getTime())) {
+                        const now = new Date();
+                        const diffTime = Math.abs(now - practiceDate);
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        
+                        if (diffDays === 1) {
+                            timeText = 'Hoy';
+                        } else if (diffDays === 2) {
+                            timeText = 'Ayer';
+                        } else if (diffDays <= 7) {
+                            timeText = `Hace ${diffDays - 1} días`;
+                        } else {
+                            timeText = formatDate(practice.date);
+                        }
+                    }
+                } catch (e) {
+                    // Mantener texto por defecto
+                }
+                
+                activityDiv.innerHTML = `
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${activityIconBg}">
+                        <i class="${activityIcon} text-sm"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p class="activity-title">${activityType}</p>
+                        <p class="activity-detail">${practice.practice || 'Práctica'} - ${practice.professor || 'Sin profesor'}</p>
+                        <p class="activity-time">${timeText}</p>
+                    </div>
+                `;
+                
+                activityDiv.addEventListener('click', function() {
+                    try {
+                        openEditModal(practice.id);
+                    } catch (e) {
+                        console.error('Error al abrir modal:', e);
+                    }
+                });
+                
+                activitiesContainer.appendChild(activityDiv);
+            } catch (error) {
+                console.error('Error al crear actividad:', error);
+            }
+        });
+    } catch (error) {
+        console.error('Error al cargar actividades recientes:', error);
+        activitiesContainer.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Error al cargar actividades</p>
+            </div>
+        `;
+    }
 }
 
-// Cargar Próximas Prácticas (con nuevo diseño adaptado)
+// Cargar Próximas Prácticas
 function loadUpcomingPractices() {
     const upcomingContainer = document.getElementById('upcoming-practices');
     if (!upcomingContainer) return;
     
-    upcomingContainer.innerHTML = '';
-    
-    // Obtener fecha actual
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    // Filtrar prácticas futuras
-    const upcomingPractices = practiceData.filter(practice => {
-        const practiceDate = new Date(practice.date);
-        practiceDate.setHours(0, 0, 0, 0);
-        return practiceDate >= today;
-    }).sort((a, b) => new Date(a.date) - new Date(b.date));
-    
-    // Tomar las 4 próximas
-    const nextPractices = upcomingPractices.slice(0, 4);
-    
-    if (nextPractices.length === 0) {
+    try {
+        upcomingContainer.innerHTML = '';
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const upcomingPractices = practiceData.filter(practice => {
+            try {
+                const practiceDate = new Date(practice.date);
+                practiceDate.setHours(0, 0, 0, 0);
+                return practiceDate >= today;
+            } catch (e) {
+                return false;
+            }
+        }).sort((a, b) => {
+            try {
+                return new Date(a.date) - new Date(b.date);
+            } catch (e) {
+                return 0;
+            }
+        });
+        
+        const nextPractices = upcomingPractices.slice(0, 4);
+        
+        if (nextPractices.length === 0) {
+            upcomingContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times"></i>
+                    <p>No hay prácticas próximas</p>
+                </div>
+            `;
+            return;
+        }
+        
+        const practiceStatusStyles = {
+            'programada': { 
+                bg: 'bg-blue-50 dark:bg-blue-900/20',
+                tagBg: 'status-programada',
+                border: 'border-l-blue-500'
+            },
+            'confirmada': { 
+                bg: 'bg-green-50 dark:bg-green-900/20',
+                tagBg: 'status-confirmada',
+                border: 'border-l-green-500'
+            },
+            'en-curso': { 
+                bg: 'bg-yellow-50 dark:bg-yellow-900/20',
+                tagBg: 'status-en-curso',
+                border: 'border-l-yellow-500'
+            },
+            'completada': { 
+                bg: 'bg-gray-50 dark:bg-gray-900/20',
+                tagBg: 'status-completada',
+                border: 'border-l-gray-500'
+            },
+            'cancelada': { 
+                bg: 'bg-red-50 dark:bg-red-900/20',
+                tagBg: 'status-cancelada',
+                border: 'border-l-red-500'
+            }
+        };
+        
+        const statusTexts = {
+            'programada': 'Programada',
+            'confirmada': 'Confirmada',
+            'en-curso': 'En Curso',
+            'completada': 'Completada',
+            'cancelada': 'Cancelada'
+        };
+        
+        nextPractices.forEach(practice => {
+            try {
+                const styles = practiceStatusStyles[practice.status] || practiceStatusStyles['programada'];
+                const statusText = statusTexts[practice.status] || practice.status || 'Programada';
+                
+                const practiceDiv = document.createElement('div');
+                practiceDiv.className = `upcoming-practice-item ${styles.bg}`;
+                practiceDiv.setAttribute('data-practice-id', practice.id);
+                
+                // Formatear fecha
+                let dateText = 'Fecha no disponible';
+                try {
+                    const practiceDate = new Date(practice.date);
+                    if (!isNaN(practiceDate.getTime())) {
+                        dateText = practiceDate.toLocaleDateString('es-ES', { 
+                            day: 'numeric', 
+                            month: 'short',
+                            year: 'numeric'
+                        });
+                    }
+                } catch (e) {
+                    // Mantener texto por defecto
+                }
+                
+                const timeText = practice.time ? ` • ${practice.time}` : '';
+                
+                practiceDiv.innerHTML = `
+                    <div class="upcoming-practice-info">
+                        <div class="upcoming-practice-name">${practice.practice || 'Práctica sin nombre'}</div>
+                        <div class="upcoming-practice-meta">${practice.professor || 'Sin profesor'} - ${dateText}${timeText}</div>
+                    </div>
+                    <span class="upcoming-practice-status ${styles.tagBg}">${statusText}</span>
+                `;
+                
+                practiceDiv.addEventListener('click', function() {
+                    try {
+                        openEditModal(practice.id);
+                        
+                        const allItems = document.querySelectorAll('.upcoming-practice-item');
+                        allItems.forEach(item => item.classList.remove('ring-2', 'ring-primary'));
+                        
+                        practiceDiv.classList.add('ring-2', 'ring-primary');
+                    } catch (e) {
+                        console.error('Error al manejar clic en práctica:', e);
+                    }
+                });
+                
+                upcomingContainer.appendChild(practiceDiv);
+            } catch (error) {
+                console.error('Error al crear práctica:', error);
+            }
+        });
+    } catch (error) {
+        console.error('Error al cargar prácticas próximas:', error);
         upcomingContainer.innerHTML = `
             <div class="empty-state">
-                <i class="fas fa-calendar-times"></i>
-                <p>No hay prácticas próximas</p>
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Error al cargar prácticas</p>
             </div>
         `;
-        return;
     }
-    
-    // Mapeo de estados a estilos - Adaptado del diseño proporcionado
-    const practiceStatusStyles = {
-        'programada': { 
-            bg: 'bg-blue-50 dark:bg-blue-900/20',
-            tagBg: 'status-programada',
-            border: 'border-l-blue-500'
-        },
-        'confirmada': { 
-            bg: 'bg-green-50 dark:bg-green-900/20',
-            tagBg: 'status-confirmada',
-            border: 'border-l-green-500'
-        },
-        'en-curso': { 
-            bg: 'bg-yellow-50 dark:bg-yellow-900/20',
-            tagBg: 'status-en-curso',
-            border: 'border-l-yellow-500'
-        },
-        'completada': { 
-            bg: 'bg-gray-50 dark:bg-gray-900/20',
-            tagBg: 'status-completada',
-            border: 'border-l-gray-500'
-        },
-        'cancelada': { 
-            bg: 'bg-red-50 dark:bg-red-900/20',
-            tagBg: 'status-cancelada',
-            border: 'border-l-red-500'
-        }
-    };
-    
-    // Textos para estados
-    const statusTexts = {
-        'programada': 'Programada',
-        'confirmada': 'Confirmada',
-        'en-curso': 'En Curso',
-        'completada': 'Completada',
-        'cancelada': 'Cancelada'
-    };
-    
-    nextPractices.forEach(practice => {
-        const styles = practiceStatusStyles[practice.status] || practiceStatusStyles['programada'];
-        const statusText = statusTexts[practice.status] || practice.status;
-        
-        const practiceDiv = document.createElement('div');
-        practiceDiv.className = `upcoming-practice-item ${styles.bg}`;
-        practiceDiv.setAttribute('data-practice-id', practice.id);
-        
-        // Formatear fecha para mostrar
-        const practiceDate = new Date(practice.date);
-        const dateText = practiceDate.toLocaleDateString('es-ES', { 
-            day: 'numeric', 
-            month: 'short',
-            year: 'numeric'
-        });
-        
-        // Obtener hora si existe
-        const timeText = practice.time ? ` • ${practice.time}` : '';
-        
-        practiceDiv.innerHTML = `
-            <div class="upcoming-practice-info">
-                <div class="upcoming-practice-name">${practice.practice}</div>
-                <div class="upcoming-practice-meta">${practice.professor} - ${dateText}${timeText}</div>
-            </div>
-            <span class="upcoming-practice-status ${styles.tagBg}">${statusText}</span>
-        `;
-        
-        // Agregar evento click para abrir detalles
-        practiceDiv.addEventListener('click', function() {
-            openEditModal(practice.id);
-            
-            // Efecto visual de selección
-            const allItems = document.querySelectorAll('.upcoming-practice-item');
-            allItems.forEach(item => item.classList.remove('ring-2', 'ring-primary'));
-            
-            practiceDiv.classList.add('ring-2', 'ring-primary');
-        });
-        
-        upcomingContainer.appendChild(practiceDiv);
-    });
 }
 
-// Inicializar ocupación de horarios - CORREGIDA COMPLETAMENTE
+// Inicializar ocupación de horarios
 function initializeScheduleOccupancy() {
     scheduleOccupancy = {};
     
-    // Procesar prácticas existentes para marcar horarios ocupados
     practiceData.forEach(practice => {
         if (practice.date && practice.time) {
             const day = getDayFromDate(practice.date);
-            // Solo procesar si es un día laboral - CORREGIDO
             if (day) {
                 if (!scheduleOccupancy[day]) {
                     scheduleOccupancy[day] = {};
@@ -952,16 +1311,14 @@ function initializeScheduleOccupancy() {
                 scheduleOccupancy[day][practice.time] = {
                     practice: practice.practice,
                     professor: practice.professor,
-                    id: practice.id // Agregar ID para referencia
+                    id: practice.id
                 };
             }
         }
     });
-    
-    console.log('Ocupación de horarios inicializada:', scheduleOccupancy);
 }
 
-// Generar tabla de agenda - CORREGIDA COMPLETAMENTE
+// Generar tabla de agenda
 function generateAgendaSchedule() {
     const scheduleBody = document.getElementById('schedule-body-agenda');
     if (!scheduleBody) {
@@ -973,20 +1330,16 @@ function generateAgendaSchedule() {
     const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
     const hours = ['7:00', '8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
     
-    // Asegurarse de que la ocupación esté actualizada
     initializeScheduleOccupancy();
     
-    // Generar franjas horarias
     hours.forEach(hour => {
         const row = document.createElement('tr');
         
-        // Celda de hora
         const timeCell = document.createElement('td');
         timeCell.className = 'p-2 border border-gray-300 dark:border-gray-600 text-center text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300';
         timeCell.textContent = `${hour} - ${parseInt(hour.split(':')[0]) + 1}:00`;
         row.appendChild(timeCell);
         
-        // Celdas para cada día
         days.forEach(day => {
             const dayCell = document.createElement('td');
             dayCell.className = 'p-1 border border-gray-300 dark:border-gray-600';
@@ -996,7 +1349,6 @@ function generateAgendaSchedule() {
             slotDiv.dataset.day = day;
             slotDiv.dataset.hour = hour;
             
-            // Verificar si el horario está ocupado
             const isOccupied = scheduleOccupancy[day] && scheduleOccupancy[day][hour];
             if (isOccupied) {
                 slotDiv.classList.add('occupied');
@@ -1010,13 +1362,10 @@ function generateAgendaSchedule() {
                 slotDiv.style.cursor = 'pointer';
             }
             
-            // Agregar evento de clic para seleccionar horario - CORREGIDO
             slotDiv.addEventListener('click', function() {
                 if (this.classList.contains('available')) {
-                    // Si está disponible, seleccionar para nueva práctica
                     selectTimeSlot(this);
                 } else {
-                    // Si está ocupado, mostrar información de la práctica existente
                     showPracticeInfo(this);
                 }
             });
@@ -1027,8 +1376,6 @@ function generateAgendaSchedule() {
         
         scheduleBody.appendChild(row);
     });
-    
-    console.log('Tabla de agenda generada con ocupación actualizada');
 }
 
 // Función para mostrar información de práctica existente
@@ -1043,10 +1390,8 @@ function showPracticeDetails(day, hour) {
     const practiceInfo = scheduleOccupancy[day] && scheduleOccupancy[day][hour];
     
     if (practiceInfo) {
-        // Buscar la práctica completa en los datos
         const practice = practiceData.find(p => p.id === practiceInfo.id);
         if (practice) {
-            // Crear un modal de información detallada
             const detailModal = document.createElement('div');
             detailModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 fade-in';
             detailModal.innerHTML = `
@@ -1104,7 +1449,6 @@ function showPracticeDetails(day, hour) {
             
             document.body.appendChild(detailModal);
             
-            // Agregar event listeners para cerrar el modal
             const closeButtons = detailModal.querySelectorAll('.close-detail-modal');
             closeButtons.forEach(button => {
                 button.addEventListener('click', function() {
@@ -1112,7 +1456,6 @@ function showPracticeDetails(day, hour) {
                 });
             });
             
-            // Cerrar al hacer clic fuera del modal
             detailModal.addEventListener('click', function(e) {
                 if (e.target === detailModal) {
                     document.body.removeChild(detailModal);
@@ -1145,61 +1488,50 @@ function getStatusText(status) {
     }
 }
 
-// Seleccionar slot de tiempo para nueva práctica - CORREGIDA COMPLETAMENTE
+// Seleccionar slot de tiempo para nueva práctica
 function selectTimeSlot(slot) {
     const day = slot.dataset.day;
     const hour = slot.dataset.hour;
     
-    // Verificar si ya está ocupado (doble verificación)
     if (scheduleOccupancy[day] && scheduleOccupancy[day][hour]) {
         alert('Este horario ya está ocupado. Por favor seleccione otro.');
         return;
     }
     
-    // Guardar la selección temporalmente
     window.selectedTimeSlot = {
         day: day,
         hour: hour,
         element: slot
     };
     
-    // Abrir modal de nueva práctica con prellenado automático
     openNewPracticeModal(day, hour);
 }
 
-// MODIFICAR la función openNewPracticeModal para aceptar parámetros
+// Abrir modal para nueva práctica
 function openNewPracticeModal(day = null, hour = null) {
-    // Limpiar el formulario
     document.getElementById('edit-practice-form').reset();
     document.getElementById('edit-practice-id').value = '';
     
-    // Cambiar título
     document.getElementById('edit-modal-title').textContent = 'Nueva Práctica';
     
-    // Mostrar modal
     const editModal = document.getElementById('edit-modal');
     editModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
-    // Oscurecer el header
     document.getElementById('header-container').classList.add('modal-open');
     
-    // Si se proporcionaron día y hora, prellenar el formulario
     if (day && hour) {
         prefillPracticeForm(day, hour);
     }
 }
 
-// NUEVA FUNCIÓN: Prellenar formulario con fecha y hora seleccionadas
+// Prellenar formulario con fecha y hora seleccionadas
 function prefillPracticeForm(day, hour) {
-    // Esperar a que el modal esté completamente abierto
     setTimeout(() => {
-        // Prellenar la hora en el select
         const timeSelect = document.getElementById('edit-practice-time');
         if (timeSelect) {
             timeSelect.value = hour;
         }
         
-        // Calcular y prellenar la fecha correspondiente al día seleccionado
         const targetDate = calculateDateFromDay(day);
         const dateInput = document.getElementById('edit-practice-date');
         if (dateInput) {
@@ -1214,7 +1546,7 @@ function prefillPracticeForm(day, hour) {
     }, 100);
 }
 
-// NUEVA FUNCIÓN: Calcular fecha a partir del día de la semana
+// Calcular fecha a partir del día de la semana
 function calculateDateFromDay(day) {
     const today = new Date();
     const daysOfWeek = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
@@ -1222,16 +1554,13 @@ function calculateDateFromDay(day) {
     
     if (targetDayIndex === -1) return '';
     
-    // Calcular la fecha del próximo día seleccionado
     const currentDayIndex = today.getDay();
     let daysToAdd = targetDayIndex - currentDayIndex;
     
-    // Si el día ya pasó esta semana, ir a la próxima semana
     if (daysToAdd < 0) {
         daysToAdd += 7;
     }
     
-    // Si es hoy y ya pasó la hora, ir a la próxima semana
     if (daysToAdd === 0) {
         const currentHour = today.getHours();
         const selectedHour = parseInt(hour.split(':')[0]);
@@ -1243,7 +1572,6 @@ function calculateDateFromDay(day) {
     const targetDate = new Date(today);
     targetDate.setDate(today.getDate() + daysToAdd);
     
-    // Formatear como YYYY-MM-DD para el input date
     const year = targetDate.getFullYear();
     const month = String(targetDate.getMonth() + 1).padStart(2, '0');
     const dayOfMonth = String(targetDate.getDate()).padStart(2, '0');
@@ -1251,7 +1579,7 @@ function calculateDateFromDay(day) {
     return `${year}-${month}-${dayOfMonth}`;
 }
 
-// Función auxiliar para debug - CORREGIDA
+// Función auxiliar para debug
 function debugSchedule() {
     console.log('=== DEBUG AGENDA ===');
     console.log('Prácticas totales:', practiceData.length);
@@ -1266,11 +1594,10 @@ function debugSchedule() {
     alert('Información de debug mostrada en consola');
 }
 
-// Obtener día de la semana a partir de una fecha - CORREGIDA COMPLETAMENTE
+// Obtener día de la semana a partir de una fecha
 function getDayFromDate(dateString) {
     try {
         const date = new Date(dateString);
-        // Ajustar para problema de zona horaria
         date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
         
         const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
@@ -1278,7 +1605,6 @@ function getDayFromDate(dateString) {
         
         console.log(`Convirtiendo fecha: ${dateString} -> ${dayName}`);
         
-        // Solo considerar días laborales (Lunes a Viernes)
         return ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'].includes(dayName) ? dayName : null;
     } catch (error) {
         console.error('Error al convertir fecha:', dateString, error);
@@ -1302,10 +1628,7 @@ function updateAgendaAfterSave(practice) {
             
             console.log(`Agenda actualizada: ${day} ${practice.time} - ${practice.practice}`);
             
-            // Regenerar la tabla de agenda
             generateAgendaSchedule();
-            
-            // Actualizar las vistas de actividades y próximas prácticas
             loadRecentActivities();
             loadUpcomingPractices();
         }
@@ -1314,7 +1637,6 @@ function updateAgendaAfterSave(practice) {
 
 // Actualizar agenda después de eliminar
 function updateAgendaAfterDelete(practiceId) {
-    // Buscar la práctica eliminada
     const deletedPractice = practiceData.find(p => p.id === practiceId);
     if (deletedPractice && deletedPractice.date && deletedPractice.time) {
         const day = getDayFromDate(deletedPractice.date);
@@ -1322,10 +1644,7 @@ function updateAgendaAfterDelete(practiceId) {
             delete scheduleOccupancy[day][deletedPractice.time];
             console.log(`Horario liberado: ${day} ${deletedPractice.time}`);
             
-            // Regenerar la tabla de agenda
             generateAgendaSchedule();
-            
-            // Actualizar las vistas de actividades y próximas prácticas
             loadRecentActivities();
             loadUpcomingPractices();
         }
@@ -1334,191 +1653,184 @@ function updateAgendaAfterDelete(practiceId) {
 
 // Configurar event listeners
 function setupEventListeners() {
-    // Navegación del sidebar
-    document.getElementById('dashboard-link').addEventListener('click', function(e) {
-        e.preventDefault();
-        showView('dashboard-view');
-        updateActiveLink(this);
-        closeMobileMenu();
-    });
-    
-    document.getElementById('practices-link').addEventListener('click', function(e) {
-        e.preventDefault();
-        showView('practices-view');
-        updateActiveLink(this);
-        closeMobileMenu();
-    });
-    
-    document.getElementById('agenda-link').addEventListener('click', function(e) {
-        e.preventDefault();
-        showView('agenda-view');
-        updateActiveLink(this);
-        closeMobileMenu();
-        // Regenerar la tabla de agenda cuando se muestre la vista
-        setTimeout(() => {
-            generateAgendaSchedule();
-        }, 100);
-    });
-    
-    document.getElementById('users-link').addEventListener('click', function(e) {
-        e.preventDefault();
-        showView('users-view');
-        updateActiveLink(this);
-        closeMobileMenu();
-    });
-    
-    document.getElementById('reports-link').addEventListener('click', function(e) {
-        e.preventDefault();
-        showView('reports-view');
-        updateActiveLink(this);
-        closeMobileMenu();
-    });
-    
-    document.getElementById('settings-link').addEventListener('click', function(e) {
-        e.preventDefault();
-        showView('settings-view');
-        updateActiveLink(this);
-        closeMobileMenu();
-    });
-    
-    // Botón Cerrar Sesión en sidebar - ADAPTADO DEL CÓDIGO MÁS PEQUEÑO
-    document.getElementById('logout-link').addEventListener('click', function(e) {
-        e.preventDefault();
-        abrirModalCerrarSesion();
-        closeMobileMenu();
-    });
-    
-    // Navegación móvil
-    document.getElementById('mobile-dashboard-link').addEventListener('click', function(e) {
-        e.preventDefault();
-        showView('dashboard-view');
-        updateActiveMobileLink(this);
-        closeMobileMenu();
-    });
-    
-    document.getElementById('mobile-practices-link').addEventListener('click', function(e) {
-        e.preventDefault();
-        showView('practices-view');
-        updateActiveMobileLink(this);
-        closeMobileMenu();
-    });
-    
-    document.getElementById('mobile-agenda-link').addEventListener('click', function(e) {
-        e.preventDefault();
-        showView('agenda-view');
-        updateActiveMobileLink(this);
-        closeMobileMenu();
-        // Regenerar la tabla de agenda cuando se muestre la vista
-        setTimeout(() => {
-            generateAgendaSchedule();
-        }, 100);
-    });
-    
-    document.getElementById('mobile-users-link').addEventListener('click', function(e) {
-        e.preventDefault();
-        showView('users-view');
-        updateActiveMobileLink(this);
-        closeMobileMenu();
-    });
-    
-    document.getElementById('mobile-reports-link').addEventListener('click', function(e) {
-        e.preventDefault();
-        showView('reports-view');
-        updateActiveMobileLink(this);
-        closeMobileMenu();
-    });
-    
-    document.getElementById('mobile-settings-link').addEventListener('click', function(e) {
-        e.preventDefault();
-        showView('settings-view');
-        updateActiveMobileLink(this);
-        closeMobileMenu();
-    });
-    
-    // Botón Cerrar Sesión en menú móvil - ADAPTADO DEL CÓDIGO MÁS PEQUEÑO
-    document.getElementById('mobile-logout-link').addEventListener('click', function(e) {
-        e.preventDefault();
-        abrirModalCerrarSesion();
-        closeMobileMenu();
-    });
-    
-    // Botones de prácticas - ACTUALIZADOS
-    document.getElementById('add-practice-btn').addEventListener('click', function() {
-        openNewPracticeModal(); // Modal vacío
-    });
-    
-    document.getElementById('add-practice-agenda-btn').addEventListener('click', function() {
-        openNewPracticeModal(); // Modal vacío
-    });
-    
-    // Filtros de prácticas
-    document.getElementById('search').addEventListener('input', function(e) {
-        currentFilters.search = e.target.value.toLowerCase();
-        filterPracticesData();
-    });
-    
-    document.getElementById('professor-filter').addEventListener('change', function(e) {
-        currentFilters.professor = e.target.value;
-        filterPracticesData();
-    });
-    
-    document.getElementById('status-filter').addEventListener('change', function(e) {
-        currentFilters.status = e.target.value;
-        filterPracticesData();
-    });
-    
-    // Botón de restablecer filtros
-    document.getElementById('reset-filters').addEventListener('click', function() {
-        resetFilters();
-    });
-    
-    // Botón de exportar PDF - Funcionalidad eliminada
-    document.getElementById('export-pdf-btn').addEventListener('click', function() {
-        // Función deshabilitada - solo muestra un mensaje
-        showSuccessMessage('Función no disponible');
-    });
-    
-    // Botón de exportar reportes
-    document.getElementById('export-reports-btn').addEventListener('click', function() {
-        // Función deshabilitada - solo muestra un mensaje
-        showSuccessMessage('Función no disponible');
-    });
-    
-    // Ordenamiento de columnas
-    document.querySelectorAll('.sortable').forEach(header => {
-        header.addEventListener('click', function() {
-            const column = this.getAttribute('data-column');
-            sortPracticesTable(column);
+    try {
+        // Navegación del sidebar
+        document.getElementById('dashboard-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            showView('dashboard-view');
+            updateActiveLink(this);
+            closeMobileMenu();
         });
-    });
-    
-    // Filtros de reportes
-    document.getElementById('reports-search').addEventListener('input', function(e) {
-        currentReportsFilters.search = e.target.value.toLowerCase();
-        filterReportsData();
-    });
-    
-    document.getElementById('reports-professor-filter').addEventListener('change', function(e) {
-        currentReportsFilters.professor = e.target.value;
-        filterReportsData();
-    });
-    
-    document.getElementById('reports-status-filter').addEventListener('change', function(e) {
-        currentReportsFilters.status = e.target.value;
-        filterReportsData();
-    });
+        
+        document.getElementById('practices-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            showView('practices-view');
+            updateActiveLink(this);
+            closeMobileMenu();
+        });
+        
+        document.getElementById('agenda-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            showView('agenda-view');
+            updateActiveLink(this);
+            closeMobileMenu();
+            setTimeout(() => {
+                generateAgendaSchedule();
+            }, 100);
+        });
+        
+        document.getElementById('users-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            showView('users-view');
+            updateActiveLink(this);
+            closeMobileMenu();
+        });
+        
+        document.getElementById('reports-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            showView('reports-view');
+            updateActiveLink(this);
+            closeMobileMenu();
+        });
+        
+        document.getElementById('settings-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            showView('settings-view');
+            updateActiveLink(this);
+            closeMobileMenu();
+        });
+        
+        document.getElementById('logout-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            abrirModalCerrarSesion();
+            closeMobileMenu();
+        });
+        
+        // Navegación móvil
+        document.getElementById('mobile-dashboard-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            showView('dashboard-view');
+            updateActiveMobileLink(this);
+            closeMobileMenu();
+        });
+        
+        document.getElementById('mobile-practices-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            showView('practices-view');
+            updateActiveMobileLink(this);
+            closeMobileMenu();
+        });
+        
+        document.getElementById('mobile-agenda-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            showView('agenda-view');
+            updateActiveMobileLink(this);
+            closeMobileMenu();
+            setTimeout(() => {
+                generateAgendaSchedule();
+            }, 100);
+        });
+        
+        document.getElementById('mobile-users-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            showView('users-view');
+            updateActiveMobileLink(this);
+            closeMobileMenu();
+        });
+        
+        document.getElementById('mobile-reports-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            showView('reports-view');
+            updateActiveMobileLink(this);
+            closeMobileMenu();
+        });
+        
+        document.getElementById('mobile-settings-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            showView('settings-view');
+            updateActiveMobileLink(this);
+            closeMobileMenu();
+        });
+        
+        document.getElementById('mobile-logout-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            abrirModalCerrarSesion();
+            closeMobileMenu();
+        });
+        
+        // Botones de prácticas
+        document.getElementById('add-practice-btn').addEventListener('click', function() {
+            openNewPracticeModal();
+        });
+        
+        document.getElementById('add-practice-agenda-btn').addEventListener('click', function() {
+            openNewPracticeModal();
+        });
+        
+        // Filtros de prácticas
+        document.getElementById('search').addEventListener('input', function(e) {
+            currentFilters.search = e.target.value.toLowerCase();
+            filterPracticesData();
+        });
+        
+        document.getElementById('professor-filter').addEventListener('change', function(e) {
+            currentFilters.professor = e.target.value;
+            filterPracticesData();
+        });
+        
+        document.getElementById('status-filter').addEventListener('change', function(e) {
+            currentFilters.status = e.target.value;
+            filterPracticesData();
+        });
+        
+        // Botón de restablecer filtros
+        document.getElementById('reset-filters').addEventListener('click', function() {
+            resetFilters();
+        });
+        
+        // Botón de exportar PDF
+        document.getElementById('export-pdf-btn').addEventListener('click', function() {
+            showSuccessMessage('Función no disponible');
+        });
+        
+        // Botón de exportar reportes
+        document.getElementById('export-reports-btn').addEventListener('click', function() {
+            showSuccessMessage('Función no disponible');
+        });
+        
+        // Ordenamiento de columnas
+        document.querySelectorAll('.sortable').forEach(header => {
+            header.addEventListener('click', function() {
+                const column = this.getAttribute('data-column');
+                sortPracticesTable(column);
+            });
+        });
+        
+        // Filtros de reportes
+        document.getElementById('reports-search').addEventListener('input', function(e) {
+            currentReportsFilters.search = e.target.value.toLowerCase();
+            filterReportsData();
+        });
+        
+        document.getElementById('reports-professor-filter').addEventListener('change', function(e) {
+            currentReportsFilters.professor = e.target.value;
+            filterReportsData();
+        });
+        
+        document.getElementById('reports-status-filter').addEventListener('change', function(e) {
+            currentReportsFilters.status = e.target.value;
+            filterReportsData();
+        });
+        
+    } catch (error) {
+        console.error('Error al configurar event listeners:', error);
+    }
 }
 
 // Abrir menú móvil
 function openMobileMenu() {
     document.getElementById('mobile-sidebar').classList.remove('mobile-menu-closed');
     document.getElementById('mobile-sidebar').classList.add('mobile-menu-open');
-}
-
-// Cerrar menú móvil
-function closeMobileMenu() {
-    document.getElementById('mobile-sidebar').classList.remove('mobile-menu-open');
-    document.getElementById('mobile-sidebar').classList.add('mobile-menu-closed');
 }
 
 // Configurar listeners para modales
@@ -1547,7 +1859,6 @@ function setupModalListeners() {
     function closeEditModalFunc() {
         editModal.classList.add('hidden');
         document.body.style.overflow = 'auto';
-        // Restaurar el header
         document.getElementById('header-container').classList.remove('modal-open');
     }
 
@@ -1558,7 +1869,6 @@ function setupModalListeners() {
         cancelEdit.addEventListener('click', closeEditModalFunc);
     }
 
-    // Cerrar modal al hacer clic fuera del contenido
     if (editModal) {
         editModal.addEventListener('click', function(e) {
             if (e.target === editModal) {
@@ -1567,12 +1877,11 @@ function setupModalListeners() {
         });
     }
 
-    // Envío del formulario de edición - CORREGIDO COMPLETAMENTE
+    // Envío del formulario de edición - MODIFICADO para trabajar con API
     if (editPracticeForm) {
-        editPracticeForm.addEventListener('submit', function(e) {
+        editPracticeForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Obtener datos del formulario
             const practiceId = parseInt(document.getElementById('edit-practice-id').value);
             const practiceDate = document.getElementById('edit-practice-date').value;
             const practiceTime = document.getElementById('edit-practice-time').value;
@@ -1583,22 +1892,50 @@ function setupModalListeners() {
             const practiceLab = document.getElementById('edit-practice-lab').value;
             const practiceStatus = document.getElementById('edit-practice-status').value;
             
-            let isNewPractice = false;
-            let newPractice = null;
-            
-            if (practiceId) {
-                // Actualizar práctica existente en los datos
-                const practiceIndex = practiceData.findIndex(p => p.id === practiceId);
-                if (practiceIndex !== -1) {
-                    // Es una actualización, verificar si cambió la fecha/hora
-                    const oldPractice = practiceData.find(p => p.id === practiceId);
-                    if (oldPractice && (oldPractice.date !== practiceDate || oldPractice.time !== practiceTime)) {
-                        // Si cambió la fecha/hora, liberar el horario anterior
-                        updateAgendaAfterDelete(practiceId);
+            try {
+                let isNewPractice = false;
+                let newPractice = null;
+                
+                if (practiceId) {
+                    // Actualizar práctica existente en los datos
+                    const practiceIndex = practiceData.findIndex(p => p.id === practiceId);
+                    if (practiceIndex !== -1) {
+                        const oldPractice = practiceData.find(p => p.id === practiceId);
+                        if (oldPractice && (oldPractice.date !== practiceDate || oldPractice.time !== practiceTime)) {
+                            updateAgendaAfterDelete(practiceId);
+                        }
+                        
+                        practiceData[practiceIndex] = {
+                            ...practiceData[practiceIndex],
+                            date: practiceDate,
+                            time: practiceTime,
+                            practice: practiceName,
+                            professor: practiceProfessor,
+                            subject: practiceSubject,
+                            objective: practiceObjective,
+                            lab: practiceLab,
+                            status: practiceStatus
+                        };
+                        
+                        const reportIndex = reportsData.findIndex(r => r.id === practiceId);
+                        if (reportIndex !== -1) {
+                            reportsData[reportIndex] = {
+                                ...reportsData[reportIndex],
+                                date: practiceDate,
+                                practice: practiceName,
+                                professor: practiceProfessor,
+                                subject: practiceSubject,
+                                objective: practiceObjective
+                            };
+                        }
+                        
+                        showSuccessMessage('Práctica actualizada correctamente');
                     }
-                    
-                    practiceData[practiceIndex] = {
-                        ...practiceData[practiceIndex],
+                } else {
+                    // Crear nueva práctica
+                    const newId = practiceData.length > 0 ? Math.max(...practiceData.map(p => p.id)) + 1 : 1;
+                    newPractice = {
+                        id: newId,
                         date: practiceDate,
                         time: practiceTime,
                         practice: practiceName,
@@ -1609,76 +1946,39 @@ function setupModalListeners() {
                         status: practiceStatus
                     };
                     
-                    // Actualizar también en reportes si existe
-                    const reportIndex = reportsData.findIndex(r => r.id === practiceId);
-                    if (reportIndex !== -1) {
-                        reportsData[reportIndex] = {
-                            ...reportsData[reportIndex],
-                            date: practiceDate,
-                            practice: practiceName,
-                            professor: practiceProfessor,
-                            subject: practiceSubject,
-                            objective: practiceObjective
-                        };
-                    }
+                    practiceData.push(newPractice);
+                    isNewPractice = true;
                     
-                    showSuccessMessage('Práctica actualizada correctamente');
+                    reportsData.push({
+                        id: newId,
+                        date: practiceDate,
+                        practice: practiceName,
+                        objective: practiceObjective,
+                        professor: practiceProfessor,
+                        subject: practiceSubject
+                    });
+                    
+                    showSuccessMessage('Práctica creada correctamente');
                 }
-            } else {
-                // Crear nueva práctica
-                const newId = practiceData.length > 0 ? Math.max(...practiceData.map(p => p.id)) + 1 : 1;
-                newPractice = {
-                    id: newId,
-                    date: practiceDate,
-                    time: practiceTime,
-                    practice: practiceName,
-                    professor: practiceProfessor,
-                    subject: practiceSubject,
-                    objective: practiceObjective,
-                    lab: practiceLab,
-                    status: practiceStatus
-                };
                 
-                practiceData.push(newPractice);
-                isNewPractice = true;
+                updateDashboardStats();
+                loadRecentActivities();
+                loadUpcomingPractices();
                 
-                // Crear también en reportes
-                reportsData.push({
-                    id: newId,
-                    date: practiceDate,
-                    practice: practiceName,
-                    objective: practiceObjective,
-                    professor: practiceProfessor,
-                    subject: practiceSubject
-                });
+                currentData = [...practiceData];
+                currentReportsData = [...reportsData];
                 
-                showSuccessMessage('Práctica creada correctamente');
+                initializePracticesTable();
+                initializeReportsTable();
+                
+                updateAgendaAfterSave(practiceId ? practiceData.find(p => p.id === practiceId) : newPractice);
+                
+                closeEditModalFunc();
+                
+            } catch (error) {
+                console.error('Error al guardar práctica:', error);
+                showSuccessMessage('Error al guardar.');
             }
-            
-            updateDashboardStats();
-            loadRecentActivities();
-            loadUpcomingPractices();
-            
-            // Actualizar tablas - CORREGIDO: Usar los arrays actualizados
-            currentData = [...practiceData];
-            currentReportsData = [...reportsData];
-            
-            initializePracticesTable();
-            initializeReportsTable();
-            
-            // Actualizar agenda después de guardar
-            updateAgendaAfterSave(practiceId ? practiceData.find(p => p.id === practiceId) : newPractice);
-            
-            closeEditModalFunc();
-            
-            console.log('Práctica guardada:', {
-                id: practiceId || 'Nueva',
-                name: practiceName,
-                date: practiceDate,
-                time: practiceTime,
-                isNew: isNewPractice,
-                totalPractices: practiceData.length
-            });
         });
     }
     
@@ -1686,7 +1986,6 @@ function setupModalListeners() {
     function closeDeleteModalFunc() {
         deleteModal.classList.add('hidden');
         document.body.style.overflow = 'auto';
-        // Restaurar el header
         document.getElementById('header-container').classList.remove('modal-open');
     }
 
@@ -1697,7 +1996,6 @@ function setupModalListeners() {
         cancelDelete.addEventListener('click', closeDeleteModalFunc);
     }
 
-    // Cerrar modal al hacer clic fuera del contenido
     if (deleteModal) {
         deleteModal.addEventListener('click', function(e) {
             if (e.target === deleteModal) {
@@ -1711,36 +2009,29 @@ function setupModalListeners() {
         confirmDelete.addEventListener('click', function() {
             const practiceId = parseInt(document.getElementById('delete-practice-id').value);
             
-            // Actualizar agenda después de eliminar
             updateAgendaAfterDelete(practiceId);
             
-            // Eliminar práctica de los datos
             const practiceIndex = practiceData.findIndex(p => p.id === practiceId);
             if (practiceIndex !== -1) {
                 practiceData.splice(practiceIndex, 1);
                 
-                // Eliminar también de reportes
                 const reportIndex = reportsData.findIndex(r => r.id === practiceId);
                 if (reportIndex !== -1) {
                     reportsData.splice(reportIndex, 1);
                 }
                 
-                // Actualizar dashboard
                 updateDashboardStats();
                 loadRecentActivities();
                 loadUpcomingPractices();
                 
-                // Actualizar tablas - CORREGIDO: llamar a initializePracticesTable()
                 currentData = [...practiceData];
                 currentReportsData = [...reportsData];
                 initializePracticesTable();
                 initializeReportsTable();
                 
-                // Mostrar mensaje de éxito
                 showSuccessMessage('Práctica eliminada correctamente');
             }
             
-            // Cerrar modal
             closeDeleteModalFunc();
         });
     }
@@ -1749,7 +2040,6 @@ function setupModalListeners() {
     function closeEditUserModalFunc() {
         editUserModal.classList.add('hidden');
         document.body.style.overflow = 'auto';
-        // Restaurar el header
         document.getElementById('header-container').classList.remove('modal-open');
     }
 
@@ -1760,7 +2050,6 @@ function setupModalListeners() {
         cancelEditUser.addEventListener('click', closeEditUserModalFunc);
     }
 
-    // Cerrar modal al hacer clic fuera del contenido
     if (editUserModal) {
         editUserModal.addEventListener('click', function(e) {
             if (e.target === editUserModal) {
@@ -1774,7 +2063,6 @@ function setupModalListeners() {
         editUserForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Obtener datos del formulario
             const userId = parseInt(document.getElementById('edit-user-id').value);
             const userName = document.getElementById('edit-user-name').value;
             const userUsername = document.getElementById('edit-user-username').value;
@@ -1783,7 +2071,6 @@ function setupModalListeners() {
             const userStatus = document.getElementById('edit-user-status').value;
             
             if (userId) {
-                // Actualizar usuario existente en los datos
                 const userIndex = usersData.findIndex(u => u.id === userId);
                 if (userIndex !== -1) {
                     usersData[userIndex] = {
@@ -1795,11 +2082,9 @@ function setupModalListeners() {
                         status: userStatus
                     };
                     
-                    // Mostrar mensaje de éxito
                     showSuccessMessage('Usuario actualizado correctamente');
                 }
             } else {
-                // Crear nuevo usuario
                 const newId = usersData.length > 0 ? Math.max(...usersData.map(u => u.id)) + 1 : 1;
                 const newUser = {
                     id: newId,
@@ -1812,15 +2097,10 @@ function setupModalListeners() {
                 };
                 
                 usersData.push(newUser);
-                
-                // Mostrar mensaje de éxito
                 showSuccessMessage('Usuario creado correctamente');
             }
             
-            // Actualizar tabla de usuarios
             initializeUsersTable();
-            
-            // Cerrar modal
             closeEditUserModalFunc();
         });
     }
@@ -1829,7 +2109,6 @@ function setupModalListeners() {
     function closeDeleteUserModalFunc() {
         deleteUserModal.classList.add('hidden');
         document.body.style.overflow = 'auto';
-        // Restaurar el header
         document.getElementById('header-container').classList.remove('modal-open');
     }
 
@@ -1840,7 +2119,6 @@ function setupModalListeners() {
         cancelDeleteUser.addEventListener('click', closeDeleteUserModalFunc);
     }
 
-    // Cerrar modal al hacer clic fuera del contenido
     if (deleteUserModal) {
         deleteUserModal.addEventListener('click', function(e) {
             if (e.target === deleteUserModal) {
@@ -1854,19 +2132,14 @@ function setupModalListeners() {
         confirmDeleteUser.addEventListener('click', function() {
             const userId = parseInt(document.getElementById('delete-user-id').value);
             
-            // Eliminar usuario de los datos
             const userIndex = usersData.findIndex(u => u.id === userId);
             if (userIndex !== -1) {
                 usersData.splice(userIndex, 1);
                 
-                // Actualizar tabla de usuarios
                 initializeUsersTable();
-                
-                // Mostrar mensaje de éxito
-                showSuccessMessage('Usuario eliminada correctamente');
+                showSuccessMessage('Usuario eliminado correctamente');
             }
             
-            // Cerrar modal
             closeDeleteUserModalFunc();
         });
     }
@@ -1877,56 +2150,60 @@ function showSuccessMessage(message) {
     const successMessage = document.getElementById('success-message');
     const successText = document.getElementById('success-text');
     
-    successText.textContent = message;
-    successMessage.classList.remove('hidden');
-    
-    // Ocultar mensaje después de 3 segundos
-    setTimeout(() => {
-        successMessage.classList.add('hidden');
-    }, 3000);
+    if (successMessage && successText) {
+        successText.textContent = message;
+        successMessage.classList.remove('hidden');
+        
+        setTimeout(() => {
+            successMessage.classList.add('hidden');
+        }, 3000);
+    }
 }
 
 // Mostrar vista específica
 function showView(viewId) {
-    // Ocultar todas las vistas
-    document.getElementById('dashboard-view').classList.add('hidden');
-    document.getElementById('practices-view').classList.add('hidden');
-    document.getElementById('agenda-view').classList.add('hidden');
-    document.getElementById('users-view').classList.add('hidden');
-    document.getElementById('reports-view').classList.add('hidden');
-    document.getElementById('settings-view').classList.add('hidden');
-    
-    // Mostrar la vista seleccionada
-    document.getElementById(viewId).classList.remove('hidden');
+    try {
+        const views = ['dashboard-view', 'practices-view', 'agenda-view', 'users-view', 'reports-view', 'settings-view'];
+        
+        views.forEach(view => {
+            const element = document.getElementById(view);
+            if (element) {
+                element.classList.add('hidden');
+            }
+        });
+        
+        const targetView = document.getElementById(viewId);
+        if (targetView) {
+            targetView.classList.remove('hidden');
+        }
+    } catch (error) {
+        console.error(`Error al mostrar vista ${viewId}:`, error);
+    }
 }
 
 // Actualizar enlace activo en el sidebar
 function updateActiveLink(activeLink) {
-    // Remover clase activa de todos los enlaces
     document.querySelectorAll('.sidebar a').forEach(link => {
         link.classList.remove('bg-primary', 'text-white');
         link.classList.add('text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
     });
     
-    // Agregar clase activa al enlace seleccionado
     activeLink.classList.remove('text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
     activeLink.classList.add('bg-primary', 'text-white');
 }
 
 // Actualizar enlace activo en el menú móvil
 function updateActiveMobileLink(activeLink) {
-    // Remover clase activa de todos los enlaces
     document.querySelectorAll('#mobile-sidebar a').forEach(link => {
         link.classList.remove('bg-primary', 'text-white');
         link.classList.add('text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
     });
     
-    // Agregar clase activa al enlace seleccionado
     activeLink.classList.remove('text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
     activeLink.classList.add('bg-primary', 'text-white');
 }
 
-// Inicializar tabla de prácticas - CORREGIDA COMPLETAMENTE
+// Inicializar tabla de prácticas
 function initializePracticesTable() {
     const tableBody = document.getElementById('table-body');
     if (!tableBody) {
@@ -1938,12 +2215,10 @@ function initializePracticesTable() {
     
     console.log('Renderizando tabla con', currentData.length, 'prácticas');
     
-    // Generar filas de la tabla
     currentData.forEach((item) => {
         const row = document.createElement('tr');
         row.className = 'bg-white dark:bg-background-dark';
         
-        // Determinar color del estado - CORREGIDO: usar los colores correctos
         let statusColor = '';
         let statusText = '';
         switch(item.status) {
@@ -2000,7 +2275,6 @@ function initializePracticesTable() {
         tableBody.appendChild(row);
     });
     
-    // Agregar event listeners a los botones de editar y eliminar
     document.querySelectorAll('.edit-practice-btn').forEach(button => {
         button.addEventListener('click', function() {
             const practiceId = parseInt(this.getAttribute('data-id'));
@@ -2018,7 +2292,6 @@ function initializePracticesTable() {
         });
     });
     
-    // ✅ ACTUALIZAR CONTADORES Y FILTROS
     updateResultsCount();
     updateFilters();
     
@@ -2028,15 +2301,14 @@ function initializePracticesTable() {
 // Inicializar tabla de usuarios
 function initializeUsersTable() {
     const tableBody = document.getElementById('users-table-body');
+    if (!tableBody) return;
+    
     tableBody.innerHTML = '';
     
-    // Generar filas de la tabla
     usersData.forEach((item) => {
         const row = document.createElement('tr');
-        // Todas las filas serán claras/oscuras según el tema
         row.className = 'bg-white dark:bg-background-dark';
         
-        // Determinar color del estado
         let statusColor = '';
         let statusText = '';
         switch(item.status) {
@@ -2050,7 +2322,6 @@ function initializeUsersTable() {
                 break;
         }
         
-        // Determinar color del rol
         let roleColor = '';
         let roleText = '';
         switch(item.role) {
@@ -2118,7 +2389,6 @@ function initializeUsersTable() {
         tableBody.appendChild(row);
     });
     
-    // Agregar event listeners a los botones de editar y eliminar
     document.querySelectorAll('.edit-user-btn').forEach(button => {
         button.addEventListener('click', function() {
             const userId = parseInt(this.getAttribute('data-id'));
@@ -2138,12 +2408,12 @@ function initializeUsersTable() {
 // Inicializar tabla de reportes
 function initializeReportsTable() {
     const tableBody = document.getElementById('reports-table-body');
+    if (!tableBody) return;
+    
     tableBody.innerHTML = '';
     
-    // Generar filas de la tabla
     currentReportsData.forEach((item) => {
         const row = document.createElement('tr');
-        // Todas las filas serán claras/oscuras según el tema
         row.className = 'bg-white dark:bg-background-dark';
         
         row.innerHTML = `
@@ -2170,7 +2440,6 @@ function initializeReportsTable() {
         tableBody.appendChild(row);
     });
     
-    // Agregar event listeners a los botones de editar y eliminar
     document.querySelectorAll('.edit-report-btn').forEach(button => {
         button.addEventListener('click', function() {
             const reportId = parseInt(this.getAttribute('data-id'));
@@ -2194,7 +2463,6 @@ function openEditReportModal(reportId) {
     const report = reportsData.find(p => p.id === reportId);
     if (!report) return;
     
-    // Llenar el formulario con los datos actuales
     document.getElementById('edit-practice-id').value = report.id;
     document.getElementById('edit-practice-date').value = report.date;
     document.getElementById('edit-practice-name').value = report.practice;
@@ -2204,26 +2472,21 @@ function openEditReportModal(reportId) {
     document.getElementById('edit-practice-lab').value = report.lab || '';
     document.getElementById('edit-practice-status').value = report.status || 'programada';
     
-    // Mostrar modal
     const editModal = document.getElementById('edit-modal');
     editModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
-    // Oscurecer el header
     document.getElementById('header-container').classList.add('modal-open');
 }
 
 // Abrir modal de eliminación para reportes
 function openDeleteReportModal(reportId, reportName, reportProfessor, reportDate) {
-    // Llenar la información de la práctica a eliminar
     document.getElementById('delete-practice-id').value = reportId;
     document.getElementById('delete-practice-name').textContent = reportName;
     document.getElementById('delete-practice-details').textContent = `${reportProfessor} - ${reportDate}`;
     
-    // Mostrar modal
     const deleteModal = document.getElementById('delete-modal');
     deleteModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
-    // Oscurecer el header
     document.getElementById('header-container').classList.add('modal-open');
 }
 
@@ -2232,7 +2495,6 @@ function openEditModal(practiceId) {
     const practice = practiceData.find(p => p.id === practiceId);
     if (!practice) return;
     
-    // Llenar el formulario con los datos actuales
     document.getElementById('edit-practice-id').value = practice.id;
     document.getElementById('edit-practice-date').value = practice.date;
     document.getElementById('edit-practice-time').value = practice.time || '';
@@ -2243,37 +2505,30 @@ function openEditModal(practiceId) {
     document.getElementById('edit-practice-lab').value = practice.lab || '';
     document.getElementById('edit-practice-status').value = practice.status;
     
-    // Cambiar título
     document.getElementById('edit-modal-title').textContent = 'Editar Práctica';
     
-    // Mostrar modal
     const editModal = document.getElementById('edit-modal');
     editModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
-    // Oscurecer el header
     document.getElementById('header-container').classList.add('modal-open');
 }
 
 // Abrir modal de eliminación
 function openDeleteModal(practiceId, practiceName, practiceProfessor, practiceDate) {
-    // Llenar la información de la práctica a eliminar
     document.getElementById('delete-practice-id').value = practiceId;
     document.getElementById('delete-practice-name').textContent = practiceName;
     document.getElementById('delete-practice-details').textContent = `${practiceProfessor} - ${practiceDate}`;
     
-    // Mostrar modal
     const deleteModal = document.getElementById('delete-modal');
     deleteModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
-    // Oscurecer el header
     document.getElementById('header-container').classList.add('modal-open');
 }
 
-// Filtrar datos de prácticas - CORREGIDO
+// Filtrar datos de prácticas
 function filterPracticesData() {
     let filteredData = [...practiceData];
     
-    // Aplicar filtro de búsqueda
     if (currentFilters.search) {
         filteredData = filteredData.filter(item => 
             item.practice.toLowerCase().includes(currentFilters.search) ||
@@ -2282,12 +2537,10 @@ function filterPracticesData() {
         );
     }
     
-    // Aplicar filtro por profesor
     if (currentFilters.professor) {
         filteredData = filteredData.filter(item => item.professor === currentFilters.professor);
     }
     
-    // Aplicar filtro por estado
     if (currentFilters.status) {
         filteredData = filteredData.filter(item => item.status === currentFilters.status);
     }
@@ -2302,7 +2555,6 @@ function filterPracticesData() {
 function filterReportsData() {
     let filteredData = [...reportsData];
     
-    // Aplicar filtro de búsqueda
     if (currentReportsFilters.search) {
         filteredData = filteredData.filter(item => 
             item.practice.toLowerCase().includes(currentReportsFilters.search) ||
@@ -2312,15 +2564,8 @@ function filterReportsData() {
         );
     }
     
-    // Aplicar filtro por profesor
     if (currentReportsFilters.professor) {
         filteredData = filteredData.filter(item => item.professor === currentReportsFilters.professor);
-    }
-    
-    // Aplicar filtro por estado (si existe en los datos)
-    if (currentReportsFilters.status) {
-        // En este caso, los reportes no tienen estado, pero podríamos filtrar por otros criterios
-        // Por ejemplo, podríamos filtrar por asignatura si se desea
     }
     
     currentReportsData = filteredData;
@@ -2330,7 +2575,6 @@ function filterReportsData() {
 
 // Ordenar tabla de prácticas
 function sortPracticesTable(column, direction = null) {
-    // Determinar dirección de ordenamiento
     if (column === sortColumn) {
         sortDirection = direction || (sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
@@ -2338,17 +2582,14 @@ function sortPracticesTable(column, direction = null) {
         sortDirection = 'asc';
     }
     
-    // Aplicar ordenamiento
     currentData.sort((a, b) => {
         let aValue = a[column];
         let bValue = b[column];
         
-        // Para fechas, convertir a objetos Date
         if (column === 'date') {
             aValue = new Date(aValue);
             bValue = new Date(bValue);
         } else {
-            // Para texto, convertir a minúsculas para ordenamiento case-insensitive
             aValue = String(aValue).toLowerCase();
             bValue = String(bValue).toLowerCase();
         }
@@ -2358,10 +2599,7 @@ function sortPracticesTable(column, direction = null) {
         return 0;
     });
     
-    // Actualizar indicadores visuales de ordenamiento
     updateSortIndicators();
-    
-    // Volver a renderizar la tabla - CORREGIDO: llamar a initializePracticesTable()
     initializePracticesTable();
 }
 
@@ -2384,15 +2622,12 @@ function updateSortIndicators() {
 function updateFilters() {
     const professorFilter = document.getElementById('professor-filter');
     
-    // Obtener valores únicos
     const professors = [...new Set(practiceData.map(item => item.professor))];
     
-    // Limpiar opciones existentes (excepto la primera)
     while (professorFilter.children.length > 1) {
         professorFilter.removeChild(professorFilter.lastChild);
     }
     
-    // Agregar opciones
     professors.forEach(professor => {
         const option = document.createElement('option');
         option.value = professor;
@@ -2400,7 +2635,6 @@ function updateFilters() {
         professorFilter.appendChild(option);
     });
     
-    // Restaurar valores seleccionados si existen
     if (currentFilters.professor) {
         professorFilter.value = currentFilters.professor;
     }
@@ -2426,7 +2660,7 @@ function resetFilters() {
     initializePracticesTable();
 }
 
-// Actualizar contador de resultados - CORREGIDO
+// Actualizar contador de resultados
 function updateResultsCount() {
     const resultsCount = document.getElementById('results-count');
     const totalCount = document.getElementById('total-count');
@@ -2440,16 +2674,62 @@ function updateResultsCount() {
 
 // Actualizar contador de resultados de reportes
 function updateReportsResultsCount() {
-    document.getElementById('reports-results-count').textContent = currentReportsData.length;
-    document.getElementById('reports-total-count').textContent = reportsData.length;
+    const resultsCount = document.getElementById('reports-results-count');
+    const totalCount = document.getElementById('reports-total-count');
+    
+    if (resultsCount && totalCount) {
+        resultsCount.textContent = currentReportsData.length;
+        totalCount.textContent = reportsData.length;
+    }
 }
 
 // Formatear fecha
 function formatDate(dateString) {
-    const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-    return new Date(dateString).toLocaleDateString('es-ES', options);
+    try {
+        if (!dateString) return 'Fecha no disponible';
+        
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Fecha inválida';
+        
+        const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        return date.toLocaleDateString('es-ES', options);
+    } catch (error) {
+        console.error('Error al formatear fecha:', error);
+        return 'Fecha no disponible';
+    }
 }
 
-// Hacer la función debug global
+// Hacer funciones globales
+window.mostrarPerfil = mostrarPerfil;
+window.abrirModalCerrarSesion = abrirModalCerrarSesion;
+window.cerrarModalCerrarSesion = cerrarModalCerrarSesion;
+window.confirmarCerrarSesion = confirmarCerrarSesion;
+window.closeMobileMenu = closeMobileMenu;
 window.debugSchedule = debugSchedule;
 window.showView = showView;
+
+// Función para refrescar datos desde API
+window.refreshData = async function() {
+    showLoading();
+    try {
+        await Promise.all([
+            loadPracticesFromAPI(),
+            loadUsersFromAPI()
+        ]);
+        
+        updateDashboardStats();
+        loadRecentActivities();
+        loadUpcomingPractices();
+        initializePracticesTable();
+        initializeUsersTable();
+        initializeReportsTable();
+        generateAgendaSchedule();
+        
+        showSuccessMessage('Datos actualizados correctamente');
+    } catch (error) {
+        console.error('Error al refrescar datos:', error);
+        showSuccessMessage('Error al actualizar datos');
+    } finally {
+        hideLoading();
+    }
+};
