@@ -923,56 +923,606 @@ function formatLastAccess(timestamp) {
     }
 }
 
-// Funciones para el modal de cerrar sesión
-function abrirModalCerrarSesion() {
-    const modal = document.getElementById('logout-modal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        document.getElementById('header-container').classList.add('modal-open');
-    }
-}
+// =================== FUNCIONES PARA CERRAR MODALES ===================
 
-function cerrarModalCerrarSesion() {
-    const modal = document.getElementById('logout-modal');
+// Función para cerrar cualquier modal
+function closeAnyModal(modalId) {
+    const modal = document.getElementById(modalId);
     if (modal) {
         modal.classList.add('hidden');
         document.body.style.overflow = 'auto';
-        document.getElementById('header-container').classList.remove('modal-open');
+        const headerContainer = document.getElementById('header-container');
+        if (headerContainer) {
+            headerContainer.classList.remove('modal-open');
+        }
     }
 }
 
-function confirmarCerrarSesion() {
-    if (confirm('¿Está seguro de que desea cerrar sesión?')) {
-        fetchFromAPI('/auth/logout', { method: 'POST' });
-        window.location.href = '/login';
-    }
+// Función para cerrar modal de edición de práctica
+function closeEditModal() {
+    closeAnyModal('edit-modal');
 }
 
-// Inicialización - VERSIÓN ROBUSTA
-document.addEventListener('DOMContentLoaded', async function() {
-    // Configurar listeners para el modal de cerrar sesión
-    const closeLogoutModal = document.getElementById('close-logout-modal');
-    const cancelLogout = document.getElementById('cancel-logout');
-    const confirmLogout = document.getElementById('confirm-logout');
-    const logoutModal = document.getElementById('logout-modal');
+// Función para cerrar modal de eliminación de práctica
+function closeDeleteModal() {
+    closeAnyModal('delete-modal');
+}
+
+// Función para cerrar modal de edición de usuario
+function closeEditUserModal() {
+    closeAnyModal('edit-user-modal');
+}
+
+// Función para cerrar modal de eliminación de usuario
+function closeDeleteUserModal() {
+    closeAnyModal('delete-user-modal');
+}
+
+// =================== FUNCIONES DE MANEJO DE EVENTOS ===================
+
+// Función manejadora para el formulario de práctica
+async function handleEditPracticeFormSubmit(event) {
+    event.preventDefault();
+    event.stopPropagation();
     
-    if (closeLogoutModal) {
-        closeLogoutModal.addEventListener('click', cerrarModalCerrarSesion);
+    console.log('📝 Enviando formulario de práctica...');
+    
+    const practiceId = parseInt(document.getElementById('edit-practice-id').value);
+    const practiceDate = document.getElementById('edit-practice-date').value;
+    const practiceTime = document.getElementById('edit-practice-time').value;
+    const practiceName = document.getElementById('edit-practice-name').value;
+    const practiceProfessorId = parseInt(document.getElementById('edit-practice-professor').value);
+    const practiceSubject = document.getElementById('edit-practice-subject').value;
+    const practiceObjective = document.getElementById('edit-practice-objective').value;
+    const practiceLabId = parseInt(document.getElementById('edit-practice-lab').value);
+    const practiceStatus = document.getElementById('edit-practice-status').value;
+    
+    try {
+        showLoading();
+        
+        const reservaData = {
+            date: practiceDate,
+            hora_inicio: practiceTime,
+            hora_fin: calcularHoraFin(practiceTime),
+            clase: practiceName,
+            descripcion: practiceObjective,
+            estado: practiceStatus,
+            professor_id: practiceProfessorId,
+            id_laboratorio: practiceLabId
+        };
+        
+        let result;
+        if (practiceId) {
+            // Actualizar reserva existente
+            result = await actualizarReservaAPI(practiceId, reservaData);
+        } else {
+            // Crear nueva reserva
+            result = await crearReservaAPI(reservaData);
+        }
+        
+        if (result && result.mensaje) {
+            // Recargar datos desde API
+            await loadPracticesFromAPI();
+            await loadUsersFromAPI();
+            
+            // Actualizar UI
+            updateDashboardStats();
+            loadRecentActivities();
+            loadUpcomingPractices();
+            currentData = [...practiceData];
+            currentReportsData = [...reportsData];
+            initializePracticesTable();
+            initializeReportsTable();
+            
+            // Actualizar agenda
+            generateAgendaSchedule();
+            
+            showSuccessMessage(result.mensaje);
+        } else {
+            throw new Error('No se recibió confirmación del servidor');
+        }
+        
+    } catch (error) {
+        console.error('Error al guardar práctica:', error);
+        showSuccessMessage('Error al guardar: ' + error.message);
+    } finally {
+        hideLoading();
+        closeEditModal();
     }
-    if (cancelLogout) {
-        cancelLogout.addEventListener('click', cerrarModalCerrarSesion);
+}
+
+// Función manejadora para eliminar práctica
+async function handleConfirmDelete() {
+    const practiceId = parseInt(document.getElementById('delete-practice-id').value);
+    
+    if (!practiceId) {
+        showSuccessMessage('ID de práctica no válido');
+        return;
     }
-    if (confirmLogout) {
-        confirmLogout.addEventListener('click', confirmarCerrarSesion);
-    }
-    if (logoutModal) {
-        logoutModal.addEventListener('click', function(e) {
-            if (e.target === logoutModal) {
-                cerrarModalCerrarSesion();
+    
+    try {
+        showLoading();
+        
+        // Eliminar reserva del backend
+        const result = await eliminarReservaAPI(practiceId);
+        
+        if (result && result.mensaje) {
+            // Actualizar datos locales
+            updateAgendaAfterDelete(practiceId);
+            
+            const practiceIndex = practiceData.findIndex(p => p.id === practiceId);
+            if (practiceIndex !== -1) {
+                practiceData.splice(practiceIndex, 1);
+                
+                const reportIndex = reportsData.findIndex(r => r.id === practiceId);
+                if (reportIndex !== -1) {
+                    reportsData.splice(reportIndex, 1);
+                }
             }
-        });
+            
+            // Actualizar UI
+            updateDashboardStats();
+            loadRecentActivities();
+            loadUpcomingPractices();
+            currentData = [...practiceData];
+            currentReportsData = [...reportsData];
+            initializePracticesTable();
+            initializeReportsTable();
+            
+            showSuccessMessage(result.mensaje);
+        } else {
+            throw new Error('No se recibió confirmación del servidor');
+        }
+        
+    } catch (error) {
+        console.error('Error al eliminar práctica:', error);
+        showSuccessMessage('Error al eliminar: ' + error.message);
+    } finally {
+        hideLoading();
+        closeDeleteModal();
     }
+}
+
+// Función manejadora para el formulario de usuario
+async function handleEditUserFormSubmit(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    console.log('📝 Enviando formulario de usuario...');
+    
+    const userId = parseInt(document.getElementById('edit-user-id').value) || null;
+    const userName = document.getElementById('edit-user-name').value;
+    const userUsername = document.getElementById('edit-user-username').value;
+    const userEmail = document.getElementById('edit-user-email').value;
+    const userRole = document.getElementById('edit-user-role').value;
+    const userStatus = document.getElementById('edit-user-status').value;
+    
+    // Separar nombre y apellido
+    const nameParts = userName.split(' ');
+    const nombre = nameParts[0] || '';
+    const apellido = nameParts.slice(1).join(' ') || '';
+    
+    // Obtener ID del rol
+    const id_role = getRoleId(userRole);
+    
+    try {
+        showLoading();
+        
+        if (userId) {
+            // Actualizar usuario (solo en frontend por ahora)
+            const userIndex = usersData.findIndex(u => u.id === userId);
+            if (userIndex !== -1) {
+                usersData[userIndex] = {
+                    ...usersData[userIndex],
+                    nombre: nombre,
+                    apellido: apellido,
+                    name: userName,
+                    username: userUsername,
+                    email: userEmail,
+                    role: userRole,
+                    id_role: id_role,
+                    status: userStatus
+                };
+                
+                showSuccessMessage('Usuario actualizado correctamente (solo en frontend)');
+            }
+        } else {
+            // Crear nuevo usuario en el backend
+            const usuarioData = {
+                nombre: nombre,
+                apellido: apellido,
+                email: userEmail,
+                password: 'password123', // Contraseña por defecto
+                id_role: id_role
+            };
+            
+            const result = await crearUsuarioAPI(usuarioData);
+            
+            if (result && result.mensaje) {
+                // Recargar usuarios desde API
+                await loadUsersFromAPI();
+                initializeUsersTable();
+                
+                showSuccessMessage(result.mensaje);
+            } else {
+                throw new Error('No se recibió confirmación del servidor');
+            }
+        }
+        
+        if (!userId) {
+            // Si es nuevo usuario, recargar la tabla
+            await loadUsersFromAPI();
+            initializeUsersTable();
+        }
+        
+    } catch (error) {
+        console.error('Error al guardar usuario:', error);
+        showSuccessMessage('Error al guardar usuario: ' + error.message);
+    } finally {
+        hideLoading();
+        closeEditUserModal();
+    }
+}
+
+// Función manejadora para eliminar usuario
+async function handleConfirmDeleteUser() {
+    const userId = parseInt(document.getElementById('delete-user-id').value);
+    
+    if (!userId) {
+        showSuccessMessage('ID de usuario no válido');
+        return;
+    }
+    
+    try {
+        showLoading();
+        
+        // Eliminar usuario del backend
+        const result = await eliminarUsuarioAPI(userId);
+        
+        if (result && result.mensaje) {
+            // Eliminar usuario del array local
+            const userIndex = usersData.findIndex(u => u.id === userId);
+            if (userIndex !== -1) {
+                usersData.splice(userIndex, 1);
+            }
+            
+            // Recargar tabla
+            initializeUsersTable();
+            showSuccessMessage(result.mensaje);
+        } else {
+            throw new Error('No se recibió confirmación del servidor');
+        }
+        
+    } catch (error) {
+        console.error('Error al eliminar usuario:', error);
+        showSuccessMessage('Error al eliminar usuario: ' + error.message);
+    } finally {
+        hideLoading();
+        closeDeleteUserModal();
+    }
+}
+
+// =================== EVENT DELEGATION PARA MODALES ===================
+
+// Configurar event delegation para cerrar modales
+function setupModalEventDelegation() {
+    console.log('🔧 Configurando event delegation para modales...');
+    
+    // Usar event delegation para manejar todos los clics
+    document.addEventListener('click', function(event) {
+        // Cerrar modal de edición de práctica
+        if (event.target.id === 'close-edit-modal' || 
+            event.target.id === 'cancel-edit' ||
+            event.target.closest('#close-edit-modal') || 
+            event.target.closest('#cancel-edit')) {
+            closeEditModal();
+        }
+        
+        // Cerrar modal de eliminación de práctica
+        if (event.target.id === 'close-delete-modal' || 
+            event.target.id === 'cancel-delete' ||
+            event.target.closest('#close-delete-modal') || 
+            event.target.closest('#cancel-delete')) {
+            closeDeleteModal();
+        }
+        
+        // Cerrar modal de edición de usuario
+        if (event.target.id === 'close-edit-user-modal' || 
+            event.target.id === 'cancel-edit-user' ||
+            event.target.closest('#close-edit-user-modal') || 
+            event.target.closest('#cancel-edit-user')) {
+            closeEditUserModal();
+        }
+        
+        // Cerrar modal de eliminación de usuario
+        if (event.target.id === 'close-delete-user-modal' || 
+            event.target.id === 'cancel-delete-user' ||
+            event.target.closest('#close-delete-user-modal') || 
+            event.target.closest('#cancel-delete-user')) {
+            closeDeleteUserModal();
+        }
+        
+        // Confirmar eliminación de práctica
+        if (event.target.id === 'confirm-delete' || 
+            event.target.closest('#confirm-delete')) {
+            handleConfirmDelete();
+        }
+        
+        // Confirmar eliminación de usuario
+        if (event.target.id === 'confirm-delete-user' || 
+            event.target.closest('#confirm-delete-user')) {
+            handleConfirmDeleteUser();
+        }
+    });
+    
+    // Cerrar modal al hacer clic fuera del contenido
+    document.addEventListener('click', function(event) {
+        const editModal = document.getElementById('edit-modal');
+        const deleteModal = document.getElementById('delete-modal');
+        const editUserModal = document.getElementById('edit-user-modal');
+        const deleteUserModal = document.getElementById('delete-user-modal');
+        
+        if (editModal && !editModal.classList.contains('hidden') && 
+            event.target === editModal) {
+            closeEditModal();
+        }
+        
+        if (deleteModal && !deleteModal.classList.contains('hidden') && 
+            event.target === deleteModal) {
+            closeDeleteModal();
+        }
+        
+        if (editUserModal && !editUserModal.classList.contains('hidden') && 
+            event.target === editUserModal) {
+            closeEditUserModal();
+        }
+        
+        if (deleteUserModal && !deleteUserModal.classList.contains('hidden') && 
+            event.target === deleteUserModal) {
+            closeDeleteUserModal();
+        }
+    });
+    
+    // Event delegation para formularios
+    document.addEventListener('submit', function(event) {
+        if (event.target && event.target.id === 'edit-practice-form') {
+            handleEditPracticeFormSubmit(event);
+        }
+        
+        if (event.target && event.target.id === 'edit-user-form') {
+            handleEditUserFormSubmit(event);
+        }
+    });
+    
+    console.log('✅ Event delegation configurado para modales');
+}
+
+// =================== CONFIGURACIÓN INICIAL MEJORADA ===================
+
+// Función para inicializar la aplicación
+function initializeApplication() {
+    try {
+        console.log('🚀 Inicializando aplicación...');
+        
+        initializeDashboard();
+        initializePracticesTable();
+        initializeUsersTable();
+        initializeReportsTable();
+        setupEventListeners();
+        updateResultsCount();
+        updateReportsResultsCount();
+        generateAgendaSchedule();
+        
+        setupHeaderFunctionality();
+        setupUserModalListeners();
+        
+        // Configurar event delegation para modales
+        setupModalEventDelegation();
+        
+        showView('dashboard-view');
+        
+        loadRecentActivities();
+        loadUpcomingPractices();
+        
+        // Cargar datos para formularios
+        setTimeout(() => {
+            cargarDatosParaFormulario();
+        }, 500);
+        
+        console.log('✅ Aplicación inicializada correctamente');
+    } catch (error) {
+        console.error('❌ Error al inicializar componentes de la aplicación:', error);
+        alert('Error al cargar la interfaz. Algunas funciones pueden no estar disponibles.');
+    }
+}
+
+// REEMPLAZA completamente la función setupModalListeners() con esta versión simplificada
+function setupModalListeners() {
+    // Esta función ahora es redundante porque usamos event delegation
+    // Se mantiene por compatibilidad
+    console.log('ℹ️ Usando event delegation para modales');
+}
+
+// =================== FUNCIONES PARA ABRIR MODALES ===================
+
+// Abrir modal para nueva práctica
+function openNewPracticeModal(day = null, hour = null) {
+    document.getElementById('edit-practice-form').reset();
+    document.getElementById('edit-practice-id').value = '';
+    
+    document.getElementById('edit-modal-title').textContent = 'Nueva Práctica';
+    
+    const editModal = document.getElementById('edit-modal');
+    if (editModal) {
+        editModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        const headerContainer = document.getElementById('header-container');
+        if (headerContainer) {
+            headerContainer.classList.add('modal-open');
+        }
+    }
+    
+    // Cargar datos para los select
+    cargarDatosParaFormulario();
+    
+    if (day && hour) {
+        prefillPracticeForm(day, hour);
+    }
+}
+
+// Abrir modal para editar práctica
+async function openEditModal(practiceId) {
+    try {
+        showLoading();
+        
+        // Obtener datos de la reserva desde el backend
+        const reservaData = await fetchFromAPI(`${API_CONFIG.ENDPOINTS.RESERVAS}/${practiceId}`);
+        
+        if (!reservaData) {
+            throw new Error('No se pudieron cargar los datos de la práctica');
+        }
+        
+        // Cargar datos para formularios
+        await cargarDatosParaFormulario();
+        
+        // Llenar el formulario
+        document.getElementById('edit-practice-id').value = reservaData.id_reserva || reservaData.id;
+        document.getElementById('edit-practice-date').value = reservaData.fecha ? reservaData.fecha.split('T')[0] : '';
+        document.getElementById('edit-practice-time').value = reservaData.hora_inicio || '';
+        document.getElementById('edit-practice-name').value = reservaData.clase || '';
+        document.getElementById('edit-practice-professor').value = reservaData.id_usuario || '';
+        document.getElementById('edit-practice-subject').value = ''; // No hay en BD
+        document.getElementById('edit-practice-objective').value = reservaData.descripcion || '';
+        document.getElementById('edit-practice-lab').value = reservaData.id_laboratorio || '';
+        document.getElementById('edit-practice-status').value = mapStatus(reservaData.estado);
+        
+        document.getElementById('edit-modal-title').textContent = 'Editar Práctica';
+        
+        const editModal = document.getElementById('edit-modal');
+        if (editModal) {
+            editModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            const headerContainer = document.getElementById('header-container');
+            if (headerContainer) {
+                headerContainer.classList.add('modal-open');
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error al cargar datos para edición:', error);
+        showSuccessMessage('Error al cargar datos: ' + error.message);
+    } finally {
+        hideLoading();
+    }
+}
+
+// Abrir modal para eliminar práctica
+function openDeleteModal(practiceId, practiceName, practiceProfessor, practiceDate) {
+    document.getElementById('delete-practice-id').value = practiceId;
+    document.getElementById('delete-practice-name').textContent = practiceName;
+    document.getElementById('delete-practice-details').textContent = `${practiceProfessor} - ${practiceDate}`;
+    
+    const deleteModal = document.getElementById('delete-modal');
+    if (deleteModal) {
+        deleteModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        const headerContainer = document.getElementById('header-container');
+        if (headerContainer) {
+            headerContainer.classList.add('modal-open');
+        }
+    }
+}
+
+// Abrir modal para nuevo usuario
+function openNewUserModal() {
+    const editUserForm = document.getElementById('edit-user-form');
+    if (editUserForm) {
+        editUserForm.reset();
+    }
+    document.getElementById('edit-user-id').value = '';
+    
+    const editUserModalTitle = document.getElementById('edit-user-modal-title');
+    if (editUserModalTitle) {
+        editUserModalTitle.textContent = 'Agregar Usuario';
+    }
+    
+    const editUserModal = document.getElementById('edit-user-modal');
+    if (editUserModal) {
+        editUserModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        const headerContainer = document.getElementById('header-container');
+        if (headerContainer) {
+            headerContainer.classList.add('modal-open');
+        }
+    }
+}
+
+// Abrir modal para editar usuario
+function openEditUserModal(userId) {
+    const user = usersData.find(u => u.id === userId);
+    if (!user) return;
+    
+    document.getElementById('edit-user-id').value = user.id;
+    document.getElementById('edit-user-name').value = user.name;
+    document.getElementById('edit-user-username').value = user.username;
+    document.getElementById('edit-user-email').value = user.email;
+    document.getElementById('edit-user-role').value = user.role;
+    document.getElementById('edit-user-status').value = user.status;
+    
+    const editUserModalTitle = document.getElementById('edit-user-modal-title');
+    if (editUserModalTitle) {
+        editUserModalTitle.textContent = 'Editar Usuario';
+    }
+    
+    const editUserModal = document.getElementById('edit-user-modal');
+    if (editUserModal) {
+        editUserModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        const headerContainer = document.getElementById('header-container');
+        if (headerContainer) {
+            headerContainer.classList.add('modal-open');
+        }
+    }
+}
+
+// Abrir modal para eliminar usuario
+function openDeleteUserModal(userId, userName) {
+    document.getElementById('delete-user-id').value = userId;
+    document.getElementById('delete-user-name').textContent = userName;
+    document.getElementById('delete-user-details').textContent = `Usuario: ${userName}`;
+    
+    const deleteUserModal = document.getElementById('delete-user-modal');
+    if (deleteUserModal) {
+        deleteUserModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        const headerContainer = document.getElementById('header-container');
+        if (headerContainer) {
+            headerContainer.classList.add('modal-open');
+        }
+    }
+}
+
+// =================== FUNCIONES MANEJADORAS PARA BOTONES DE TABLA ===================
+
+// Función manejadora para botones de edición de práctica
+function handleEditPractice() {
+    const practiceId = parseInt(this.getAttribute('data-id'));
+    openEditModal(practiceId);
+}
+
+// Función manejadora para botones de eliminación de práctica
+function handleDeletePractice() {
+    const practiceId = parseInt(this.getAttribute('data-id'));
+    const practiceName = this.getAttribute('data-practice');
+    const practiceProfessor = this.getAttribute('data-professor');
+    const practiceDate = this.getAttribute('data-date');
+    openDeleteModal(practiceId, practiceName, practiceProfessor, practiceDate);
+}
+
+// =================== INICIALIZACIÓN DEL DOCUMENTO ===================
+
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('📄 DOM completamente cargado');
     
     // Primero cargar configuración
     loadSettings();
@@ -1011,6 +1561,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             currentReportsData = [...reportsData];
         }
         
+        // Inicializar la aplicación
+        initializeApplication();
         
     } catch (error) {
         console.error('Error crítico durante inicialización:', error);
@@ -1020,46 +1572,13 @@ document.addEventListener('DOMContentLoaded', async function() {
         reportsData = [];
         currentData = [...practiceData];
         currentReportsData = [...reportsData];
-        initializeApplication();
     } finally {
         // Ocultar loading
-        hideLoading();
+        setTimeout(() => {
+            hideLoading();
+        }, 500);
     }
 });
-
-// Función separada para inicializar la aplicación
-function initializeApplication() {
-    try {
-        initializeDashboard();
-        initializePracticesTable();
-        initializeUsersTable();
-        initializeReportsTable();
-        setupEventListeners();
-        updateResultsCount();
-        updateReportsResultsCount();
-        generateAgendaSchedule();
-        
-        setupHeaderFunctionality();
-        setupUserModalListeners();
-        setupModalListeners();
-        
-        showView('dashboard-view');
-        
-        loadRecentActivities();
-        loadUpcomingPractices();
-        
-        // Cargar datos para formularios
-        setTimeout(() => {
-            cargarDatosParaFormulario();
-        }, 500);
-        
-        console.log('✅ Aplicación inicializada correctamente');
-    } catch (error) {
-        console.error('❌ Error al inicializar componentes de la aplicación:', error);
-        alert('Error al cargar la interfaz. Algunas funciones pueden no estar disponibles.');
-    }
-}
-
 // Funciones de loading
 function showLoading() {
     let loadingElement = document.getElementById('loading-overlay');
@@ -2141,7 +2660,7 @@ function setupEventListeners() {
             closeMobileMenu();
             setTimeout(() => {
                 generateAgendaSchedule();
-            }, 100);
+            }, 50);
         });
         
         document.getElementById('mobile-users-link').addEventListener('click', function(e) {
@@ -2167,7 +2686,7 @@ function setupEventListeners() {
             setTimeout(() => {
                 setupSettingsListeners();
                 applySettings();
-            }, 100);
+            }, 50);
         });
         
         document.getElementById('mobile-logout-link').addEventListener('click', function(e) {
@@ -2249,357 +2768,6 @@ function setupEventListeners() {
 function openMobileMenu() {
     document.getElementById('mobile-sidebar').classList.remove('mobile-menu-closed');
     document.getElementById('mobile-sidebar').classList.add('mobile-menu-open');
-}
-
-// Configurar listeners para modales - ACTUALIZADO PARA CRUD USUARIOS
-function setupModalListeners() {
-    const editModal = document.getElementById('edit-modal');
-    const closeEditModal = document.getElementById('close-edit-modal');
-    const cancelEdit = document.getElementById('cancel-edit');
-    const editPracticeForm = document.getElementById('edit-practice-form');
-    
-    const deleteModal = document.getElementById('delete-modal');
-    const closeDeleteModal = document.getElementById('close-delete-modal');
-    const cancelDelete = document.getElementById('cancel-delete');
-    const confirmDelete = document.getElementById('confirm-delete');
-    
-    const editUserModal = document.getElementById('edit-user-modal');
-    const closeEditUserModal = document.getElementById('close-edit-user-modal');
-    const cancelEditUser = document.getElementById('cancel-edit-user');
-    const editUserForm = document.getElementById('edit-user-form');
-    
-    const deleteUserModal = document.getElementById('delete-user-modal');
-    const closeDeleteUserModal = document.getElementById('close-delete-user-modal');
-    const cancelDeleteUser = document.getElementById('cancel-delete-user');
-    const confirmDeleteUser = document.getElementById('confirm-delete-user');
-    
-    // Cerrar modal de edición de práctica
-    function closeEditModalFunc() {
-        editModal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        document.getElementById('header-container').classList.remove('modal-open');
-    }
-
-    if (closeEditModal) {
-        closeEditModal.addEventListener('click', closeEditModalFunc);
-    }
-    if (cancelEdit) {
-        cancelEdit.addEventListener('click', closeEditModalFunc);
-    }
-
-    if (editModal) {
-        editModal.addEventListener('click', function(e) {
-            if (e.target === editModal) {
-                closeEditModalFunc();
-            }
-        });
-    }
-
-    // Envío del formulario de edición
-    if (editPracticeForm) {
-        editPracticeForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const practiceId = parseInt(document.getElementById('edit-practice-id').value);
-            const practiceDate = document.getElementById('edit-practice-date').value;
-            const practiceTime = document.getElementById('edit-practice-time').value;
-            const practiceName = document.getElementById('edit-practice-name').value;
-            const practiceProfessorId = parseInt(document.getElementById('edit-practice-professor').value);
-            const practiceSubject = document.getElementById('edit-practice-subject').value;
-            const practiceObjective = document.getElementById('edit-practice-objective').value;
-            const practiceLabId = parseInt(document.getElementById('edit-practice-lab').value);
-            const practiceStatus = document.getElementById('edit-practice-status').value;
-            
-            try {
-                showLoading();
-                
-                const reservaData = {
-                    date: practiceDate,
-                    hora_inicio: practiceTime,
-                    hora_fin: calcularHoraFin(practiceTime),
-                    clase: practiceName,
-                    descripcion: practiceObjective,
-                    estado: practiceStatus,
-                    professor_id: practiceProfessorId,
-                    id_laboratorio: practiceLabId
-                };
-                
-                let result;
-                if (practiceId) {
-                    // Actualizar reserva existente
-                    result = await actualizarReservaAPI(practiceId, reservaData);
-                } else {
-                    // Crear nueva reserva
-                    result = await crearReservaAPI(reservaData);
-                }
-                
-                if (result && result.mensaje) {
-                    // Recargar datos desde API
-                    await loadPracticesFromAPI();
-                    await loadUsersFromAPI();
-                    
-                    // Actualizar UI
-                    updateDashboardStats();
-                    loadRecentActivities();
-                    loadUpcomingPractices();
-                    currentData = [...practiceData];
-                    currentReportsData = [...reportsData];
-                    initializePracticesTable();
-                    initializeReportsTable();
-                    
-                    // Actualizar agenda
-                    generateAgendaSchedule();
-                    
-                    showSuccessMessage(result.mensaje);
-                } else {
-                    throw new Error('No se recibió confirmación del servidor');
-                }
-                
-            } catch (error) {
-                console.error('Error al guardar práctica:', error);
-                showSuccessMessage('Error al guardar: ' + error.message);
-            } finally {
-                hideLoading();
-                closeEditModalFunc();
-            }
-        });
-    }
-    
-    // Cerrar modal de eliminación de práctica
-    function closeDeleteModalFunc() {
-        deleteModal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        document.getElementById('header-container').classList.remove('modal-open');
-    }
-
-    if (closeDeleteModal) {
-        closeDeleteModal.addEventListener('click', closeDeleteModalFunc);
-    }
-    if (cancelDelete) {
-        cancelDelete.addEventListener('click', closeDeleteModalFunc);
-    }
-
-    if (deleteModal) {
-        deleteModal.addEventListener('click', function(e) {
-            if (e.target === deleteModal) {
-                closeDeleteModalFunc();
-            }
-        });
-    }
-
-    // Confirmar eliminación de práctica
-    if (confirmDelete) {
-        confirmDelete.addEventListener('click', async function() {
-            const practiceId = parseInt(document.getElementById('delete-practice-id').value);
-            
-            try {
-                showLoading();
-                
-                // Eliminar reserva del backend
-                const result = await eliminarReservaAPI(practiceId);
-                
-                if (result && result.mensaje) {
-                    // Actualizar datos locales
-                    updateAgendaAfterDelete(practiceId);
-                    
-                    const practiceIndex = practiceData.findIndex(p => p.id === practiceId);
-                    if (practiceIndex !== -1) {
-                        practiceData.splice(practiceIndex, 1);
-                        
-                        const reportIndex = reportsData.findIndex(r => r.id === practiceId);
-                        if (reportIndex !== -1) {
-                            reportsData.splice(reportIndex, 1);
-                        }
-                    }
-                    
-                    // Actualizar UI
-                    updateDashboardStats();
-                    loadRecentActivities();
-                    loadUpcomingPractices();
-                    currentData = [...practiceData];
-                    currentReportsData = [...reportsData];
-                    initializePracticesTable();
-                    initializeReportsTable();
-                    
-                    showSuccessMessage(result.mensaje);
-                } else {
-                    throw new Error('No se recibió confirmación del servidor');
-                }
-                
-            } catch (error) {
-                console.error('Error al eliminar práctica:', error);
-                showSuccessMessage('Error al eliminar: ' + error.message);
-            } finally {
-                hideLoading();
-                closeDeleteModalFunc();
-            }
-        });
-    }
-    
-    // Cerrar modal de edición de usuario
-    function closeEditUserModalFunc() {
-        editUserModal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        document.getElementById('header-container').classList.remove('modal-open');
-    }
-
-    if (closeEditUserModal) {
-        closeEditUserModal.addEventListener('click', closeEditUserModalFunc);
-    }
-    if (cancelEditUser) {
-        cancelEditUser.addEventListener('click', closeEditUserModalFunc);
-    }
-
-    if (editUserModal) {
-        editUserModal.addEventListener('click', function(e) {
-            if (e.target === editUserModal) {
-                closeEditUserModalFunc();
-            }
-        });
-    }
-
-    // Envío del formulario de edición de usuario - ACTUALIZADO PARA API
-    if (editUserForm) {
-        editUserForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const userId = parseInt(document.getElementById('edit-user-id').value) || null;
-            const userName = document.getElementById('edit-user-name').value;
-            const userUsername = document.getElementById('edit-user-username').value;
-            const userEmail = document.getElementById('edit-user-email').value;
-            const userRole = document.getElementById('edit-user-role').value;
-            const userStatus = document.getElementById('edit-user-status').value;
-            
-            // Separar nombre y apellido
-            const nameParts = userName.split(' ');
-            const nombre = nameParts[0] || '';
-            const apellido = nameParts.slice(1).join(' ') || '';
-            
-            // Obtener ID del rol
-            const id_role = getRoleId(userRole);
-            
-            try {
-                showLoading();
-                
-                if (userId) {
-                    // Actualizar usuario (solo en frontend por ahora)
-                    const userIndex = usersData.findIndex(u => u.id === userId);
-                    if (userIndex !== -1) {
-                        usersData[userIndex] = {
-                            ...usersData[userIndex],
-                            nombre: nombre,
-                            apellido: apellido,
-                            name: userName,
-                            username: userUsername,
-                            email: userEmail,
-                            role: userRole,
-                            id_role: id_role,
-                            status: userStatus
-                        };
-                        
-                        showSuccessMessage('Usuario actualizado correctamente (solo en frontend)');
-                    }
-                } else {
-                    // Crear nuevo usuario en el backend
-                    const usuarioData = {
-                        nombre: nombre,
-                        apellido: apellido,
-                        email: userEmail,
-                        password: 'password123', // Contraseña por defecto
-                        id_role: id_role
-                    };
-                    
-                    const result = await crearUsuarioAPI(usuarioData);
-                    
-                    if (result && result.mensaje) {
-                        // Recargar usuarios desde API
-                        await loadUsersFromAPI();
-                        initializeUsersTable();
-                        
-                        showSuccessMessage(result.mensaje);
-                    } else {
-                        throw new Error('No se recibió confirmación del servidor');
-                    }
-                }
-                
-                if (!userId) {
-                    // Si es nuevo usuario, recargar la tabla
-                    await loadUsersFromAPI();
-                    initializeUsersTable();
-                }
-                
-            } catch (error) {
-                console.error('Error al guardar usuario:', error);
-                showSuccessMessage('Error al guardar usuario: ' + error.message);
-            } finally {
-                hideLoading();
-                closeEditUserModalFunc();
-            }
-        });
-    }
-    
-    // Cerrar modal de eliminación de usuario
-    function closeDeleteUserModalFunc() {
-        deleteUserModal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        document.getElementById('header-container').classList.remove('modal-open');
-    }
-
-    if (closeDeleteUserModal) {
-        closeDeleteUserModal.addEventListener('click', closeDeleteUserModalFunc);
-    }
-    if (cancelDeleteUser) {
-        cancelDeleteUser.addEventListener('click', closeDeleteUserModalFunc);
-    }
-
-    if (deleteUserModal) {
-        deleteUserModal.addEventListener('click', function(e) {
-            if (e.target === deleteUserModal) {
-                closeDeleteUserModalFunc();
-            }
-        });
-    }
-
-    // Confirmar eliminación de usuario - ACTUALIZADO PARA API
-    if (confirmDeleteUser) {
-        confirmDeleteUser.addEventListener('click', async function() {
-            const userId = parseInt(document.getElementById('delete-user-id').value);
-            
-            if (!userId) {
-                showSuccessMessage('ID de usuario no válido');
-                return;
-            }
-            
-            try {
-                showLoading();
-                
-                // Eliminar usuario del backend
-                const result = await eliminarUsuarioAPI(userId);
-                
-                if (result && result.mensaje) {
-                    // Eliminar usuario del array local
-                    const userIndex = usersData.findIndex(u => u.id === userId);
-                    if (userIndex !== -1) {
-                        usersData.splice(userIndex, 1);
-                    }
-                    
-                    // Recargar tabla
-                    initializeUsersTable();
-                    showSuccessMessage(result.mensaje);
-                } else {
-                    throw new Error('No se recibió confirmación del servidor');
-                }
-                
-            } catch (error) {
-                console.error('Error al eliminar usuario:', error);
-                showSuccessMessage('Error al eliminar usuario: ' + error.message);
-            } finally {
-                hideLoading();
-                closeDeleteUserModalFunc();
-            }
-        });
-    }
 }
 
 // Mostrar mensaje de éxito
@@ -3344,3 +3512,11 @@ window.refreshData = async function() {
         hideLoading();
     }
 };
+
+// Exportar funciones para que estén disponibles globalmente
+window.openNewPracticeModal = openNewPracticeModal;
+window.openEditModal = openEditModal;
+window.openDeleteModal = openDeleteModal;
+window.openNewUserModal = openNewUserModal;
+window.openEditUserModal = openEditUserModal;
+window.openDeleteUserModal = openDeleteUserModal;
