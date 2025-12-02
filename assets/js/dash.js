@@ -318,7 +318,6 @@ let scheduleOccupancy = {};
 window.selectedTimeSlot = null;
 
 // =================== FUNCIONES DE API ===================
-// =================== FUNCIONES DE API ===================
 async function fetchFromAPI(endpoint, options = {}) {
     try {
         const url = `${API_CONFIG.BASE_URL}${endpoint}`;
@@ -366,95 +365,6 @@ async function fetchFromAPI(endpoint, options = {}) {
     }
 }
 
-// Cargar usuarios desde la API - VERSIÓN CORREGIDA
-async function loadUsersFromAPI() {
-    try {
-        console.log('🔄 Cargando usuarios desde API...');
-        
-        // NOTA: Tu backend /api/usuarios está devolviendo 400 porque espera un parámetro email
-        // Si tu endpoint para obtener todos los usuarios es diferente, cámbialo aquí
-        
-        // Intento 1: Probar endpoint sin parámetros (si es que existe uno para todos los usuarios)
-        let data = await fetchFromAPI(API_CONFIG.ENDPOINTS.USUARIOS);
-        
-        if (!data) {
-            console.log('⚠️ Intento 1 falló, probando alternativas...');
-            
-            // Intento 2: Verificar si hay un endpoint diferente para obtener todos los usuarios
-            // Basado en tu controller, el endpoint que obtiene todos los usuarios es GET /api/usuarios
-            // pero parece necesitar parámetros. Revisemos el código del backend:
-            
-            // Según tu usuarioController.js, el endpoint obtenerUsuarios NO requiere parámetros
-            // El problema puede ser que estás llamando al endpoint equivocado
-            
-            console.log('🔍 Revisando estructura del backend...');
-            console.log('📝 Según usuarioController.js:');
-            console.log('- obtenerUsuarios: GET /api/usuarios (sin parámetros)');
-            console.log('- verificarEmail: GET /api/usuarios?email=xxx (requiere email)');
-            
-            // El error "Email is required" sugiere que estás llamando a verificarEmail en lugar de obtenerUsuarios
-            // Esto podría ser un problema de enrutamiento en el backend
-            
-            return false;
-        }
-        
-        if (!Array.isArray(data)) {
-            console.error('❌ Los datos no son un array:', data);
-            
-            // Intentar extraer datos de diferentes estructuras comunes
-            if (data.usuarios && Array.isArray(data.usuarios)) {
-                data = data.usuarios;
-                console.log('✅ Extraídos usuarios de propiedad "usuarios"');
-            } else if (data.data && Array.isArray(data.data)) {
-                data = data.data;
-                console.log('✅ Extraídos usuarios de propiedad "data"');
-            } else {
-                return false;
-            }
-        }
-        
-        console.log(`✅ API devolvió ${data.length} usuarios`);
-        
-        if (data.length > 0) {
-            console.log('🔍 Estructura del primer usuario:', data[0]);
-        }
-        
-        // Transformar datos
-        usersData = data.map((usuario, index) => {
-            try {
-                const transformedUser = {
-                    id: usuario.id_usuario || usuario.id || index + 1,
-                    nombre: usuario.nombre || '',
-                    apellido: usuario.apellido || '',
-                    name: `${usuario.nombre || ''} ${usuario.apellido || ''}`.trim(),
-                    username: usuario.email ? usuario.email.split('@')[0] : `user${index + 1}`,
-                    email: usuario.email || `usuario${index + 1}@universidad.edu`,
-                    role: mapRole(usuario.role || usuario.rol),
-                    id_role: usuario.id_role || getRoleId(usuario.role || usuario.rol) || 3,
-                    status: 'Activo',
-                    lastAccess: formatLastAccess(usuario.ultimo_login || usuario.last_login || null)
-                };
-                
-                // Si no tiene nombre completo, usar el email como nombre
-                if (!transformedUser.name) {
-                    transformedUser.name = transformedUser.email;
-                }
-                
-                return transformedUser;
-            } catch (error) {
-                console.error('Error al transformar usuario:', error);
-                return null;
-            }
-        }).filter(user => user !== null);
-        
-        console.log(`✅ Usuarios transformados: ${usersData.length}`);
-        return true;
-    } catch (error) {
-        console.error('❌ Error inesperado al cargar usuarios:', error);
-        return false;
-    }
-}
-
 // =================== FUNCIONES CRUD PARA USUARIOS ===================
 
 // Mapeo de roles entre frontend y backend
@@ -482,7 +392,7 @@ function getRoleName(roleId) {
     return 'Estudiante';
 }
 
-// Map de rol de la API al formato UI - CORREGIDA
+// Map de rol de la API al formato UI
 function mapRole(rol) {
     if (rol === undefined || rol === null || rol === '') {
         return 'Estudiante';
@@ -529,7 +439,6 @@ function mapRole(rol) {
     return mappedRole;
 }
 
-// Cargar usuarios desde la API - VERSIÓN DEFINITIVA
 // Cargar usuarios desde la API - VERSIÓN MEJORADA CON DEBUGGING
 async function loadUsersFromAPI() {
     try {
@@ -715,19 +624,6 @@ async function crearUsuarioAPI(usuarioData) {
         return result;
     } catch (error) {
         console.error('❌ Error al crear usuario:', error);
-        throw error;
-    }
-}
-
-// Actualizar usuario en el backend (opcional - si tu backend lo soporta)
-async function actualizarUsuarioAPI(id, usuarioData) {
-    try {
-        // Nota: Tu backend actual no tiene endpoint para actualizar usuarios
-        // Esta función es para futura implementación
-        console.log('⚠️ Actualización de usuario no implementada en el backend');
-        return { mensaje: "Función de actualización no disponible" };
-    } catch (error) {
-        console.error('❌ Error al actualizar usuario:', error);
         throw error;
     }
 }
@@ -944,8 +840,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             currentReportsData = [...reportsData];
         }
         
-        // Inicializar el resto de la aplicación
-        initializeApplication();
         
     } catch (error) {
         console.error('Error crítico durante inicialización:', error);
@@ -2595,99 +2489,213 @@ function updateActiveMobileLink(activeLink) {
 }
 
 // Inicializar tabla de prácticas
+// Inicializar tabla de prácticas - VERSIÓN SIN ASYNC/AWAIT
 function initializePracticesTable() {
-    const tableBody = document.getElementById('table-body');
+    console.log('📊 Inicializando tabla de prácticas...');
+    
+    // Intentar encontrar el elemento
+    let tableBody = document.getElementById('table-body');
+    
     if (!tableBody) {
-        console.error('No se encontró table-body');
+        console.warn('⚠️ table-body no encontrado, intentando en 300ms...');
+        
+        // Reintentar después de un tiempo
+        setTimeout(() => {
+            tableBody = document.getElementById('table-body');
+            if (!tableBody) {
+                console.log('🛠️ Creando elemento table-body dinámicamente...');
+                createTableBodyElement();
+                tableBody = document.getElementById('table-body');
+            }
+            
+            if (tableBody) {
+                renderPracticesTable(tableBody);
+            } else {
+                console.error('❌ No se pudo crear table-body');
+            }
+        }, 300);
+        
         return;
     }
     
-    tableBody.innerHTML = '';
-    
-    console.log('Renderizando tabla con', currentData.length, 'prácticas');
-    
-    currentData.forEach((item) => {
-        const row = document.createElement('tr');
-        row.className = 'bg-white dark:bg-background-dark';
+    // Si se encontró, renderizar inmediatamente
+    renderPracticesTable(tableBody);
+}
+// Agregar esta función después de initializePracticesTable
+function attachPracticeTableListeners() {
+    try {
+        console.log('🔄 Adjuntando listeners a la tabla de prácticas...');
         
-        let statusColor = '';
-        let statusText = '';
-        switch(item.status) {
-            case 'programada':
-                statusColor = 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200';
-                statusText = 'Programada';
-                break;
-            case 'confirmada':
-                statusColor = 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200';
-                statusText = 'Confirmada';
-                break;
-            case 'en-curso':
-                statusColor = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200';
-                statusText = 'En curso';
-                break;
-            case 'completada':
-                statusColor = 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
-                statusText = 'Completada';
-                break;
-            case 'cancelada':
-                statusColor = 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200';
-                statusText = 'Cancelada';
-                break;
-            default:
-                statusColor = 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
-                statusText = item.status;
+        // Listener para botones de edición
+        document.querySelectorAll('.edit-practice-btn').forEach(button => {
+            button.removeEventListener('click', handleEditPractice);
+            button.addEventListener('click', handleEditPractice);
+        });
+        
+        // Listener para botones de eliminación
+        document.querySelectorAll('.delete-practice-btn').forEach(button => {
+            button.removeEventListener('click', handleDeletePractice);
+            button.addEventListener('click', handleDeletePractice);
+        });
+        
+        console.log('✅ Listeners adjuntados correctamente');
+    } catch (error) {
+        console.error('❌ Error al adjuntar listeners:', error);
+    }
+}
+
+// Funciones manejadoras para los botones
+function handleEditPractice() {
+    const practiceId = parseInt(this.getAttribute('data-id'));
+    openEditModal(practiceId);
+}
+
+function handleDeletePractice() {
+    const practiceId = parseInt(this.getAttribute('data-id'));
+    const practiceName = this.getAttribute('data-practice');
+    const practiceProfessor = this.getAttribute('data-professor');
+    const practiceDate = this.getAttribute('data-date');
+    openDeleteModal(practiceId, practiceName, practiceProfessor, practiceDate);
+}
+// Función separada para renderizar la tabla
+function renderPracticesTable(tableBody) {
+    try {
+        console.log('✅ table-body encontrado, renderizando...');
+        
+        // Limpiar contenido
+        tableBody.innerHTML = '';
+        
+        console.log('🔄 Renderizando', currentData.length, 'prácticas');
+        
+        // Si no hay datos, mostrar mensaje
+        if (currentData.length === 0) {
+            const emptyRow = document.createElement('tr');
+            emptyRow.className = 'bg-white dark:bg-background-dark';
+            emptyRow.innerHTML = `
+                <td colspan="6" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                    <div class="flex flex-col items-center justify-center">
+                        <i class="fas fa-inbox text-3xl mb-2"></i>
+                        <p class="text-lg font-medium">No hay prácticas disponibles</p>
+                        <p class="text-sm mt-1">Crea tu primera práctica haciendo clic en "Nueva Práctica"</p>
+                        <button id="add-first-practice" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="fas fa-plus mr-2"></i> Nueva Práctica
+                        </button>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(emptyRow);
+            
+            // Agregar evento al botón
+            setTimeout(() => {
+                const addButton = document.getElementById('add-first-practice');
+                if (addButton) {
+                    addButton.addEventListener('click', openNewPracticeModal);
+                }
+            }, 100);
+            
+            updateResultsCount();
+            return;
         }
         
-        row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${formatDate(item.date)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${item.practice}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${item.professor}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${item.subject}</td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">
-                    ${statusText}
-                </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button class="edit-practice-btn text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3"
-                        data-id="${item.id}">
-                    Editar
-                </button>
-                <button class="delete-practice-btn text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                        data-id="${item.id}"
-                        data-practice="${item.practice}"
-                        data-professor="${item.professor}"
-                        data-date="${formatDate(item.date)}">
-                    Eliminar
-                </button>
-            </td>
-        `;
+        // Renderizar cada práctica
+        currentData.forEach((item, index) => {
+            try {
+                const row = document.createElement('tr');
+                row.className = `bg-white dark:bg-background-dark hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${index % 2 === 0 ? '' : 'bg-gray-50/50 dark:bg-gray-800/50'}`;
+                
+                let statusColor = '';
+                let statusText = '';
+                switch(item.status) {
+                    case 'programada':
+                        statusColor = 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200';
+                        statusText = 'Programada';
+                        break;
+                    case 'confirmada':
+                        statusColor = 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200';
+                        statusText = 'Confirmada';
+                        break;
+                    case 'en-curso':
+                        statusColor = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200';
+                        statusText = 'En curso';
+                        break;
+                    case 'completada':
+                        statusColor = 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+                        statusText = 'Completada';
+                        break;
+                    case 'cancelada':
+                        statusColor = 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200';
+                        statusText = 'Cancelada';
+                        break;
+                    default:
+                        statusColor = 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+                        statusText = item.status || 'Desconocido';
+                }
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+                        ${formatDate(item.date)}
+                        ${item.time ? `<br><span class="text-xs text-gray-500 dark:text-gray-400">${item.time}</span>` : ''}
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white">${item.practice || 'Práctica sin nombre'}</div>
+                        ${item.lab ? `<div class="text-xs text-gray-500 dark:text-gray-400">${item.lab}</div>` : ''}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900 dark:text-white">${item.professor || 'Sin asignar'}</div>
+                        ${item.subject ? `<div class="text-xs text-gray-500 dark:text-gray-400">${item.subject}</div>` : ''}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+                        ${item.subject || 'Sin asignatura'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">
+                            ${statusText}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button class="edit-practice-btn text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3 px-3 py-1 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors"
+                                data-id="${item.id}"
+                                title="Editar práctica">
+                            <i class="fas fa-edit mr-1"></i> Editar
+                        </button>
+                        <button class="delete-practice-btn text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 px-3 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                                data-id="${item.id}"
+                                data-practice="${item.practice}"
+                                data-professor="${item.professor}"
+                                data-date="${formatDate(item.date)}"
+                                title="Eliminar práctica">
+                            <i class="fas fa-trash mr-1"></i> Eliminar
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+                
+            } catch (error) {
+                console.error(`❌ Error al crear fila para práctica ${item.id}:`, error);
+            }
+        });
         
-        tableBody.appendChild(row);
-    });
-    
-    document.querySelectorAll('.edit-practice-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const practiceId = parseInt(this.getAttribute('data-id'));
-            openEditModal(practiceId);
-        });
-    });
-    
-    document.querySelectorAll('.delete-practice-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const practiceId = parseInt(this.getAttribute('data-id'));
-            const practiceName = this.getAttribute('data-practice');
-            const practiceProfessor = this.getAttribute('data-professor');
-            const practiceDate = this.getAttribute('data-date');
-            openDeleteModal(practiceId, practiceName, practiceProfessor, practiceDate);
-        });
-    });
-    
-    updateResultsCount();
-    updateFilters();
-    
-    console.log('Tabla de prácticas actualizada correctamente');
+        // Agregar event listeners a los botones
+        setTimeout(() => {
+            attachPracticeTableListeners();
+        }, 100);
+        
+        // Actualizar filtros y contador
+        updateFilters();
+        updateResultsCount();
+        
+        // Actualizar indicadores de ordenamiento
+        updateSortIndicators();
+        
+        console.log(`✅ Tabla de prácticas inicializada con ${currentData.length} registros`);
+        
+    } catch (error) {
+        console.error('❌ Error en renderPracticesTable:', error);
+        showTableError(error);
+    }
 }
+
 
 // Inicializar tabla de usuarios
 function initializeUsersTable() {
