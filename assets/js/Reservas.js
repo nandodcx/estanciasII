@@ -106,7 +106,7 @@ async function cargarReservas() {
             const fecha = (r.fecha || "").slice(0,10);
             const nombreLab = r.nombre_laboratorio || "—";
             const clase = r.clase || "—";
-            const estado = r.estado || "pendiente";
+            const estado = r.estado || "programada";
             const id = r.id_reserva;
 
             tablaBody.innerHTML += `
@@ -285,7 +285,7 @@ async function guardarNueva() {
         hora_fin: "00:00:00",
         clase,
         descripcion: "",
-        estado: "pendiente",
+        estado: "programada",
         nombre_laboratorio: ""
     };
 
@@ -392,7 +392,7 @@ async function actualizarContadores() {
 
         const mis = reservas.filter(r => r.id_usuario == usuario.id_usuario);
 
-        const proximas = mis.filter(r => (r.estado || "").toLowerCase() === "pendiente" || (r.estado || "").toLowerCase() === "programada");
+        const proximas = mis.filter(r => (r.estado || "").toLowerCase() === "programada");
 
         const completadas = mis.filter(r => (r.estado || "").toLowerCase() === "completada");
 
