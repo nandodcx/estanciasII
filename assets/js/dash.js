@@ -294,86 +294,6 @@ const translations = {
     }
 };
 
-// Datos de ejemplo para backup (si falla la API)
-function getDefaultPracticeData() {
-    return [
-        { 
-            id: 1, 
-            date: '2024-01-15',
-            practice: 'Laboratorio MAC', 
-            professor: 'Dr. Fued', 
-            subject: 'Programación Concurrente', 
-            status: 'programada', 
-            time: '7:00',
-            objective: 'Programación de hilos en web.',
-            lab: 'Laboratorio 3A'
-        },
-        { 
-            id: 2, 
-            date: '2024-01-15',
-            practice: 'Laboratorio Linux', 
-            professor: 'Prof. Estefano', 
-            subject: 'Sistemas Operativos', 
-            status: 'confirmada', 
-            time: '9:00',
-            objective: 'Instalación de un sistema operativo dual.',
-            lab: 'Laboratorio 2B'
-        },
-        { 
-            id: 3, 
-            date: '2024-01-16',
-            practice: 'Laboratorio Windows', 
-            professor: 'Prof. Ricardo', 
-            subject: 'Programación I', 
-            status: 'en-curso', 
-            time: '11:00',
-            objective: 'Instalación de un sistema operativo dual.',
-            lab: 'Laboratorio 1C'
-        },
-        { 
-            id: 4, 
-            date: '2024-01-17',
-            practice: 'Laboratorio Windows', 
-            professor: 'Prof. Valeria', 
-            subject: 'Liderazgo eq. Alto desempeño', 
-            status: 'cancelada', 
-            time: '14:00',
-            objective: 'Examen de conocimientos.',
-            lab: 'Aula 4'
-        },
-        { 
-            id: 5, 
-            date: '2024-01-18',
-            practice: 'Laboratorio Windows', 
-            professor: 'Prof. Valeria', 
-            subject: 'Liderazgo eq. Alto desempeño', 
-            status: 'completada', 
-            time: '16:00',
-            objective: 'En cuesta de...',
-            lab: 'Aula 4'
-        }
-    ];
-}
-
-function getDefaultUsersData() {
-    return [
-        { id: 1, name: 'Administrador', username: 'admin', email: 'admin@universidad.edu', role: 'Administrador', status: 'Activo', lastAccess: 'Hoy, 10:30 AM' },
-        { id: 2, name: 'Profesor Ejemplo', username: 'profesor', email: 'profesor@universidad.edu', role: 'Profesor', status: 'Activo', lastAccess: 'Ayer' }
-    ];
-}
-
-function getDefaultReportsData() {
-    const practices = getDefaultPracticeData();
-    return practices.map(practice => ({
-        id: practice.id,
-        date: practice.date,
-        practice: practice.practice,
-        objective: practice.objective,
-        professor: practice.professor,
-        subject: practice.subject
-    }));
-}
-
 // Estado de la aplicación
 let practiceData = [];
 let usersData = [];
@@ -438,6 +358,111 @@ async function fetchFromAPI(endpoint, options = {}) {
     }
 }
 
+// =================== FUNCIONES CORREGIDAS ===================
+
+// Map de rol de la API al formato UI - CORREGIDA
+function mapRole(rol) {
+    if (rol === undefined || rol === null || rol === '') {
+        return 'Estudiante';
+    }
+    
+    // Convertir a string y limpiar
+    const rolStr = String(rol).toLowerCase().trim();
+    
+    console.log(`📝 Mapeando rol: "${rol}" -> "${rolStr}"`);
+    
+    // Mapeo basado en los nombres que podría devolver tu base de datos
+    const roleMap = {
+        // Administradores
+        'admin': 'Administrador',
+        'administrador': 'Administrador',
+        'administrator': 'Administrador',
+        '1': 'Administrador',
+        
+        // Profesores
+        'profesor': 'Profesor',
+        'teacher': 'Profesor',
+        'docente': 'Profesor',
+        '2': 'Profesor',
+        
+        // Estudiantes
+        'estudiante': 'Estudiante',
+        'student': 'Estudiante',
+        'alumno': 'Estudiante',
+        '3': 'Estudiante',
+        
+        // Coincidencias parciales
+        'admini': 'Administrador',
+        'prof': 'Profesor',
+        'est': 'Estudiante'
+    };
+    
+    const mappedRole = roleMap[rolStr] || 'Estudiante';
+    console.log(`✅ Rol mapeado: "${rol}" -> "${mappedRole}"`);
+    return mappedRole;
+}
+
+// Cargar usuarios desde la API - VERSIÓN DEFINITIVA
+async function loadUsersFromAPI() {
+    try {
+        console.log('🔄 Cargando usuarios desde');
+        
+        // Usar el endpoint correcto
+        const data = await fetchFromAPI(API_CONFIG.ENDPOINTS.USUARIOS);
+        
+        if (!data) {
+            console.error('❌ No se obtuvieron datos de la API');
+            return false;
+        }
+        
+        if (!Array.isArray(data)) {
+            console.error('❌ Los datos no son un array:', data);
+            return false;
+        }
+        
+        console.log(`✅ API devolvió ${data.length} usuarios`);
+        
+        // Debug: mostrar estructura del primer usuario
+        if (data.length > 0) {
+            const firstUser = data[0];
+            console.log('🔍 Estructura del primer usuario:');
+            console.log('- id_usuario:', firstUser.id_usuario);
+            console.log('- nombre:', firstUser.nombre);
+            console.log('- apellido:', firstUser.apellido);
+            console.log('- email:', firstUser.email);
+            console.log('- role:', firstUser.role);
+            console.log('- Todos los campos:', Object.keys(firstUser));
+        }
+        
+        // Transformar datos según la estructura EXACTA de tu API
+        usersData = data.map((usuario, index) => {
+            try {
+                // Datos según tu modelo obtenerUsuariosDB()
+                const transformedUser = {
+                    id: usuario.id_usuario || index + 1,
+                    name: `${usuario.nombre || ''} ${usuario.apellido || ''}`.trim(),
+                    username: usuario.email ? usuario.email.split('@')[0] : `user${index + 1}`,
+                    email: usuario.email || `usuario${index + 1}@universidad.edu`,
+                    role: mapRole(usuario.role), // ← ¡IMPORTANTE! usuario.role (no id_role)
+                    status: 'Activo', // Valor por defecto
+                    lastAccess: formatLastAccess(usuario.ultimo_login || usuario.last_login || null)
+                };
+                
+                return transformedUser;
+            } catch (error) {
+                console.error('Error al transformar usuario:', error);
+                return null;
+            }
+        }).filter(user => user !== null);
+        
+        console.log(`✅ Usuarios transformados: ${usersData.length}`);
+        return true;
+    } catch (error) {
+        console.error('❌ Error inesperado al cargar usuarios:', error);
+        return false;
+    }
+}
+
 // Cargar reservas (prácticas) desde la API
 async function loadPracticesFromAPI() {
     try {
@@ -445,7 +470,7 @@ async function loadPracticesFromAPI() {
         const data = await fetchFromAPI(API_CONFIG.ENDPOINTS.RESERVAS);
         
         if (!data || !Array.isArray(data)) {
-            console.warn('API de prácticas no devolvió datos válidos, usando datos locales');
+            console.warn('API de prácticas no devolvió datos válidos');
             return false;
         }
         
@@ -484,35 +509,6 @@ async function loadPracticesFromAPI() {
     }
 }
 
-// Cargar usuarios desde la API
-async function loadUsersFromAPI() {
-    try {
-        console.log('Cargando usuarios desde API...');
-        const data = await fetchFromAPI(API_CONFIG.ENDPOINTS.USUARIOS);
-        
-        if (!data || !Array.isArray(data)) {
-            console.warn('API de usuarios no devolvió datos válidos, usando datos locales');
-            return false;
-        }
-        
-        usersData = data.map(usuario => ({
-            id: usuario.id_usuario || usuario.id || Date.now(),
-            name: usuario.nombre_completo || usuario.nombre || usuario.email || 'Usuario',
-            username: usuario.username || (usuario.email ? usuario.email.split('@')[0] : 'user'),
-            email: usuario.email || 'sin-email@ejemplo.com',
-            role: mapRole(usuario.rol_id || usuario.rol),
-            status: usuario.activo || usuario.estado === 'activo' ? 'Activo' : 'Inactivo',
-            lastAccess: formatLastAccess(usuario.ultimo_login || usuario.last_login)
-        }));
-        
-        console.log(`Usuarios cargados: ${usersData.length}`);
-        return true;
-    } catch (error) {
-        console.error('Error inesperado al cargar usuarios:', error);
-        return false;
-    }
-}
-
 // Map de estado de la API al formato UI
 function mapStatus(estado) {
     if (!estado) return 'programada';
@@ -529,32 +525,6 @@ function mapStatus(estado) {
         'programada': 'programada'
     };
     return statusMap[estado.toLowerCase()] || 'programada';
-}
-
-// Map de rol de la API al formato UI
-function mapRole(rol) {
-    if (!rol) return 'Estudiante';
-    
-    // Si es número
-    if (typeof rol === 'number') {
-        const roleMap = {
-            1: 'Administrador',
-            2: 'Profesor',
-            3: 'Estudiante'
-        };
-        return roleMap[rol] || 'Estudiante';
-    }
-    
-    // Si es string
-    const roleMap = {
-        'admin': 'Administrador',
-        'administrador': 'Administrador',
-        'profesor': 'Profesor',
-        'teacher': 'Profesor',
-        'estudiante': 'Estudiante',
-        'student': 'Estudiante'
-    };
-    return roleMap[rol.toLowerCase()] || 'Estudiante';
 }
 
 // Formatear último acceso
@@ -668,12 +638,12 @@ document.addEventListener('DOMContentLoaded', async function() {
             usersLoaded = false;
         }
         
-        // Si ninguna API funcionó, usar datos locales
+        // Si ninguna API funcionó, usar datos vacíos
         if (!practicesLoaded && !usersLoaded) {
-            console.log('Usando datos de ejemplo locales');
-            practiceData = getDefaultPracticeData();
-            usersData = getDefaultUsersData();
-            reportsData = getDefaultReportsData();
+            console.log('Usando datos vacíos');
+            practiceData = [];
+            usersData = [];
+            reportsData = [];
             currentData = [...practiceData];
             currentReportsData = [...reportsData];
         }
@@ -683,10 +653,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         
     } catch (error) {
         console.error('Error crítico durante inicialización:', error);
-        // En caso de error crítico, usar datos locales y continuar
-        practiceData = getDefaultPracticeData();
-        usersData = getDefaultUsersData();
-        reportsData = getDefaultReportsData();
+        // En caso de error crítico, usar datos vacíos y continuar
+        practiceData = [];
+        usersData = [];
+        reportsData = [];
         currentData = [...practiceData];
         currentReportsData = [...reportsData];
         initializeApplication();
