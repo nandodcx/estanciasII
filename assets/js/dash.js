@@ -109,7 +109,7 @@ const translations = {
         "users.table.email": "Correo",
         "users.table.status": "Estado",
         "users.table.lastAccess": "Último Acceso",
-        "users.table.actions": "Acciones",
+        "users.table.actions": "ACCIONES",
         "users.editUser": "Editar Usuario",
         "users.confirmDelete": "Confirmar Eliminación",
         "users.deleteConfirmation": "¿Está seguro de eliminar este usuario?",
@@ -318,6 +318,7 @@ let scheduleOccupancy = {};
 window.selectedTimeSlot = null;
 
 // =================== FUNCIONES DE API ===================
+// =================== FUNCIONES DE API ===================
 async function fetchFromAPI(endpoint, options = {}) {
     try {
         const url = `${API_CONFIG.BASE_URL}${endpoint}`;
@@ -328,42 +329,168 @@ async function fetchFromAPI(endpoint, options = {}) {
             credentials: 'include'
         };
         
-        console.log(`Solicitando: ${url}`);
+        console.log(`📡 Solicitando: ${url}`);
+        console.log(`⚙️ Opciones:`, options);
+        
         const response = await fetch(url, { ...defaultOptions, ...options });
         
-        console.log(`Respuesta: ${response.status} ${response.statusText}`);
+        console.log(`📊 Respuesta: ${response.status} ${response.statusText}`);
         
+        // Para el endpoint de usuarios, el 400 no debería redirigir a login
         if (response.status === 401 || response.status === 403) {
-            console.warn('Acceso no autorizado, redirigiendo a login...');
-            window.location.href = '/login';
+            console.warn('🔒 Acceso no autorizado');
             return null;
         }
         
+        // Obtener el texto de error para debug
         if (!response.ok) {
-            console.warn(`API ${endpoint} respondió con error: ${response.status}`);
+            const errorText = await response.text();
+            console.warn(`⚠️ API ${endpoint} respondió con error: ${response.status}`);
+            console.warn(`📝 Mensaje de error:`, errorText);
             return null;
         }
         
         // Verificar si la respuesta tiene contenido
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
-            return await response.json();
+            const data = await response.json();
+            console.log(`✅ Datos recibidos de ${endpoint}:`, data);
+            return data;
         } else {
-            console.warn(`Respuesta no JSON de ${endpoint}`);
+            console.warn(`⚠️ Respuesta no JSON de ${endpoint}`);
             return null;
         }
     } catch (error) {
-        console.warn(`Error de red al conectar con ${endpoint}:`, error.message);
+        console.error(`💥 Error de red al conectar con ${endpoint}:`, error.message);
         return null;
     }
 }
 
-// =================== FUNCIONES CORREGIDAS ===================
+// Cargar usuarios desde la API - VERSIÓN CORREGIDA
+async function loadUsersFromAPI() {
+    try {
+        console.log('🔄 Cargando usuarios desde API...');
+        
+        // NOTA: Tu backend /api/usuarios está devolviendo 400 porque espera un parámetro email
+        // Si tu endpoint para obtener todos los usuarios es diferente, cámbialo aquí
+        
+        // Intento 1: Probar endpoint sin parámetros (si es que existe uno para todos los usuarios)
+        let data = await fetchFromAPI(API_CONFIG.ENDPOINTS.USUARIOS);
+        
+        if (!data) {
+            console.log('⚠️ Intento 1 falló, probando alternativas...');
+            
+            // Intento 2: Verificar si hay un endpoint diferente para obtener todos los usuarios
+            // Basado en tu controller, el endpoint que obtiene todos los usuarios es GET /api/usuarios
+            // pero parece necesitar parámetros. Revisemos el código del backend:
+            
+            // Según tu usuarioController.js, el endpoint obtenerUsuarios NO requiere parámetros
+            // El problema puede ser que estás llamando al endpoint equivocado
+            
+            console.log('🔍 Revisando estructura del backend...');
+            console.log('📝 Según usuarioController.js:');
+            console.log('- obtenerUsuarios: GET /api/usuarios (sin parámetros)');
+            console.log('- verificarEmail: GET /api/usuarios?email=xxx (requiere email)');
+            
+            // El error "Email is required" sugiere que estás llamando a verificarEmail en lugar de obtenerUsuarios
+            // Esto podría ser un problema de enrutamiento en el backend
+            
+            return false;
+        }
+        
+        if (!Array.isArray(data)) {
+            console.error('❌ Los datos no son un array:', data);
+            
+            // Intentar extraer datos de diferentes estructuras comunes
+            if (data.usuarios && Array.isArray(data.usuarios)) {
+                data = data.usuarios;
+                console.log('✅ Extraídos usuarios de propiedad "usuarios"');
+            } else if (data.data && Array.isArray(data.data)) {
+                data = data.data;
+                console.log('✅ Extraídos usuarios de propiedad "data"');
+            } else {
+                return false;
+            }
+        }
+        
+        console.log(`✅ API devolvió ${data.length} usuarios`);
+        
+        if (data.length > 0) {
+            console.log('🔍 Estructura del primer usuario:', data[0]);
+        }
+        
+        // Transformar datos
+        usersData = data.map((usuario, index) => {
+            try {
+                const transformedUser = {
+                    id: usuario.id_usuario || usuario.id || index + 1,
+                    nombre: usuario.nombre || '',
+                    apellido: usuario.apellido || '',
+                    name: `${usuario.nombre || ''} ${usuario.apellido || ''}`.trim(),
+                    username: usuario.email ? usuario.email.split('@')[0] : `user${index + 1}`,
+                    email: usuario.email || `usuario${index + 1}@universidad.edu`,
+                    role: mapRole(usuario.role || usuario.rol),
+                    id_role: usuario.id_role || getRoleId(usuario.role || usuario.rol) || 3,
+                    status: 'Activo',
+                    lastAccess: formatLastAccess(usuario.ultimo_login || usuario.last_login || null)
+                };
+                
+                // Si no tiene nombre completo, usar el email como nombre
+                if (!transformedUser.name) {
+                    transformedUser.name = transformedUser.email;
+                }
+                
+                return transformedUser;
+            } catch (error) {
+                console.error('Error al transformar usuario:', error);
+                return null;
+            }
+        }).filter(user => user !== null);
+        
+        console.log(`✅ Usuarios transformados: ${usersData.length}`);
+        return true;
+    } catch (error) {
+        console.error('❌ Error inesperado al cargar usuarios:', error);
+        return false;
+    }
+}
+
+// =================== FUNCIONES CRUD PARA USUARIOS ===================
+
+// Mapeo de roles entre frontend y backend
+const roleMapping = {
+    'Administrador': { id: 1, backend: 'admin' },
+    'Profesor': { id: 2, backend: 'teacher' },
+    'Estudiante': { id: 3, backend: 'student' }
+};
+
+// Obtener ID de rol basado en el nombre
+function getRoleId(roleName) {
+    if (!roleName) return 3; // Estudiante por defecto
+    
+    const role = roleMapping[roleName];
+    return role ? role.id : 3;
+}
+
+// Obtener nombre de rol basado en el ID
+function getRoleName(roleId) {
+    for (const [name, data] of Object.entries(roleMapping)) {
+        if (data.id === roleId) {
+            return name;
+        }
+    }
+    return 'Estudiante';
+}
 
 // Map de rol de la API al formato UI - CORREGIDA
 function mapRole(rol) {
     if (rol === undefined || rol === null || rol === '') {
         return 'Estudiante';
+    }
+    
+    // Si es un número (ID de rol), convertirlo a nombre
+    if (!isNaN(rol) && Number.isInteger(Number(rol))) {
+        return getRoleName(Number(rol));
     }
     
     // Convertir a string y limpiar
@@ -403,63 +530,232 @@ function mapRole(rol) {
 }
 
 // Cargar usuarios desde la API - VERSIÓN DEFINITIVA
+// Cargar usuarios desde la API - VERSIÓN MEJORADA CON DEBUGGING
 async function loadUsersFromAPI() {
     try {
-        console.log('🔄 Cargando usuarios desde');
+        console.log('🔄 Cargando usuarios desde API...');
+        console.log(`📡 Endpoint: ${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.USUARIOS}`);
         
-        // Usar el endpoint correcto
-        const data = await fetchFromAPI(API_CONFIG.ENDPOINTS.USUARIOS);
+        // Usar fetch directamente para ver la respuesta completa
+        const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.USUARIOS}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include'
+        });
+        
+        console.log(`📊 Estado de respuesta: ${response.status} ${response.statusText}`);
+        
+        if (response.status === 401 || response.status === 403) {
+            console.warn('Acceso no autorizado, redirigiendo a login...');
+            window.location.href = '/login';
+            return false;
+        }
+        
+        if (!response.ok) {
+            console.error(`❌ Error del servidor: ${response.status} ${response.statusText}`);
+            return false;
+        }
+        
+        // Verificar tipo de contenido
+        const contentType = response.headers.get('content-type');
+        console.log(`📄 Tipo de contenido: ${contentType}`);
+        
+        let data;
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+        } else {
+            const textResponse = await response.text();
+            console.warn(`⚠️ Respuesta no JSON:`, textResponse);
+            
+            // Intentar parsear como JSON si es posible
+            try {
+                data = JSON.parse(textResponse);
+            } catch (e) {
+                console.error('❌ No se pudo parsear la respuesta como JSON');
+                return false;
+            }
+        }
+        
+        console.log('📦 Datos recibidos del backend:', data);
         
         if (!data) {
             console.error('❌ No se obtuvieron datos de la API');
             return false;
         }
         
+        // Asegurarnos de que data sea un array
+        let usersArray = data;
         if (!Array.isArray(data)) {
-            console.error('❌ Los datos no son un array:', data);
-            return false;
+            console.warn('⚠️ Los datos no son un array, intentando convertir...');
+            
+            // Si data tiene una propiedad que contiene los usuarios
+            if (data.usuarios && Array.isArray(data.usuarios)) {
+                usersArray = data.usuarios;
+            } else if (data.data && Array.isArray(data.data)) {
+                usersArray = data.data;
+            } else if (data.users && Array.isArray(data.users)) {
+                usersArray = data.users;
+            } else {
+                // Si es un objeto simple, convertirlo a array
+                usersArray = [data];
+            }
         }
         
-        console.log(`✅ API devolvió ${data.length} usuarios`);
+        console.log(`✅ API devolvió ${usersArray.length} usuarios`);
         
         // Debug: mostrar estructura del primer usuario
-        if (data.length > 0) {
-            const firstUser = data[0];
-            console.log('🔍 Estructura del primer usuario:');
-            console.log('- id_usuario:', firstUser.id_usuario);
-            console.log('- nombre:', firstUser.nombre);
-            console.log('- apellido:', firstUser.apellido);
-            console.log('- email:', firstUser.email);
-            console.log('- role:', firstUser.role);
-            console.log('- Todos los campos:', Object.keys(firstUser));
+        if (usersArray.length > 0) {
+            const firstUser = usersArray[0];
+            console.log('🔍 Estructura del primer usuario:', firstUser);
+            console.log('📋 Campos disponibles:', Object.keys(firstUser));
         }
         
         // Transformar datos según la estructura EXACTA de tu API
-        usersData = data.map((usuario, index) => {
+        usersData = usersArray.map((usuario, index) => {
             try {
-                // Datos según tu modelo obtenerUsuariosDB()
+                console.log(`🔄 Transformando usuario ${index + 1}:`, usuario);
+                
+                // Extraer nombre y apellido
+                let nombre = '';
+                let apellido = '';
+                
+                if (usuario.nombre && usuario.apellido) {
+                    nombre = usuario.nombre;
+                    apellido = usuario.apellido;
+                } else if (usuario.name) {
+                    // Si viene como campo "name" completo
+                    const nameParts = usuario.name.split(' ');
+                    nombre = nameParts[0] || '';
+                    apellido = nameParts.slice(1).join(' ') || '';
+                }
+                
+                // Extraer rol
+                let role = '';
+                let id_role = 3; // Por defecto Estudiante
+                
+                if (usuario.role) {
+                    role = mapRole(usuario.role);
+                } else if (usuario.id_role) {
+                    role = getRoleName(usuario.id_role);
+                    id_role = usuario.id_role;
+                } else if (usuario.rol) {
+                    role = mapRole(usuario.rol);
+                }
+                
+                // Extraer email
+                const email = usuario.email || `usuario${index + 1}@universidad.edu`;
+                
                 const transformedUser = {
-                    id: usuario.id_usuario || index + 1,
-                    name: `${usuario.nombre || ''} ${usuario.apellido || ''}`.trim(),
-                    username: usuario.email ? usuario.email.split('@')[0] : `user${index + 1}`,
-                    email: usuario.email || `usuario${index + 1}@universidad.edu`,
-                    role: mapRole(usuario.role), // ← ¡IMPORTANTE! usuario.role (no id_role)
+                    id: usuario.id_usuario || usuario.id || index + 1,
+                    nombre: nombre,
+                    apellido: apellido,
+                    name: `${nombre} ${apellido}`.trim() || 'Usuario sin nombre',
+                    username: email.split('@')[0] || `user${index + 1}`,
+                    email: email,
+                    role: role || 'Estudiante',
+                    id_role: id_role,
                     status: 'Activo', // Valor por defecto
                     lastAccess: formatLastAccess(usuario.ultimo_login || usuario.last_login || null)
                 };
                 
+                console.log(`✅ Usuario transformado:`, transformedUser);
                 return transformedUser;
+                
             } catch (error) {
-                console.error('Error al transformar usuario:', error);
+                console.error('❌ Error al transformar usuario:', error, usuario);
                 return null;
             }
         }).filter(user => user !== null);
         
-        console.log(`✅ Usuarios transformados: ${usersData.length}`);
+        console.log(`🎉 Usuarios transformados exitosamente: ${usersData.length}`);
+        
+        // Mostrar todos los usuarios en consola para debug
+        console.log('👥 Todos los usuarios cargados:', usersData);
+        
         return true;
     } catch (error) {
         console.error('❌ Error inesperado al cargar usuarios:', error);
+        console.error('Stack trace:', error.stack);
         return false;
+    }
+}
+
+// Crear usuario en el backend
+async function crearUsuarioAPI(usuarioData) {
+    try {
+        // Preparar datos para el backend
+        const backendData = {
+            nombre: usuarioData.nombre,
+            apellido: usuarioData.apellido,
+            email: usuarioData.email,
+            password: usuarioData.password || 'password123', // Contraseña por defecto
+            id_role: usuarioData.id_role || 3 // Estudiante por defecto
+        };
+
+        console.log('📤 Enviando datos al backend:', backendData);
+
+        const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.USUARIOS}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(backendData)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Error del servidor:', errorText);
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log('✅ Respuesta del servidor:', result);
+        return result;
+    } catch (error) {
+        console.error('❌ Error al crear usuario:', error);
+        throw error;
+    }
+}
+
+// Actualizar usuario en el backend (opcional - si tu backend lo soporta)
+async function actualizarUsuarioAPI(id, usuarioData) {
+    try {
+        // Nota: Tu backend actual no tiene endpoint para actualizar usuarios
+        // Esta función es para futura implementación
+        console.log('⚠️ Actualización de usuario no implementada en el backend');
+        return { mensaje: "Función de actualización no disponible" };
+    } catch (error) {
+        console.error('❌ Error al actualizar usuario:', error);
+        throw error;
+    }
+}
+
+// Eliminar usuario del backend
+async function eliminarUsuarioAPI(id) {
+    try {
+        console.log(`🗑️ Eliminando usuario ID: ${id}`);
+        
+        const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.USUARIOS}/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Error del servidor:', errorText);
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log('✅ Respuesta del servidor:', result);
+        return result;
+    } catch (error) {
+        console.error('❌ Error al eliminar usuario:', error);
+        throw error;
     }
 }
 
@@ -681,7 +977,6 @@ function initializeApplication() {
         setupHeaderFunctionality();
         setupUserModalListeners();
         setupModalListeners();
-        setupSettingsListeners();
         
         showView('dashboard-view');
         
@@ -746,18 +1041,29 @@ function applySettings() {
     // Modo oscuro
     if (appSettings.darkMode) {
         document.documentElement.classList.add('dark');
+        localStorage.setItem('dark-mode', 'true');
     } else {
         document.documentElement.classList.remove('dark');
+        localStorage.setItem('dark-mode', 'false');
     }
     
     try {
+        // Solo actualizar elementos si existen
         const darkModeToggle = document.getElementById('dark-mode-toggle');
         const emailNotificationsToggle = document.getElementById('email-notifications');
         const languageSelect = document.getElementById('language');
         
-        if (darkModeToggle) darkModeToggle.checked = appSettings.darkMode;
-        if (emailNotificationsToggle) emailNotificationsToggle.checked = appSettings.emailNotifications;
-        if (languageSelect) languageSelect.value = appSettings.language;
+        if (darkModeToggle) {
+            darkModeToggle.checked = appSettings.darkMode;
+        }
+        
+        if (emailNotificationsToggle) {
+            emailNotificationsToggle.checked = appSettings.emailNotifications;
+        }
+        
+        if (languageSelect) {
+            languageSelect.value = appSettings.language;
+        }
         
         applyTranslations(appSettings.language);
     } catch (error) {
@@ -787,49 +1093,75 @@ function applyTranslations(language) {
 // Configurar listeners de configuración
 function setupSettingsListeners() {
     try {
+        console.log('🔧 Configurando listeners de settings...');
+        
         // Modo oscuro
         const darkModeToggle = document.getElementById('dark-mode-toggle');
         if (darkModeToggle) {
-            darkModeToggle.addEventListener('change', function() {
-                appSettings.darkMode = this.checked;
-            });
+            console.log('✅ Toggle modo oscuro encontrado');
+            darkModeToggle.removeEventListener('change', handleDarkModeToggle);
+            darkModeToggle.addEventListener('change', handleDarkModeToggle);
+        } else {
+            console.log('❌ Toggle modo oscuro NO encontrado');
         }
 
         // Notificaciones por email
         const emailNotificationsToggle = document.getElementById('email-notifications');
         if (emailNotificationsToggle) {
-            emailNotificationsToggle.addEventListener('change', function() {
-                appSettings.emailNotifications = this.checked;
-            });
+            emailNotificationsToggle.removeEventListener('change', handleEmailNotificationsToggle);
+            emailNotificationsToggle.addEventListener('change', handleEmailNotificationsToggle);
         }
 
         // Idioma
         const languageSelect = document.getElementById('language');
         if (languageSelect) {
-            languageSelect.addEventListener('change', function() {
-                appSettings.language = this.value;
-            });
+            languageSelect.removeEventListener('change', handleLanguageChange);
+            languageSelect.addEventListener('change', handleLanguageChange);
         }
 
         // Guardar configuración
         const saveSettingsBtn = document.getElementById('save-settings');
         if (saveSettingsBtn) {
-            saveSettingsBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                try {
-                    applySettings();
-                    saveSettings();
-                    showSuccessMessage('Configuración guardada correctamente');
-                    console.log('Configuración guardada:', appSettings);
-                } catch (error) {
-                    console.error('Error al guardar configuración:', error);
-                    showSuccessMessage('Error al guardar configuración');
-                }
-            });
+            saveSettingsBtn.removeEventListener('click', handleSaveSettings);
+            saveSettingsBtn.addEventListener('click', handleSaveSettings);
         }
+        
+        console.log('✅ Listeners de settings configurados');
     } catch (error) {
-        console.error('Error al configurar listeners de settings:', error);
+        console.error('❌ Error al configurar listeners de settings:', error);
+    }
+}
+
+// Funciones manejadoras separadas para mejor control
+function handleDarkModeToggle() {
+    appSettings.darkMode = this.checked;
+    if (appSettings.darkMode) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+}
+
+function handleEmailNotificationsToggle() {
+    appSettings.emailNotifications = this.checked;
+}
+
+function handleLanguageChange() {
+    appSettings.language = this.value;
+    applyTranslations(this.value);
+}
+
+function handleSaveSettings(e) {
+    e.preventDefault();
+    
+    try {
+        // Guardar configuración
+        localStorage.setItem('appSettings', JSON.stringify(appSettings));
+        showSuccessMessage('Configuración guardada correctamente');
+        console.log('Configuración guardada:', appSettings);
+    } catch (error) {
+        console.error('Error al guardar configuración:', error);
+        showSuccessMessage('Error al guardar configuración');
     }
 }
 
@@ -1668,6 +2000,11 @@ function setupEventListeners() {
             showView('settings-view');
             updateActiveLink(this);
             closeMobileMenu();
+            // Inicializar settings después de mostrar la vista
+            setTimeout(() => {
+                setupSettingsListeners();
+                applySettings();
+            }, 100);
         });
         
         document.getElementById('logout-link').addEventListener('click', function(e) {
@@ -1720,6 +2057,11 @@ function setupEventListeners() {
             showView('settings-view');
             updateActiveMobileLink(this);
             closeMobileMenu();
+            // Inicializar settings después de mostrar la vista
+            setTimeout(() => {
+                setupSettingsListeners();
+                applySettings();
+            }, 100);
         });
         
         document.getElementById('mobile-logout-link').addEventListener('click', function(e) {
@@ -1803,7 +2145,7 @@ function openMobileMenu() {
     document.getElementById('mobile-sidebar').classList.add('mobile-menu-open');
 }
 
-// Configurar listeners para modales
+// Configurar listeners para modales - ACTUALIZADO PARA CRUD USUARIOS
 function setupModalListeners() {
     const editModal = document.getElementById('edit-modal');
     const closeEditModal = document.getElementById('close-edit-modal');
@@ -1847,7 +2189,7 @@ function setupModalListeners() {
         });
     }
 
-    // Envío del formulario de edición - MODIFICADO para trabajar con API
+    // Envío del formulario de edición
     if (editPracticeForm) {
         editPracticeForm.addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -2028,50 +2370,84 @@ function setupModalListeners() {
         });
     }
 
-    // Envío del formulario de edición de usuario
+    // Envío del formulario de edición de usuario - ACTUALIZADO PARA API
     if (editUserForm) {
-        editUserForm.addEventListener('submit', function(e) {
+        editUserForm.addEventListener('submit', async function(e) {
             e.preventDefault();
+            e.stopPropagation();
             
-            const userId = parseInt(document.getElementById('edit-user-id').value);
+            const userId = parseInt(document.getElementById('edit-user-id').value) || null;
             const userName = document.getElementById('edit-user-name').value;
             const userUsername = document.getElementById('edit-user-username').value;
             const userEmail = document.getElementById('edit-user-email').value;
             const userRole = document.getElementById('edit-user-role').value;
             const userStatus = document.getElementById('edit-user-status').value;
             
-            if (userId) {
-                const userIndex = usersData.findIndex(u => u.id === userId);
-                if (userIndex !== -1) {
-                    usersData[userIndex] = {
-                        ...usersData[userIndex],
-                        name: userName,
-                        username: userUsername,
+            // Separar nombre y apellido
+            const nameParts = userName.split(' ');
+            const nombre = nameParts[0] || '';
+            const apellido = nameParts.slice(1).join(' ') || '';
+            
+            // Obtener ID del rol
+            const id_role = getRoleId(userRole);
+            
+            try {
+                showLoading();
+                
+                if (userId) {
+                    // Actualizar usuario (solo en frontend por ahora)
+                    const userIndex = usersData.findIndex(u => u.id === userId);
+                    if (userIndex !== -1) {
+                        usersData[userIndex] = {
+                            ...usersData[userIndex],
+                            nombre: nombre,
+                            apellido: apellido,
+                            name: userName,
+                            username: userUsername,
+                            email: userEmail,
+                            role: userRole,
+                            id_role: id_role,
+                            status: userStatus
+                        };
+                        
+                        showSuccessMessage('Usuario actualizado correctamente (solo en frontend)');
+                    }
+                } else {
+                    // Crear nuevo usuario en el backend
+                    const usuarioData = {
+                        nombre: nombre,
+                        apellido: apellido,
                         email: userEmail,
-                        role: userRole,
-                        status: userStatus
+                        password: 'password123', // Contraseña por defecto
+                        id_role: id_role
                     };
                     
-                    showSuccessMessage('Usuario actualizado correctamente');
+                    const result = await crearUsuarioAPI(usuarioData);
+                    
+                    if (result && result.mensaje) {
+                        // Recargar usuarios desde API
+                        await loadUsersFromAPI();
+                        initializeUsersTable();
+                        
+                        showSuccessMessage(result.mensaje);
+                    } else {
+                        throw new Error('No se recibió confirmación del servidor');
+                    }
                 }
-            } else {
-                const newId = usersData.length > 0 ? Math.max(...usersData.map(u => u.id)) + 1 : 1;
-                const newUser = {
-                    id: newId,
-                    name: userName,
-                    username: userUsername,
-                    email: userEmail,
-                    role: userRole,
-                    status: userStatus,
-                    lastAccess: 'Nunca'
-                };
                 
-                usersData.push(newUser);
-                showSuccessMessage('Usuario creado correctamente');
+                if (!userId) {
+                    // Si es nuevo usuario, recargar la tabla
+                    await loadUsersFromAPI();
+                    initializeUsersTable();
+                }
+                
+            } catch (error) {
+                console.error('Error al guardar usuario:', error);
+                showSuccessMessage('Error al guardar usuario: ' + error.message);
+            } finally {
+                hideLoading();
+                closeEditUserModalFunc();
             }
-            
-            initializeUsersTable();
-            closeEditUserModalFunc();
         });
     }
     
@@ -2097,20 +2473,43 @@ function setupModalListeners() {
         });
     }
 
-    // Confirmar eliminación de usuario
+    // Confirmar eliminación de usuario - ACTUALIZADO PARA API
     if (confirmDeleteUser) {
-        confirmDeleteUser.addEventListener('click', function() {
+        confirmDeleteUser.addEventListener('click', async function() {
             const userId = parseInt(document.getElementById('delete-user-id').value);
             
-            const userIndex = usersData.findIndex(u => u.id === userId);
-            if (userIndex !== -1) {
-                usersData.splice(userIndex, 1);
-                
-                initializeUsersTable();
-                showSuccessMessage('Usuario eliminado correctamente');
+            if (!userId) {
+                showSuccessMessage('ID de usuario no válido');
+                return;
             }
             
-            closeDeleteUserModalFunc();
+            try {
+                showLoading();
+                
+                // Eliminar usuario del backend
+                const result = await eliminarUsuarioAPI(userId);
+                
+                if (result && result.mensaje) {
+                    // Eliminar usuario del array local
+                    const userIndex = usersData.findIndex(u => u.id === userId);
+                    if (userIndex !== -1) {
+                        usersData.splice(userIndex, 1);
+                    }
+                    
+                    // Recargar tabla
+                    initializeUsersTable();
+                    showSuccessMessage(result.mensaje);
+                } else {
+                    throw new Error('No se recibió confirmación del servidor');
+                }
+                
+            } catch (error) {
+                console.error('Error al eliminar usuario:', error);
+                showSuccessMessage('Error al eliminar usuario: ' + error.message);
+            } finally {
+                hideLoading();
+                closeDeleteUserModalFunc();
+            }
         });
     }
 }
@@ -2145,6 +2544,28 @@ function showView(viewId) {
         const targetView = document.getElementById(viewId);
         if (targetView) {
             targetView.classList.remove('hidden');
+            
+            // Inicializar componentes específicos de cada vista
+            switch(viewId) {
+                case 'settings-view':
+                    // Forzar inicialización de settings cuando se muestra la vista
+                    setTimeout(() => {
+                        setupSettingsListeners();
+                        applySettings();
+                    }, 50);
+                    break;
+                case 'agenda-view':
+                    setTimeout(() => {
+                        generateAgendaSchedule();
+                    }, 50);
+                    break;
+                case 'users-view':
+                    // Actualizar tabla de usuarios cuando se muestra la vista
+                    setTimeout(() => {
+                        initializeUsersTable();
+                    }, 50);
+                    break;
+            }
         }
     } catch (error) {
         console.error(`Error al mostrar vista ${viewId}:`, error);
@@ -2314,15 +2735,15 @@ function initializeUsersTable() {
                 <div class="flex items-center">
                     <div class="flex-shrink-0 h-10 w-10">
                         <div class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-semibold">
-                            ${item.name.charAt(0)}
+                            ${item.name ? item.name.charAt(0) : 'U'}
                         </div>
                     </div>
                     <div class="ml-4">
                         <div class="text-sm font-medium text-gray-900 dark:text-white">
-                            ${item.name}
+                            ${item.name || 'Sin nombre'}
                         </div>
                         <div class="text-sm text-gray-500 dark:text-gray-400">
-                            ${item.username}
+                            ${item.username || 'Sin usuario'}
                         </div>
                     </div>
                 </div>
@@ -2333,7 +2754,7 @@ function initializeUsersTable() {
                 </span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                ${item.email}
+                ${item.email || 'Sin email'}
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">
@@ -2341,7 +2762,7 @@ function initializeUsersTable() {
                 </span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                ${item.lastAccess}
+                ${item.lastAccess || 'Nunca'}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <button class="edit-user-btn text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3"
@@ -2350,7 +2771,7 @@ function initializeUsersTable() {
                 </button>
                 <button class="delete-user-btn text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                         data-id="${item.id}"
-                        data-name="${item.name}">
+                        data-name="${item.name || 'Usuario'}">
                     Eliminar
                 </button>
             </td>
