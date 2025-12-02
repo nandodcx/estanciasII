@@ -590,7 +590,154 @@ async function loadUsersFromAPI() {
         return false;
     }
 }
+// Agrega esta función después de loadUsersFromAPI
+async function loadLaboratoriosFromAPI() {
+    try {
+        console.log('🔄 Cargando laboratorios desde API...');
+        const data = await fetchFromAPI(API_CONFIG.ENDPOINTS.LABORATORIOS);
+        
+        if (!data || !Array.isArray(data)) {
+            console.warn('API de laboratorios no devolvió datos válidos');
+            return [];
+        }
+        
+        console.log(`✅ Laboratorios cargados: ${data.length}`);
+        return data.map(lab => ({
+            id: lab.id_laboratorio || lab.id,
+            nombre: lab.nombre || 'Sin nombre',
+            ubicacion: lab.ubicacion || 'Sin ubicación',
+            capacidad: lab.capacidad || 0,
+            descripcion: lab.descripcion || '',
+            estado: lab.estado || 'disponible'
+        }));
+    } catch (error) {
+        console.error('❌ Error al cargar laboratorios:', error);
+        return [];
+    }
+}
+// Agrega estas funciones después de loadLaboratoriosFromAPI
 
+async function crearReservaAPI(reservaData) {
+    try {
+        console.log('📤 Enviando datos de reserva al backend:', reservaData);
+        
+        const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.RESERVAS}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                id_usuario: reservaData.professor_id || 1, // Usar profesor_id si existe
+                id_laboratorio: reservaData.id_laboratorio || 1, // ID del laboratorio
+                fecha: reservaData.date,
+                hora_inicio: reservaData.hora_inicio || reservaData.time,
+                hora_fin: reservaData.hora_fin || calcularHoraFin(reservaData.hora_inicio || reservaData.time),
+                clase: reservaData.clase || reservaData.practice,
+                descripcion: reservaData.descripcion || reservaData.objective,
+                estado: mapStatusToBackend(reservaData.status || 'programada'),
+                nombre_laboratorio: reservaData.nombre_laboratorio || reservaData.lab
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Error del servidor:', errorText);
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log('✅ Respuesta del servidor:', result);
+        return result;
+    } catch (error) {
+        console.error('❌ Error al crear reserva:', error);
+        throw error;
+    }
+}
+
+async function actualizarReservaAPI(id, reservaData) {
+    try {
+        console.log(`🔄 Actualizando reserva ID: ${id}`, reservaData);
+        
+        const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.RESERVAS}/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                id_usuario: reservaData.professor_id,
+                id_laboratorio: reservaData.id_laboratorio,
+                fecha: reservaData.date,
+                hora_inicio: reservaData.hora_inicio || reservaData.time,
+                hora_fin: reservaData.hora_fin || calcularHoraFin(reservaData.hora_inicio || reservaData.time),
+                clase: reservaData.clase || reservaData.practice,
+                descripcion: reservaData.descripcion || reservaData.objective,
+                estado: mapStatusToBackend(reservaData.status),
+                nombre_laboratorio: reservaData.nombre_laboratorio || reservaData.lab
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Error del servidor:', errorText);
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log('✅ Respuesta del servidor:', result);
+        return result;
+    } catch (error) {
+        console.error('❌ Error al actualizar reserva:', error);
+        throw error;
+    }
+}
+
+async function eliminarReservaAPI(id) {
+    try {
+        console.log(`🗑️ Eliminando reserva ID: ${id}`);
+        
+        const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.RESERVAS}/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Error del servidor:', errorText);
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log('✅ Respuesta del servidor:', result);
+        return result;
+    } catch (error) {
+        console.error('❌ Error al eliminar reserva:', error);
+        throw error;
+    }
+}
+
+// Función auxiliar para calcular hora_fin
+function calcularHoraFin(hora_inicio) {
+    const [horas, minutos] = hora_inicio.split(':').map(Number);
+    const nuevaHora = (horas + 1) % 24;
+    return `${nuevaHora.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
+}
+
+// Mapear estado del frontend al backend
+function mapStatusToBackend(estadoFrontend) {
+    const statusMap = {
+        'programada': 'pendiente',
+        'confirmada': 'confirmada',
+        'en-curso': 'en_progreso',
+        'completada': 'completada',
+        'cancelada': 'cancelada'
+    };
+    return statusMap[estadoFrontend] || 'pendiente';
+}
 // Crear usuario en el backend
 async function crearUsuarioAPI(usuarioData) {
     try {
@@ -656,27 +803,51 @@ async function eliminarUsuarioAPI(id) {
 }
 
 // Cargar reservas (prácticas) desde la API
+// REEMPLAZA la función loadPracticesFromAPI con esta versión corregida
 async function loadPracticesFromAPI() {
     try {
-        console.log('Cargando prácticas desde API...');
+        console.log('🔄 Cargando reservas desde API...');
         const data = await fetchFromAPI(API_CONFIG.ENDPOINTS.RESERVAS);
         
         if (!data || !Array.isArray(data)) {
-            console.warn('API de prácticas no devolvió datos válidos');
+            console.warn('API de reservas no devolvió datos válidos');
             return false;
         }
         
+        console.log('📦 Datos de reservas recibidos:', data);
+        
         // Transformar datos de la API al formato esperado por la UI
-        practiceData = data.map(reserva => ({
-            id: reserva.id_reserva || reserva.id || Date.now(),
-            date: reserva.fecha || new Date().toISOString().split('T')[0],
-            time: reserva.hora || '09:00',
-            practice: reserva.nombre_practica || `Práctica ${reserva.id_reserva || ''}`,
-            professor: reserva.nombre_usuario || reserva.profesor || 'Sin asignar',
-            subject: reserva.nombre_materia || reserva.materia || 'Sin asignatura',
-            status: mapStatus(reserva.estado),
-            objective: reserva.descripcion || reserva.objetivo || '',
-            lab: reserva.nombre_laboratorio || reserva.laboratorio || 'Sin laboratorio'
+        practiceData = await Promise.all(data.map(async (reserva) => {
+            // Obtener nombre del profesor (usuario)
+            let profesorNombre = 'Sin asignar';
+            try {
+                const usuarioResponse = await fetchFromAPI(`${API_CONFIG.ENDPOINTS.USUARIOS}/${reserva.id_usuario}`);
+                if (usuarioResponse && usuarioResponse.nombre && usuarioResponse.apellido) {
+                    profesorNombre = `${usuarioResponse.nombre} ${usuarioResponse.apellido}`;
+                }
+            } catch (error) {
+                console.warn('No se pudo obtener nombre del profesor');
+            }
+            
+            return {
+                id: reserva.id_reserva || reserva.id || Date.now(),
+                id_usuario: reserva.id_usuario,
+                id_laboratorio: reserva.id_laboratorio,
+                date: reserva.fecha ? reserva.fecha.split('T')[0] : new Date().toISOString().split('T')[0],
+                time: reserva.hora_inicio || '09:00',
+                hora_inicio: reserva.hora_inicio,
+                hora_fin: reserva.hora_fin,
+                practice: reserva.clase || `Práctica ${reserva.id_reserva || ''}`,
+                clase: reserva.clase,
+                professor: profesorNombre,
+                professor_id: reserva.id_usuario,
+                subject: '', // No hay campo asignatura en la BD
+                status: mapStatus(reserva.estado),
+                objective: reserva.descripcion || '',
+                descripcion: reserva.descripcion,
+                lab: reserva.nombre_laboratorio || 'Sin laboratorio',
+                nombre_laboratorio: reserva.nombre_laboratorio
+            };
         }));
         
         currentData = [...practiceData];
@@ -688,15 +859,15 @@ async function loadPracticesFromAPI() {
             practice: practice.practice,
             objective: practice.objective,
             professor: practice.professor,
-            subject: practice.subject
+            subject: practice.subject || 'Sin asignatura'
         }));
         
         currentReportsData = [...reportsData];
         
-        console.log(`Prácticas cargadas: ${practiceData.length}`);
+        console.log(`✅ Reservas cargadas: ${practiceData.length}`);
         return true;
     } catch (error) {
-        console.error('Error inesperado al cargar prácticas:', error);
+        console.error('❌ Error inesperado al cargar reservas:', error);
         return false;
     }
 }
@@ -877,9 +1048,14 @@ function initializeApplication() {
         loadRecentActivities();
         loadUpcomingPractices();
         
-        console.log('Aplicación inicializada correctamente');
+        // Cargar datos para formularios
+        setTimeout(() => {
+            cargarDatosParaFormulario();
+        }, 500);
+        
+        console.log('✅ Aplicación inicializada correctamente');
     } catch (error) {
-        console.error('Error al inicializar componentes de la aplicación:', error);
+        console.error('❌ Error al inicializar componentes de la aplicación:', error);
         alert('Error al cargar la interfaz. Algunas funciones pueden no estar disponibles.');
     }
 }
@@ -1703,6 +1879,39 @@ function selectTimeSlot(slot) {
     openNewPracticeModal(day, hour);
 }
 
+// Agrega esta función para cargar datos en el formulario
+async function cargarDatosParaFormulario() {
+    try {
+        // Cargar laboratorios
+        const laboratorios = await loadLaboratoriosFromAPI();
+        const labSelect = document.getElementById('edit-practice-lab');
+        if (labSelect) {
+            labSelect.innerHTML = '<option value="">Seleccione un laboratorio</option>';
+            laboratorios.forEach(lab => {
+                const option = document.createElement('option');
+                option.value = lab.id;
+                option.textContent = `${lab.nombre} (${lab.ubicacion})`;
+                labSelect.appendChild(option);
+            });
+        }
+        
+        // Cargar profesores (usuarios con rol profesor)
+        const profesores = usersData.filter(user => user.role === 'Profesor');
+        const professorSelect = document.getElementById('edit-practice-professor');
+        if (professorSelect) {
+            professorSelect.innerHTML = '<option value="">Seleccione un profesor</option>';
+            profesores.forEach(prof => {
+                const option = document.createElement('option');
+                option.value = prof.id;
+                option.textContent = prof.name;
+                professorSelect.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error al cargar datos para formulario:', error);
+    }
+}
+
 // Abrir modal para nueva práctica
 function openNewPracticeModal(day = null, hour = null) {
     document.getElementById('edit-practice-form').reset();
@@ -1714,6 +1923,9 @@ function openNewPracticeModal(day = null, hour = null) {
     editModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     document.getElementById('header-container').classList.add('modal-open');
+    
+    // Cargar datos para los select
+    cargarDatosParaFormulario();
     
     if (day && hour) {
         prefillPracticeForm(day, hour);
@@ -2092,98 +2304,63 @@ function setupModalListeners() {
             const practiceDate = document.getElementById('edit-practice-date').value;
             const practiceTime = document.getElementById('edit-practice-time').value;
             const practiceName = document.getElementById('edit-practice-name').value;
-            const practiceProfessor = document.getElementById('edit-practice-professor').value;
+            const practiceProfessorId = parseInt(document.getElementById('edit-practice-professor').value);
             const practiceSubject = document.getElementById('edit-practice-subject').value;
             const practiceObjective = document.getElementById('edit-practice-objective').value;
-            const practiceLab = document.getElementById('edit-practice-lab').value;
+            const practiceLabId = parseInt(document.getElementById('edit-practice-lab').value);
             const practiceStatus = document.getElementById('edit-practice-status').value;
             
             try {
-                let isNewPractice = false;
-                let newPractice = null;
+                showLoading();
                 
+                const reservaData = {
+                    date: practiceDate,
+                    hora_inicio: practiceTime,
+                    hora_fin: calcularHoraFin(practiceTime),
+                    clase: practiceName,
+                    descripcion: practiceObjective,
+                    estado: practiceStatus,
+                    professor_id: practiceProfessorId,
+                    id_laboratorio: practiceLabId
+                };
+                
+                let result;
                 if (practiceId) {
-                    // Actualizar práctica existente en los datos
-                    const practiceIndex = practiceData.findIndex(p => p.id === practiceId);
-                    if (practiceIndex !== -1) {
-                        const oldPractice = practiceData.find(p => p.id === practiceId);
-                        if (oldPractice && (oldPractice.date !== practiceDate || oldPractice.time !== practiceTime)) {
-                            updateAgendaAfterDelete(practiceId);
-                        }
-                        
-                        practiceData[practiceIndex] = {
-                            ...practiceData[practiceIndex],
-                            date: practiceDate,
-                            time: practiceTime,
-                            practice: practiceName,
-                            professor: practiceProfessor,
-                            subject: practiceSubject,
-                            objective: practiceObjective,
-                            lab: practiceLab,
-                            status: practiceStatus
-                        };
-                        
-                        const reportIndex = reportsData.findIndex(r => r.id === practiceId);
-                        if (reportIndex !== -1) {
-                            reportsData[reportIndex] = {
-                                ...reportsData[reportIndex],
-                                date: practiceDate,
-                                practice: practiceName,
-                                professor: practiceProfessor,
-                                subject: practiceSubject,
-                                objective: practiceObjective
-                            };
-                        }
-                        
-                        showSuccessMessage('Práctica actualizada correctamente');
-                    }
+                    // Actualizar reserva existente
+                    result = await actualizarReservaAPI(practiceId, reservaData);
                 } else {
-                    // Crear nueva práctica
-                    const newId = practiceData.length > 0 ? Math.max(...practiceData.map(p => p.id)) + 1 : 1;
-                    newPractice = {
-                        id: newId,
-                        date: practiceDate,
-                        time: practiceTime,
-                        practice: practiceName,
-                        professor: practiceProfessor,
-                        subject: practiceSubject,
-                        objective: practiceObjective,
-                        lab: practiceLab,
-                        status: practiceStatus
-                    };
-                    
-                    practiceData.push(newPractice);
-                    isNewPractice = true;
-                    
-                    reportsData.push({
-                        id: newId,
-                        date: practiceDate,
-                        practice: practiceName,
-                        objective: practiceObjective,
-                        professor: practiceProfessor,
-                        subject: practiceSubject
-                    });
-                    
-                    showSuccessMessage('Práctica creada correctamente');
+                    // Crear nueva reserva
+                    result = await crearReservaAPI(reservaData);
                 }
                 
-                updateDashboardStats();
-                loadRecentActivities();
-                loadUpcomingPractices();
-                
-                currentData = [...practiceData];
-                currentReportsData = [...reportsData];
-                
-                initializePracticesTable();
-                initializeReportsTable();
-                
-                updateAgendaAfterSave(practiceId ? practiceData.find(p => p.id === practiceId) : newPractice);
-                
-                closeEditModalFunc();
+                if (result && result.mensaje) {
+                    // Recargar datos desde API
+                    await loadPracticesFromAPI();
+                    await loadUsersFromAPI();
+                    
+                    // Actualizar UI
+                    updateDashboardStats();
+                    loadRecentActivities();
+                    loadUpcomingPractices();
+                    currentData = [...practiceData];
+                    currentReportsData = [...reportsData];
+                    initializePracticesTable();
+                    initializeReportsTable();
+                    
+                    // Actualizar agenda
+                    generateAgendaSchedule();
+                    
+                    showSuccessMessage(result.mensaje);
+                } else {
+                    throw new Error('No se recibió confirmación del servidor');
+                }
                 
             } catch (error) {
                 console.error('Error al guardar práctica:', error);
-                showSuccessMessage('Error al guardar.');
+                showSuccessMessage('Error al guardar: ' + error.message);
+            } finally {
+                hideLoading();
+                closeEditModalFunc();
             }
         });
     }
@@ -2212,33 +2389,50 @@ function setupModalListeners() {
 
     // Confirmar eliminación de práctica
     if (confirmDelete) {
-        confirmDelete.addEventListener('click', function() {
+        confirmDelete.addEventListener('click', async function() {
             const practiceId = parseInt(document.getElementById('delete-practice-id').value);
             
-            updateAgendaAfterDelete(practiceId);
-            
-            const practiceIndex = practiceData.findIndex(p => p.id === practiceId);
-            if (practiceIndex !== -1) {
-                practiceData.splice(practiceIndex, 1);
+            try {
+                showLoading();
                 
-                const reportIndex = reportsData.findIndex(r => r.id === practiceId);
-                if (reportIndex !== -1) {
-                    reportsData.splice(reportIndex, 1);
+                // Eliminar reserva del backend
+                const result = await eliminarReservaAPI(practiceId);
+                
+                if (result && result.mensaje) {
+                    // Actualizar datos locales
+                    updateAgendaAfterDelete(practiceId);
+                    
+                    const practiceIndex = practiceData.findIndex(p => p.id === practiceId);
+                    if (practiceIndex !== -1) {
+                        practiceData.splice(practiceIndex, 1);
+                        
+                        const reportIndex = reportsData.findIndex(r => r.id === practiceId);
+                        if (reportIndex !== -1) {
+                            reportsData.splice(reportIndex, 1);
+                        }
+                    }
+                    
+                    // Actualizar UI
+                    updateDashboardStats();
+                    loadRecentActivities();
+                    loadUpcomingPractices();
+                    currentData = [...practiceData];
+                    currentReportsData = [...reportsData];
+                    initializePracticesTable();
+                    initializeReportsTable();
+                    
+                    showSuccessMessage(result.mensaje);
+                } else {
+                    throw new Error('No se recibió confirmación del servidor');
                 }
                 
-                updateDashboardStats();
-                loadRecentActivities();
-                loadUpcomingPractices();
-                
-                currentData = [...practiceData];
-                currentReportsData = [...reportsData];
-                initializePracticesTable();
-                initializeReportsTable();
-                
-                showSuccessMessage('Práctica eliminada correctamente');
+            } catch (error) {
+                console.error('Error al eliminar práctica:', error);
+                showSuccessMessage('Error al eliminar: ' + error.message);
+            } finally {
+                hideLoading();
+                closeDeleteModalFunc();
             }
-            
-            closeDeleteModalFunc();
         });
     }
     
@@ -2890,26 +3084,44 @@ function openDeleteReportModal(reportId, reportName, reportProfessor, reportDate
 }
 
 // Abrir modal de edición
-function openEditModal(practiceId) {
-    const practice = practiceData.find(p => p.id === practiceId);
-    if (!practice) return;
-    
-    document.getElementById('edit-practice-id').value = practice.id;
-    document.getElementById('edit-practice-date').value = practice.date;
-    document.getElementById('edit-practice-time').value = practice.time || '';
-    document.getElementById('edit-practice-name').value = practice.practice;
-    document.getElementById('edit-practice-professor').value = practice.professor;
-    document.getElementById('edit-practice-subject').value = practice.subject;
-    document.getElementById('edit-practice-objective').value = practice.objective || '';
-    document.getElementById('edit-practice-lab').value = practice.lab || '';
-    document.getElementById('edit-practice-status').value = practice.status;
-    
-    document.getElementById('edit-modal-title').textContent = 'Editar Práctica';
-    
-    const editModal = document.getElementById('edit-modal');
-    editModal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-    document.getElementById('header-container').classList.add('modal-open');
+async function openEditModal(practiceId) {
+    try {
+        showLoading();
+        
+        // Obtener datos de la reserva desde el backend
+        const reservaData = await fetchFromAPI(`${API_CONFIG.ENDPOINTS.RESERVAS}/${practiceId}`);
+        
+        if (!reservaData) {
+            throw new Error('No se pudieron cargar los datos de la práctica');
+        }
+        
+        // Cargar datos para formularios
+        await cargarDatosParaFormulario();
+        
+        // Llenar el formulario
+        document.getElementById('edit-practice-id').value = reservaData.id_reserva || reservaData.id;
+        document.getElementById('edit-practice-date').value = reservaData.fecha ? reservaData.fecha.split('T')[0] : '';
+        document.getElementById('edit-practice-time').value = reservaData.hora_inicio || '';
+        document.getElementById('edit-practice-name').value = reservaData.clase || '';
+        document.getElementById('edit-practice-professor').value = reservaData.id_usuario || '';
+        document.getElementById('edit-practice-subject').value = ''; // No hay en BD
+        document.getElementById('edit-practice-objective').value = reservaData.descripcion || '';
+        document.getElementById('edit-practice-lab').value = reservaData.id_laboratorio || '';
+        document.getElementById('edit-practice-status').value = mapStatus(reservaData.estado);
+        
+        document.getElementById('edit-modal-title').textContent = 'Editar Práctica';
+        
+        const editModal = document.getElementById('edit-modal');
+        editModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        document.getElementById('header-container').classList.add('modal-open');
+        
+    } catch (error) {
+        console.error('Error al cargar datos para edición:', error);
+        showSuccessMessage('Error al cargar datos: ' + error.message);
+    } finally {
+        hideLoading();
+    }
 }
 
 // Abrir modal de eliminación
