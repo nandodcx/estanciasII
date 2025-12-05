@@ -8,7 +8,59 @@ const API_CONFIG = {
         AUTH: '/auth'
     }
 };
+// =============================
+// VERIFICACIÓN DE AUTENTICACIÓN
+// =============================
+function verificarAutenticacion() {
+    let usuario = null;
+    
+    try {
+        const usuarioStorage = localStorage.getItem("usuario");
+        if (usuarioStorage) {
+            usuario = JSON.parse(usuarioStorage);
+        }
+    } catch (e) {
+        console.error("Error al parsear usuario del localStorage:", e);
+        usuario = null;
+    }
 
+    // Si no hay usuario y no estamos en login.html, redirigir
+    if (!usuario) {
+        const currentPage = window.location.pathname;
+        if (!currentPage.includes("login.html")) {
+            console.log("🔐 No hay usuario autenticado, redirigiendo a login...");
+            window.location.href = "../views/login.html";
+            return null;
+        }
+    }
+
+    return usuario;
+}
+
+// =============================
+// MOSTRAR INFORMACIÓN DEL USUARIO
+// =============================
+function mostrarInformacionUsuario(usuario) {
+    if (!usuario) return;
+
+    // Calcular iniciales
+    const iniciales = 
+        (usuario.nombre?.charAt(0) || "").toUpperCase() +
+        (usuario.apellido?.charAt(0) || "").toUpperCase();
+
+    // Actualizar elementos del header
+    const nameEl = document.getElementById("user-name");
+    const initialsEl = document.getElementById("user-initials-btn");
+    const mobileInitials = document.getElementById("mobile-user-initials");
+    const mobileName = document.getElementById("mobile-user-name");
+    const mobileRole = document.getElementById("mobile-user-role");
+
+    if (nameEl) nameEl.textContent = `${usuario.nombre} ${usuario.apellido}`;
+    if (initialsEl) initialsEl.textContent = iniciales;
+    if (mobileInitials) mobileInitials.textContent = iniciales;
+    if (mobileName) mobileName.textContent = `${usuario.nombre} ${usuario.apellido}`;
+    if (mobileRole) mobileRole.textContent = usuario.rol || "Usuario";
+}
 // Estado de configuración
 const appSettings = {
     darkMode: true,
@@ -316,7 +368,63 @@ let currentReportsFilters = {
 // Horarios ocupados para la agenda
 let scheduleOccupancy = {};
 window.selectedTimeSlot = null;
+// =============================
+// FUNCIONES DE CIERRE DE SESIÓN - VERSIÓN SIMPLE
+// =============================
 
+function abrirModalCerrarSesion() {
+    // Crear modal
+    const modal = document.createElement('div');
+    modal.id = 'modal-cerrar-sesion';
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm w-full mx-4" onclick="event.stopPropagation()">
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">
+                ¿Confirmar cierre de sesión?
+            </h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-6">
+                Serás redirigido a la página de inicio de sesión.
+            </p>
+            <div class="flex justify-end space-x-3">
+                <button onclick="cerrarModalCerrarSesion()" 
+                    class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                    Cancelar
+                </button>
+                <button onclick="confirmarCerrarSesion()" 
+                    class="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg transition-colors">
+                    Cerrar Sesión
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Cerrar al hacer clic fuera
+    modal.addEventListener('click', cerrarModalCerrarSesion);
+    
+    // Cerrar con Escape
+    document.addEventListener('keydown', function handleEscape(e) {
+        if (e.key === 'Escape') {
+            cerrarModalCerrarSesion();
+            document.removeEventListener('keydown', handleEscape);
+        }
+    });
+}
+
+function cerrarModalCerrarSesion() {
+    const modal = document.getElementById('modal-cerrar-sesion');
+    if (modal && modal.parentNode) {
+        modal.removeEventListener('click', cerrarModalCerrarSesion);
+        document.body.removeChild(modal);
+    }
+}
+
+function confirmarCerrarSesion() {
+    cerrarModalCerrarSesion();
+    localStorage.removeItem("usuario");
+    window.location.href = "../views/login.html";
+}
 // =================== FUNCIONES DE API ===================
 async function fetchFromAPI(endpoint, options = {}) {
     try {
@@ -807,49 +915,127 @@ async function eliminarUsuarioAPI(id) {
 async function loadPracticesFromAPI() {
     try {
         console.log('🔄 Cargando reservas desde API...');
-        const data = await fetchFromAPI(API_CONFIG.ENDPOINTS.RESERVAS);
         
-        if (!data || !Array.isArray(data)) {
-            console.warn('API de reservas no devolvió datos válidos');
+        // 1. OBTENER USUARIO ACTUAL DEL LOCALSTORAGE
+        let usuario = null;
+        try {
+            const usuarioStorage = localStorage.getItem("usuario");
+            if (usuarioStorage) {
+                usuario = JSON.parse(usuarioStorage);
+                console.log('👤 Usuario autenticado:', usuario);
+            }
+        } catch (e) {
+            console.error('Error al obtener usuario del localStorage:', e);
+        }
+        
+        // 2. DECIDIR QUÉ DATOS CARGAR SEGÚN EL ROL DEL USUARIO
+        let data = [];
+        
+        if (usuario && (usuario.rol === "Administrador" || usuario.rol === "admin")) {
+            // 🟦 ADMIN: Obtener todas las reservas
+            console.log('👑 Usuario es admin, cargando TODAS las reservas');
+            data = await fetchFromAPI(API_CONFIG.ENDPOINTS.RESERVAS);
+        } else if (usuario && usuario.id_usuario) {
+            // 👤 USUARIO NORMAL: Obtener solo sus reservas
+            // Necesitamos filtrar del lado del cliente ya que tu backend no tiene ruta /usuario/{id}
+            console.log(`👤 Usuario normal (ID: ${usuario.id_usuario}), filtrando reservas...`);
+            const allReservas = await fetchFromAPI(API_CONFIG.ENDPOINTS.RESERVAS);
+            
+            if (allReservas && Array.isArray(allReservas)) {
+                // Filtrar solo las reservas del usuario actual
+                data = allReservas.filter(reserva => {
+                    return reserva.id_usuario == usuario.id_usuario;
+                });
+                console.log(`✅ Filtradas ${data.length} reservas de ${allReservas.length} totales`);
+            }
+        } else {
+            // 🔐 SIN USUARIO: Cargar datos vacíos
+            console.warn('⚠️ No hay usuario autenticado');
+            practiceData = [];
+            currentData = [];
+            reportsData = [];
+            currentReportsData = [];
             return false;
         }
         
-        console.log('📦 Datos de reservas recibidos:', data);
+        // 3. VALIDAR DATOS RECIBIDOS
+        if (!data || !Array.isArray(data)) {
+            console.warn('API de reservas no devolvió datos válidos');
+            practiceData = [];
+            currentData = [];
+            reportsData = [];
+            currentReportsData = [];
+            return false;
+        }
         
-        // Transformar datos de la API al formato esperado por la UI
+        console.log(`📦 Datos de reservas recibidos: ${data.length} registros`);
+        
+        // 4. TRANSFORMAR DATOS DE LA API AL FORMATO DE LA UI
         practiceData = await Promise.all(data.map(async (reserva) => {
-            // Obtener nombre del profesor (usuario)
-            let profesorNombre = 'Sin asignar';
             try {
-                const usuarioResponse = await fetchFromAPI(`${API_CONFIG.ENDPOINTS.USUARIOS}/${reserva.id_usuario}`);
-                if (usuarioResponse && usuarioResponse.nombre && usuarioResponse.apellido) {
-                    profesorNombre = `${usuarioResponse.nombre} ${usuarioResponse.apellido}`;
+                // Obtener nombre del profesor (usuario)
+                let profesorNombre = 'Sin asignar';
+                
+                // Si el usuario es admin, obtener nombre completo del usuario
+                if (usuario && (usuario.rol === "Administrador" || usuario.rol === "admin")) {
+                    try {
+                        const usuarioResponse = await fetchFromAPI(`${API_CONFIG.ENDPOINTS.USUARIOS}/${reserva.id_usuario}`);
+                        if (usuarioResponse && usuarioResponse.nombre && usuarioResponse.apellido) {
+                            profesorNombre = `${usuarioResponse.nombre} ${usuarioResponse.apellido}`;
+                        } else if (usuarioResponse && usuarioResponse.email) {
+                            profesorNombre = usuarioResponse.email.split('@')[0];
+                        }
+                    } catch (error) {
+                        console.warn('No se pudo obtener nombre del profesor:', error);
+                    }
+                } else {
+                    // Si es usuario normal, usar su propio nombre
+                    profesorNombre = `${usuario.nombre} ${usuario.apellido}` || usuario.email || 'Usuario';
                 }
+                
+                // Obtener información del laboratorio si está disponible
+                let labNombre = reserva.nombre_laboratorio || 'Sin laboratorio';
+                
+                return {
+                    id: reserva.id_reserva || reserva.id || Date.now(),
+                    id_usuario: reserva.id_usuario,
+                    id_laboratorio: reserva.id_laboratorio,
+                    date: reserva.fecha ? reserva.fecha.split('T')[0] : new Date().toISOString().split('T')[0],
+                    time: reserva.hora_inicio || '09:00',
+                    hora_inicio: reserva.hora_inicio,
+                    hora_fin: reserva.hora_fin,
+                    practice: reserva.clase || `Práctica ${reserva.id_reserva || ''}`,
+                    clase: reserva.clase,
+                    professor: profesorNombre,
+                    professor_id: reserva.id_usuario,
+                    subject: reserva.clase || '', // Usar clase como asignatura
+                    status: mapStatus(reserva.estado),
+                    objective: reserva.descripcion || '',
+                    descripcion: reserva.descripcion,
+                    lab: labNombre,
+                    nombre_laboratorio: labNombre
+                };
             } catch (error) {
-                console.warn('No se pudo obtener nombre del profesor');
+                console.error('Error procesando reserva:', error, reserva);
+                // Devolver un objeto básico en caso de error
+                return {
+                    id: reserva.id_reserva || Date.now(),
+                    id_usuario: reserva.id_usuario,
+                    date: reserva.fecha || new Date().toISOString().split('T')[0],
+                    practice: reserva.clase || 'Práctica sin nombre',
+                    professor: 'Sin asignar',
+                    subject: reserva.clase || '',
+                    status: mapStatus(reserva.estado),
+                    objective: reserva.descripcion || '',
+                    lab: reserva.nombre_laboratorio || 'Sin laboratorio'
+                };
             }
-            
-            return {
-                id: reserva.id_reserva || reserva.id || Date.now(),
-                id_usuario: reserva.id_usuario,
-                id_laboratorio: reserva.id_laboratorio,
-                date: reserva.fecha ? reserva.fecha.split('T')[0] : new Date().toISOString().split('T')[0],
-                time: reserva.hora_inicio || '09:00',
-                hora_inicio: reserva.hora_inicio,
-                hora_fin: reserva.hora_fin,
-                practice: reserva.clase || `Práctica ${reserva.id_reserva || ''}`,
-                clase: reserva.clase,
-                professor: profesorNombre,
-                professor_id: reserva.id_usuario,
-                subject: '', // No hay campo asignatura en la BD
-                status: mapStatus(reserva.estado),
-                objective: reserva.descripcion || '',
-                descripcion: reserva.descripcion,
-                lab: reserva.nombre_laboratorio || 'Sin laboratorio',
-                nombre_laboratorio: reserva.nombre_laboratorio
-            };
         }));
         
+        // 5. FILTRAR RESERVAS VÁLIDAS (eliminar null/undefined)
+        practiceData = practiceData.filter(p => p !== null && p !== undefined);
+        
+        // 6. INICIALIZAR DATOS PARA LA UI
         currentData = [...practiceData];
         
         // Generar datos para reportes
@@ -864,10 +1050,20 @@ async function loadPracticesFromAPI() {
         
         currentReportsData = [...reportsData];
         
-        console.log(`✅ Reservas cargadas: ${practiceData.length}`);
+        console.log(`✅ Reservas cargadas exitosamente: ${practiceData.length}`);
+        console.log('📋 Ejemplo de primera reserva:', practiceData[0]);
+        
         return true;
     } catch (error) {
         console.error('❌ Error inesperado al cargar reservas:', error);
+        console.error('Stack trace:', error.stack);
+        
+        // Inicializar arrays vacíos para evitar errores
+        practiceData = [];
+        currentData = [];
+        reportsData = [];
+        currentReportsData = [];
+        
         return false;
     }
 }
@@ -1300,15 +1496,31 @@ function setupModalEventDelegation() {
 // =================== CONFIGURACIÓN INICIAL MEJORADA ===================
 
 // Función para inicializar la aplicación
-function initializeApplication() {
+async function initializeApplication() {
     try {
         console.log('🚀 Inicializando aplicación...');
         
+        // 1. VERIFICAR AUTENTICACIÓN
+        const usuario = verificarAutenticacion();
+        if (!usuario) {
+            console.log("❌ Usuario no autenticado, deteniendo inicialización");
+            return;
+        }
+     // 2. ESPERAR A QUE EL HEADER ESTÉ LISTO (sin recargarlo)
+        setTimeout(() => {
+            // Configurar funcionalidad del header
+            setupHeaderFunctionality();
+            
+            // Mostrar información del usuario
+            mostrarInformacionUsuario(usuario);
+        }, 100); // Pequeño delay para asegurar que el header está en el DOM
+        
+        // 3. INICIALIZAR EL RESTO DE LA APLICACIÓN
+        console.log('🔄 Inicializando componentes...');   
         initializeDashboard();
         initializePracticesTable();
         initializeUsersTable();
         initializeReportsTable();
-        setupEventListeners();
         updateResultsCount();
         updateReportsResultsCount();
         generateAgendaSchedule();
@@ -1523,7 +1735,11 @@ function handleDeletePractice() {
 
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('📄 DOM completamente cargado');
-    
+    const usuario = verificarAutenticacion();
+    if (!usuario) {
+        console.log("❌ Redirigiendo a login...");
+        return; // No continuar si no hay usuario
+    }
     // Primero cargar configuración
     loadSettings();
     
@@ -1627,6 +1843,14 @@ function loadSettings() {
 
 // Aplicar configuración a la interfaz
 function applySettings() {
+        const darkMode = localStorage.getItem("theme") === "dark" || 
+                     (localStorage.getItem("theme") === null && appSettings.darkMode);
+    
+    if (darkMode) {
+        document.documentElement.classList.add("dark");
+    } else {
+        document.documentElement.classList.remove("dark");
+    }
     // Modo oscuro
     if (appSettings.darkMode) {
         document.documentElement.classList.add('dark');
@@ -1765,33 +1989,73 @@ function saveSettings() {
 }
 
 // Configurar funcionalidades del header
+// Configurar funcionalidades del header - VERSIÓN MEJORADA
 function setupHeaderFunctionality() {
+    console.log('🔧 Configurando funcionalidad del header...');
+    
+    // Limpiar eventos anteriores para evitar duplicados
+    const oldHamburger = document.getElementById('hamburger-menu');
+    const oldUserBtn = document.getElementById('user-initials-btn');
+    
+    if (oldHamburger) {
+        const newHamburger = oldHamburger.cloneNode(true);
+        oldHamburger.parentNode.replaceChild(newHamburger, oldHamburger);
+    }
+    
+    if (oldUserBtn) {
+        const newUserBtn = oldUserBtn.cloneNode(true);
+        oldUserBtn.parentNode.replaceChild(newUserBtn, oldUserBtn);
+    }
+    
+    // Obtener referencias frescas
     const hamburgerMenu = document.getElementById('hamburger-menu');
     const mobileMenu = document.getElementById('mobile-menu');
     const userInitialsBtn = document.getElementById('user-initials-btn');
-
+    
+    console.log('🍔 Hamburger encontrado:', !!hamburgerMenu);
+    console.log('📱 Mobile menu encontrado:', !!mobileMenu);
+    console.log('👤 User initials encontrado:', !!userInitialsBtn);
+    
     // Menú hamburguesa
     if (hamburgerMenu && mobileMenu) {
-        hamburgerMenu.addEventListener('click', function() {
+        hamburgerMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            console.log('🍔 Menú hamburguesa clickeado');
             mobileMenu.classList.toggle('active');
             hamburgerMenu.classList.toggle('active');
         });
         
+        // Cerrar menú al hacer clic fuera
         document.addEventListener('click', function(event) {
             if (!hamburgerMenu.contains(event.target) && !mobileMenu.contains(event.target)) {
                 mobileMenu.classList.remove('active');
                 hamburgerMenu.classList.remove('active');
             }
         });
+        
+        // Prevenir que el clic en el menú lo cierre
+        mobileMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
     }
-
+    
     // Botón de iniciales del usuario
     if (userInitialsBtn) {
         userInitialsBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            console.log("Inicial del usuario clickeada - función deshabilitada");
+            e.stopPropagation();
+            console.log('👤 Botón de iniciales clickeado - Abriendo modal de cierre de sesión');
+            abrirModalCerrarSesion();
         });
+        
+        // Asegurar que sea claramente clickeable
+        userInitialsBtn.style.cursor = 'pointer';
+        userInitialsBtn.style.pointerEvents = 'auto';
+        userInitialsBtn.title = 'Cerrar sesión';
     }
+    
+    console.log('✅ Funcionalidad del header configurada');
 }
 
 // Configurar listeners para modales de usuario
@@ -2401,6 +2665,9 @@ function selectTimeSlot(slot) {
 // Agrega esta función para cargar datos en el formulario
 async function cargarDatosParaFormulario() {
     try {
+        // Obtener usuario actual
+        const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
+        
         // Cargar laboratorios
         const laboratorios = await loadLaboratoriosFromAPI();
         const labSelect = document.getElementById('edit-practice-lab');
@@ -2414,8 +2681,20 @@ async function cargarDatosParaFormulario() {
             });
         }
         
-        // Cargar profesores (usuarios con rol profesor)
-        const profesores = usersData.filter(user => user.role === 'Profesor');
+        // Cargar profesores (si el usuario es admin, ver todos; si no, solo su propio usuario)
+        let profesores = [];
+        
+        if (usuario.rol === "Administrador" || usuario.rol === "admin") {
+            // Admin ve todos los profesores
+            profesores = usersData.filter(user => user.role === 'Profesor');
+        } else {
+            // Usuario normal solo se ve a sí mismo como opción
+            profesores = [{
+                id: usuario.id_usuario,
+                name: `${usuario.nombre} ${usuario.apellido}`
+            }];
+        }
+        
         const professorSelect = document.getElementById('edit-practice-professor');
         if (professorSelect) {
             professorSelect.innerHTML = '<option value="">Seleccione un profesor</option>';
@@ -3520,3 +3799,52 @@ window.openDeleteModal = openDeleteModal;
 window.openNewUserModal = openNewUserModal;
 window.openEditUserModal = openEditUserModal;
 window.openDeleteUserModal = openDeleteUserModal;
+// AL FINAL DE TU ARCHIVO JS, ANTES DEL DOMContentLoaded
+
+// Solución ultra-simple de emergencia
+function ultraSimpleHeaderFix() {
+    console.log('🚨 Aplicando fix ultra-simple para header...');
+    
+    // Intentar cada 100ms por 3 segundos
+    let tries = 0;
+    const maxTries = 30; // 3 segundos
+    
+    const tryFix = setInterval(() => {
+        tries++;
+        const hamburger = document.getElementById('hamburger-menu');
+        const userBtn = document.getElementById('user-initials-btn');
+        
+        if (hamburger && userBtn) {
+            // Hacer clickeable
+            hamburger.style.cursor = 'pointer';
+            userBtn.style.cursor = 'pointer';
+            
+            // Agregar eventos si no los tienen
+            if (!hamburger.hasAttribute('data-fixed')) {
+                hamburger.addEventListener('click', () => {
+                    const mobileMenu = document.getElementById('mobile-menu');
+                    if (mobileMenu) {
+                        mobileMenu.classList.toggle('active');
+                    }
+                });
+                hamburger.setAttribute('data-fixed', 'true');
+            }
+            
+            if (!userBtn.hasAttribute('data-fixed')) {
+                userBtn.addEventListener('click', () => {
+                    abrirModalCerrarSesion();
+                });
+                userBtn.setAttribute('data-fixed', 'true');
+            }
+            
+            console.log('✅ Fix aplicado en intento', tries);
+            clearInterval(tryFix);
+        } else if (tries >= maxTries) {
+            console.log('❌ No se pudo aplicar fix después de', tries, 'intentos');
+            clearInterval(tryFix);
+        }
+    }, 100);
+}
+
+// Ejecutar automáticamente cuando se cargue la página
+setTimeout(ultraSimpleHeaderFix, 1000);
