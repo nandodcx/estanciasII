@@ -799,6 +799,10 @@
                 <i class="fas fa-users"></i>
                 <span data-i18n="menu.users">Usuarios</span>
             </div>
+            <div class="mobile-menu-item" onclick="showView('laboratories-view'); closeMobileMenu();">
+                <i class="fas fa-flask"></i>
+                <span data-i18n="menu.laboratories">Laboratorios</span>
+            </div>
             <div class="mobile-menu-item" onclick="showView('reports-view'); closeMobileMenu();">
                 <i class="fas fa-chart-bar"></i>
                 <span data-i18n="menu.reports">Reportes</span>
@@ -807,7 +811,6 @@
                 <i class="fas fa-cog"></i>
                 <span data-i18n="menu.settings">Configuración</span>
             </div>
-            
             
             <!-- Opciones de usuario - PERFIL ELIMINADO -->
             <div class="mobile-menu-item cerrar-sesion" onclick="abrirModalCerrarSesion()">
@@ -852,6 +855,12 @@
                                 <a href="#" id="mobile-users-link" class="flex items-center gap-3 p-3 rounded-lg text-gray-700 hover:bg-gray-100">
                                     <i class="fas fa-users"></i>
                                     <span data-i18n="menu.users">Usuarios</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" id="mobile-laboratories-link" class="flex items-center gap-3 p-3 rounded-lg text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-flask"></i>
+                                    <span data-i18n="menu.laboratories">Laboratorios</span>
                                 </a>
                             </li>
                             <li>
@@ -907,6 +916,12 @@
                             <a href="#" id="users-link" class="flex items-center gap-3 p-3 rounded-lg text-gray-700 hover:bg-gray-100">
                                 <i class="fas fa-users"></i>
                                 <span data-i18n="menu.users">Usuarios</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" id="laboratories-link" class="flex items-center gap-3 p-3 rounded-lg text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-flask"></i>
+                                <span data-i18n="menu.laboratories">Laboratorios</span>
                             </a>
                         </li>
                         <li>
@@ -1136,21 +1151,70 @@
                 </div>
             </div>
             
-            <!-- Agenda View - CORREGIDA -->
+            <!-- Agenda View - MODIFICADA PARA MOSTRAR POR LABORATORIO -->
             <div id="agenda-view" class="hidden fade-in">
                 <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-2xl font-bold text-gray-800" data-i18n="agenda.title">Agenda - Disponibilidad</h1>
+                    <h1 class="text-2xl font-bold text-gray-800" data-i18n="agenda.title">Agenda - Disponibilidad por Laboratorio</h1>
                     <button id="add-practice-agenda-btn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
                         <i class="fas fa-plus"></i>
                         <span data-i18n="practices.newPractice">Nueva Práctica</span>
                     </button>
                 </div>
                 
-                <!-- Tabla de Disponibilidad - CORREGIDA -->
+                <!-- Selector de Laboratorio - NUEVO -->
+                <div class="mb-6 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div class="flex-1 min-w-[300px]">
+                            <label for="lab-selector" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-flask mr-2"></i>Seleccionar Laboratorio
+                            </label>
+                            <select id="lab-selector" 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
+                                <option value="">Seleccione un laboratorio para ver su disponibilidad</option>
+                                <!-- Los laboratorios se cargarán dinámicamente -->
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-center space-x-4">
+                            <div class="text-sm text-gray-600">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-4 h-4 bg-green-100 border border-green-500 rounded"></div>
+                                    <span>Disponible</span>
+                                </div>
+                                <div class="flex items-center space-x-2 mt-1">
+                                    <div class="w-4 h-4 bg-red-100 border border-red-500 rounded"></div>
+                                    <span>Ocupado</span>
+                                </div>
+                            </div>
+                            <button id="refresh-schedule" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2">
+                                <i class="fas fa-sync-alt"></i>
+                                <span>Actualizar</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Información del laboratorio seleccionado -->
+                    <div id="selected-lab-info" class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200 hidden">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-semibold text-gray-800" id="current-lab-name"></h3>
+                                <p class="text-sm text-gray-600" id="current-lab-building"></p>
+                            </div>
+                            <div class="text-sm">
+                                <span class="px-2 py-1 bg-primary text-white rounded-full" id="current-lab-practices-count">0 prácticas</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tabla de Disponibilidad - MODIFICADA -->
                 <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
                     <div class="schedule-container">
                         <div class="schedule-header">
-                            <h3 class="text-lg font-semibold text-gray-800" data-i18n="agenda.weeklyAvailability">Disponibilidad Semanal</h3>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800" id="schedule-title">Seleccione un laboratorio</h3>
+                                <p class="text-sm text-gray-500" id="schedule-subtitle">La tabla mostrará la disponibilidad del laboratorio seleccionado</p>
+                            </div>
                             <div class="schedule-legend">
                                 <div class="legend-item">
                                     <div class="legend-color" style="background-color: #fecaca;"></div>
@@ -1163,8 +1227,14 @@
                             </div>
                         </div>
                         
-                        <div class="schedule-wrapper">
-                            <table class="schedule-table">
+                        <div id="schedule-wrapper" class="schedule-wrapper">
+                            <div id="no-lab-selected" class="text-center py-12">
+                                <i class="fas fa-flask text-4xl text-gray-300 mb-4"></i>
+                                <h4 class="text-lg font-medium text-gray-700 mb-2">Seleccione un laboratorio</h4>
+                                <p class="text-gray-500">Por favor, seleccione un laboratorio de la lista para ver su disponibilidad semanal.</p>
+                            </div>
+                            
+                            <table id="schedule-table" class="schedule-table hidden">
                                 <thead>
                                     <tr>
                                         <th class="bg-gray-100 text-gray-800" data-i18n="agenda.timeDay">Hora/Día</th>
@@ -1182,13 +1252,13 @@
                         </div>
                         
                         <div class="mt-4 text-sm text-gray-500">
-                            <p data-i18n="agenda.description">La tabla muestra la disponibilidad de los laboratorios para la semana actual.</p>
+                            <p id="agenda-description" data-i18n="agenda.description">La tabla muestra la disponibilidad del laboratorio seleccionado para la semana actual.</p>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Users View -->
+            <!-- Users View - MODIFICADO: SOLO ADMINISTRADORES Y PROFESORES -->
             <div id="users-view" class="hidden fade-in">
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-2xl font-bold text-gray-800" data-i18n="users.title">Gestión de Usuarios</h1>
@@ -1212,6 +1282,9 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="users.table.email">
                                         Correo
                                     </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="users.table.academy">
+                                        Academia
+                                    </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="users.table.status">
                                         Estado
                                     </th>
@@ -1224,6 +1297,40 @@
                                 </tr>
                             </thead>
                             <tbody id="users-table-body" class="bg-white divide-y divide-gray-200">
+                                <!-- Los datos se cargarán dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Laboratories View -->
+            <div id="laboratories-view" class="hidden fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800" data-i18n="laboratories.title">Gestión de Laboratorios</h1>
+                    <button id="add-laboratory-btn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
+                        <i class="fas fa-plus"></i>
+                        <span data-i18n="laboratories.addLaboratory">Agregar Laboratorio</span>
+                    </button>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200" id="laboratories-table">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="laboratories.table.name">
+                                        Nombre
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="laboratories.table.building">
+                                        Edificio
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="laboratories.table.actions">
+                                        Acciones
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="laboratories-table-body" class="bg-white divide-y divide-gray-200">
                                 <!-- Los datos se cargarán dinámicamente -->
                             </tbody>
                         </table>
@@ -1319,48 +1426,50 @@
                 </div>
             </div>
             
-            <!-- Settings View - ACTUALIZADA SIN MODO OSCURO -->
+            <!-- Settings View - ACTUALIZADA -->
             <div id="settings-view" class="hidden fade-in">
                 <h1 class="text-2xl font-bold text-gray-800 mb-6" data-i18n="settings.title">Configuración del Sistema</h1>
                 
                 <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4" data-i18n="settings.preferences">Preferencias</h2>
                     
-                    <div class="space-y-6">
-                        <!-- Notificaciones por Email -->
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="font-medium text-gray-800" data-i18n="settings.emailNotifications">Notificaciones por Email</p>
-                                <p class="text-sm text-gray-500" data-i18n="settings.emailNotificationsDescription">Recibir notificaciones por correo electrónico</p>
+                    <form id="settings-form">
+                        <div class="space-y-6">
+                            <!-- Notificaciones por Email -->
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium text-gray-800" data-i18n="settings.emailNotifications">Notificaciones por Email</p>
+                                    <p class="text-sm text-gray-500" data-i18n="settings.emailNotificationsDescription">Recibir notificaciones por correo electrónico</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="email-notifications">
+                                    <span class="toggle-slider"></span>
+                                </label>
                             </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="email-notifications" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
+                            
+                            <!-- Idioma -->
+                            <div>
+                                <label for="language" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="settings.language">Idioma</label>
+                                <select id="language" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                                    <option value="es">Español</option>
+                                    <option value="en">English</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Botón Guardar -->
+                            <div class="flex justify-end">
+                                <button type="submit" id="save-settings" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-700 transition-colors" data-i18n="settings.saveSettings">
+                                    Guardar Configuración
+                                </button>
+                            </div>
                         </div>
-                        
-                        <!-- Idioma -->
-                        <div>
-                            <label for="language" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="settings.language">Idioma</label>
-                            <select id="language" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
-                                <option value="es">Español</option>
-                                <option value="en">English</option>
-                            </select>
-                        </div>
-                        
-                        <!-- Botón Guardar -->
-                        <div class="flex justify-end">
-                            <button id="save-settings" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-700 transition-colors" data-i18n="settings.saveSettings">
-                                Guardar Configuración
-                            </button>
-                        </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Edición de Práctica - MODIFICADO SIN CAMPO DÍA -->
+    <!-- Modal de Edición de Práctica - MODIFICADO -->
     <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 slide-in">
             <div class="p-6 border-b border-gray-200">
@@ -1457,10 +1566,13 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
                         <label for="edit-practice-lab" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="practices.form.lab">
-                            Laboratorio / Aula
+                            Laboratorio / Aula <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" id="edit-practice-lab" placeholder="Ej: Laboratorio 3A"
+                        <select id="edit-practice-lab" required
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
+                            <option value="">Seleccione un laboratorio</option>
+                            <!-- Los laboratorios se cargarán dinámicamente -->
+                        </select>
                     </div>
                     
                     <div>
@@ -1534,7 +1646,7 @@
         </div>
     </div>
 
-    <!-- Modal de Edición de Usuario -->
+    <!-- Modal de Edición de Usuario - MODIFICADO: SOLO ADMINISTRADORES Y PROFESORES -->
     <div id="edit-user-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 slide-in">
             <div class="p-6 border-b border-gray-200">
@@ -1585,12 +1697,30 @@
                             <option value="" data-i18n="users.form.selectRole">Seleccione un rol</option>
                             <option value="Administrador" data-i18n="roles.admin">Administrador</option>
                             <option value="Profesor" data-i18n="roles.teacher">Profesor</option>
-                            <option value="Estudiante" data-i18n="roles.student">Estudiante</option>
                         </select>
                     </div>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label for="edit-user-academy" class="block text-sm font-medium text-gray-700 mb-2">
+                            <span data-i18n="users.form.academy">Academia</span>
+                        </label>
+                        <select id="edit-user-academy"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
+                            <option value="">Seleccione una academia</option>
+                            <option value="Academia en Software">Academia en Software</option>
+                            <option value="Academia en Sistemas">Academia en Sistemas</option>
+                            <option value="Academia en Redes">Academia en Redes</option>
+                            <option value="Academia en Base de Datos">Academia en Base de Datos</option>
+                            <option value="Academia en Inteligencia Artificial">Academia en Inteligencia Artificial</option>
+                            <option value="Academia en Seguridad Informática">Academia en Seguridad Informática</option>
+                            <option value="Academia en Desarrollo Web">Academia en Desarrollo Web</option>
+                            <option value="Academia en Móviles">Academia en Móviles</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    
                     <div>
                         <label for="edit-user-status" class="block text-sm font-medium text-gray-700 mb-2">
                             <span data-i18n="users.form.status">Estado</span> <span class="text-red-500">*</span>
@@ -1659,6 +1789,93 @@
         </div>
     </div>
 
+    <!-- Modal de Edición de Laboratorio -->
+    <div id="edit-laboratory-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 slide-in">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-gray-800" id="edit-laboratory-modal-title" data-i18n="laboratories.editLaboratory">Editar Laboratorio</h3>
+                    <button id="close-edit-laboratory-modal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <form id="edit-laboratory-form" class="p-6">
+                <input type="hidden" id="edit-laboratory-id">
+                
+                <div class="mb-6">
+                    <label for="edit-laboratory-name" class="block text-sm font-medium text-gray-700 mb-2">
+                        <span data-i18n="laboratories.form.name">Nombre del Laboratorio</span> <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="edit-laboratory-name" required placeholder="Ej: Laboratorio de Química"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
+                </div>
+                
+                <div class="mb-6">
+                    <label for="edit-laboratory-building" class="block text-sm font-medium text-gray-700 mb-2">
+                        <span data-i18n="laboratories.form.building">Edificio</span> <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="edit-laboratory-building" required placeholder="Ej: Edificio de Ciencias"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
+                </div>
+                
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                    <button type="button" id="cancel-edit-laboratory" class="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="common.cancel">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
+                        <i class="fas fa-save"></i>
+                        <span data-i18n="common.saveChanges">Guardar Cambios</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Eliminación de Laboratorio -->
+    <div id="delete-laboratory-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 slide-in">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-gray-800" data-i18n="laboratories.confirmDelete">Confirmar Eliminación</h3>
+                    <button id="close-delete-laboratory-modal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="p-3 bg-red-100 rounded-full">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800" data-i18n="laboratories.deleteConfirmation">¿Está seguro de eliminar este laboratorio?</h4>
+                        <p class="text-sm text-gray-500 mt-1" data-i18n="laboratories.deleteWarning">Esta acción no se puede deshacer.</p>
+                    </div>
+                </div>
+                
+                <div class="bg-red-50 p-4 rounded-lg mb-6">
+                    <p class="text-sm text-gray-800 font-medium" id="delete-laboratory-name"></p>
+                    <p class="text-xs text-gray-500 mt-1" id="delete-laboratory-details"></p>
+                </div>
+                
+                <input type="hidden" id="delete-laboratory-id">
+                
+                <div class="flex justify-end gap-3">
+                    <button type="button" id="cancel-delete-laboratory" class="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="common.cancel">
+                        Cancelar
+                    </button>
+                    <button type="button" id="confirm-delete-laboratory" class="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2">
+                        <i class="fas fa-trash"></i>
+                        <span data-i18n="laboratories.deleteLaboratory">Eliminar Laboratorio</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal de Cerrar Sesión - ADAPTADO DEL CÓDIGO MÁS PEQUEÑO -->
     <div id="logout-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 slide-in">
@@ -1709,7 +1926,10 @@
             language: 'es'
         };
 
-        // Diccionario de traducciones
+        // Estado temporal de configuración (para cambios no guardados)
+        let tempSettings = {...appSettings};
+
+        // Diccionario de traducciones - MODIFICADO: REMOVIDO ESTUDIANTE
         const translations = {
             es: {
                 // Header
@@ -1721,6 +1941,7 @@
                 "menu.practices": "Prácticas",
                 "menu.agenda": "Agenda",
                 "menu.users": "Usuarios",
+                "menu.laboratories": "Laboratorios",
                 "menu.reports": "Reportes",
                 "menu.settings": "Configuración",
                 "menu.profile": "Perfil",
@@ -1794,12 +2015,13 @@
                 "status.active": "Activo",
                 "status.inactive": "Inactivo",
                 
-                // Usuarios
+                // Usuarios - MODIFICADO: AGREGADO CAMPO ACADEMIA
                 "users.title": "Gestión de Usuarios",
                 "users.addUser": "Agregar Usuario",
                 "users.table.user": "Usuario",
                 "users.table.role": "Rol",
                 "users.table.email": "Correo",
+                "users.table.academy": "Academia",
                 "users.table.status": "Estado",
                 "users.table.lastAccess": "Último Acceso",
                 "users.table.actions": "Acciones",
@@ -1813,7 +2035,22 @@
                 "users.form.email": "Correo Electrónico",
                 "users.form.role": "Rol",
                 "users.form.selectRole": "Seleccione un rol",
+                "users.form.academy": "Academia",
                 "users.form.status": "Estado",
+                
+                // Laboratorios
+                "laboratories.title": "Gestión de Laboratorios",
+                "laboratories.addLaboratory": "Agregar Laboratorio",
+                "laboratories.table.name": "Nombre",
+                "laboratories.table.building": "Edificio",
+                "laboratories.table.actions": "Acciones",
+                "laboratories.editLaboratory": "Editar Laboratorio",
+                "laboratories.confirmDelete": "Confirmar Eliminación",
+                "laboratories.deleteConfirmation": "¿Está seguro de eliminar este laboratorio?",
+                "laboratories.deleteWarning": "Esta acción no se puede deshacer.",
+                "laboratories.deleteLaboratory": "Eliminar Laboratorio",
+                "laboratories.form.name": "Nombre del Laboratorio",
+                "laboratories.form.building": "Edificio",
                 
                 // Reportes
                 "reports.title": "Reportes de Prácticas",
@@ -1838,10 +2075,9 @@
                 "common.cancel": "Cancelar",
                 "common.saveChanges": "Guardar Cambios",
                 
-                // Roles
+                // Roles - MODIFICADO: SOLO ADMINISTRADOR Y PROFESOR
                 "roles.admin": "Administrador",
                 "roles.teacher": "Profesor",
-                "roles.student": "Estudiante",
                 
                 // Logout
                 "logout.confirmation": "¿Está seguro de que desea cerrar sesión?"
@@ -1856,6 +2092,7 @@
                 "menu.practices": "Practices",
                 "menu.agenda": "Agenda",
                 "menu.users": "Users",
+                "menu.laboratories": "Laboratories",
                 "menu.reports": "Reports",
                 "menu.settings": "Settings",
                 "menu.profile": "Profile",
@@ -1929,12 +2166,13 @@
                 "status.active": "Active",
                 "status.inactive": "Inactive",
                 
-                // Usuarios
+                // Usuarios - MODIFICADO: AGREGADO CAMPO ACADEMIA
                 "users.title": "User Management",
                 "users.addUser": "Add User",
                 "users.table.user": "User",
                 "users.table.role": "Role",
                 "users.table.email": "Email",
+                "users.table.academy": "Academy",
                 "users.table.status": "Status",
                 "users.table.lastAccess": "Last Access",
                 "users.table.actions": "Actions",
@@ -1948,7 +2186,22 @@
                 "users.form.email": "Email",
                 "users.form.role": "Role",
                 "users.form.selectRole": "Select a role",
+                "users.form.academy": "Academy",
                 "users.form.status": "Status",
+                
+                // Laboratorios
+                "laboratories.title": "Laboratories Management",
+                "laboratories.addLaboratory": "Add Laboratory",
+                "laboratories.table.name": "Name",
+                "laboratories.table.building": "Building",
+                "laboratories.table.actions": "Actions",
+                "laboratories.editLaboratory": "Edit Laboratory",
+                "laboratories.confirmDelete": "Confirm Deletion",
+                "laboratories.deleteConfirmation": "Are you sure you want to delete this laboratory?",
+                "laboratories.deleteWarning": "This action cannot be undone.",
+                "laboratories.deleteLaboratory": "Delete Laboratory",
+                "laboratories.form.name": "Laboratory Name",
+                "laboratories.form.building": "Building",
                 
                 // Reportes
                 "reports.title": "Practice Reports",
@@ -1973,10 +2226,9 @@
                 "common.cancel": "Cancel",
                 "common.saveChanges": "Save Changes",
                 
-                // Roles
+                // Roles - MODIFICADO: SOLO ADMINISTRADOR Y PROFESOR
                 "roles.admin": "Administrator",
                 "roles.teacher": "Professor",
-                "roles.student": "Student",
                 
                 // Logout
                 "logout.confirmation": "Are you sure you want to log out?"
@@ -1994,7 +2246,9 @@
                 status: 'programada', 
                 time: '7:00',
                 objective: 'Programación de hilos en web.',
-                lab: 'Laboratorio 3A'
+                lab: 'Laboratorio de Computación',
+                labId: 3,
+                labName: 'Laboratorio de Computación'
             },
             { 
                 id: 2, 
@@ -2005,7 +2259,9 @@
                 status: 'confirmada', 
                 time: '9:00',
                 objective: 'Instalación de un sistema operativo dual.',
-                lab: 'Laboratorio 2B'
+                lab: 'Laboratorio de Computación',
+                labId: 3,
+                labName: 'Laboratorio de Computación'
             },
             { 
                 id: 3, 
@@ -2016,7 +2272,9 @@
                 status: 'en-curso', 
                 time: '11:00',
                 objective: 'Instalación de un sistema operativo dual.',
-                lab: 'Laboratorio 1C'
+                lab: 'Laboratorio de Física',
+                labId: 2,
+                labName: 'Laboratorio de Física'
             },
             { 
                 id: 4, 
@@ -2027,7 +2285,9 @@
                 status: 'cancelada', 
                 time: '14:00',
                 objective: 'Examen de conocimientos.',
-                lab: 'Aula 4'
+                lab: 'Aula 4',
+                labId: 4,
+                labName: 'Aula 4'
             },
             { 
                 id: 5, 
@@ -2038,13 +2298,72 @@
                 status: 'completada', 
                 time: '16:00',
                 objective: 'En cuesta de...',
-                lab: 'Aula 4'
+                lab: 'Aula 4',
+                labId: 4,
+                labName: 'Aula 4'
             }
         ];
 
-        // Datos de ejemplo para usuarios
+        // Datos de ejemplo para usuarios - MODIFICADO: SOLO ADMINISTRADORES Y PROFESORES CON ACADEMIA
         let usersData = [
-            { id: 1, name: 'Administrador', username: 'admin', email: 'admin@universidad.edu', role: 'Administrador', status: 'Activo', lastAccess: 'Hoy, 10:30 AM' }
+            { 
+                id: 1, 
+                name: 'Administrador', 
+                username: 'admin', 
+                email: 'admin@universidad.edu', 
+                role: 'Administrador', 
+                academy: '', // Los administradores no tienen academia
+                status: 'Activo', 
+                lastAccess: 'Hoy, 10:30 AM' 
+            },
+            { 
+                id: 2, 
+                name: 'Dr. Fued', 
+                username: 'fued', 
+                email: 'fued@universidad.edu', 
+                role: 'Profesor', 
+                academy: 'Academia en Software',
+                status: 'Activo', 
+                lastAccess: 'Hoy, 09:15 AM' 
+            },
+            { 
+                id: 3, 
+                name: 'Prof. Estefano', 
+                username: 'estefano', 
+                email: 'estefano@universidad.edu', 
+                role: 'Profesor', 
+                academy: 'Academia en Sistemas',
+                status: 'Activo', 
+                lastAccess: 'Ayer, 16:45 PM' 
+            },
+            { 
+                id: 4, 
+                name: 'Prof. Ricardo', 
+                username: 'ricardo', 
+                email: 'ricardo@universidad.edu', 
+                role: 'Profesor', 
+                academy: 'Academia en Redes',
+                status: 'Activo', 
+                lastAccess: 'Hoy, 11:20 AM' 
+            },
+            { 
+                id: 5, 
+                name: 'Prof. Valeria', 
+                username: 'valeria', 
+                email: 'valeria@universidad.edu', 
+                role: 'Profesor', 
+                academy: 'Academia en Inteligencia Artificial',
+                status: 'Activo', 
+                lastAccess: 'Ayer, 14:30 PM' 
+            }
+        ];
+
+        // Datos de ejemplo para laboratorios
+        let laboratoriesData = [
+            { id: 1, name: 'Laboratorio de Química', building: 'Edificio de Ciencias' },
+            { id: 2, name: 'Laboratorio de Física', building: 'Edificio de Ciencias' },
+            { id: 3, name: 'Laboratorio de Computación', building: 'Edificio Tecnológico' },
+            { id: 4, name: 'Aula 4', building: 'Edificio Principal' }
         ];
 
         // Datos de ejemplo para reportes
@@ -2072,10 +2391,9 @@
             status: ''
         };
 
-        // Horarios ocupados para la agenda - CORREGIDO
-        let scheduleOccupancy = {};
-        // Slot temporal seleccionado - NUEVO
-        window.selectedTimeSlot = null;
+        // Estado para la agenda por laboratorio
+        let selectedLabId = null;
+        let labOccupancy = {}; // {labId: {day: {hour: practiceInfo}}}
 
         // Funciones para el modal de cerrar sesión - ADAPTADAS DEL CÓDIGO MÁS PEQUEÑO
         function abrirModalCerrarSesion() {
@@ -2138,11 +2456,11 @@
             initializeDashboard();
             initializePracticesTable();
             initializeUsersTable();
+            initializeLaboratoriesTable();
             initializeReportsTable();
             setupEventListeners();
             updateResultsCount();
             updateReportsResultsCount();
-            generateAgendaSchedule();
             
             // Configurar menú hamburguesa y modales del header
             setupHeaderFunctionality();
@@ -2158,6 +2476,9 @@
             // Cargar las nuevas vistas de actividades y prácticas
             loadRecentActivities();
             loadUpcomingPractices();
+            
+            // Inicializar selector de laboratorios para agenda
+            initializeLabSelector();
         });
 
         // Cargar configuración guardada
@@ -2167,6 +2488,9 @@
                 const settings = JSON.parse(savedSettings);
                 appSettings.emailNotifications = settings.emailNotifications;
                 appSettings.language = settings.language;
+                tempSettings = {...appSettings}; // Inicializar tempSettings con los valores guardados
+            } else {
+                tempSettings = {...appSettings}; // Inicializar tempSettings con valores por defecto
             }
 
             // Aplicar configuración
@@ -2175,7 +2499,7 @@
 
         // Aplicar configuración a la interfaz
         function applySettings() {
-            // Actualizar controles
+            // Actualizar controles con los valores guardados (no los temporales)
             const emailNotificationsToggle = document.getElementById('email-notifications');
             const languageSelect = document.getElementById('language');
             
@@ -2207,8 +2531,8 @@
             const emailNotificationsToggle = document.getElementById('email-notifications');
             if (emailNotificationsToggle) {
                 emailNotificationsToggle.addEventListener('change', function() {
-                    appSettings.emailNotifications = this.checked;
-                    saveSettings();
+                    // Solo actualizar tempSettings, no appSettings
+                    tempSettings.emailNotifications = this.checked;
                 });
             }
 
@@ -2216,17 +2540,27 @@
             const languageSelect = document.getElementById('language');
             if (languageSelect) {
                 languageSelect.addEventListener('change', function() {
-                    appSettings.language = this.value;
-                    applySettings();
-                    saveSettings();
+                    // Solo actualizar tempSettings, no appSettings
+                    tempSettings.language = this.value;
                 });
             }
 
-            // Guardar configuración
-            const saveSettingsBtn = document.getElementById('save-settings');
-            if (saveSettingsBtn) {
-                saveSettingsBtn.addEventListener('click', function() {
+            // Guardar configuración - AHORA ES UN FORMULARIO
+            const settingsForm = document.getElementById('settings-form');
+            if (settingsForm) {
+                settingsForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Actualizar appSettings con tempSettings
+                    appSettings.emailNotifications = tempSettings.emailNotifications;
+                    appSettings.language = tempSettings.language;
+                    
+                    // Guardar en localStorage
                     saveSettings();
+                    
+                    // Aplicar cambios inmediatamente
+                    applySettings();
+                    
                     showSuccessMessage('Configuración guardada correctamente');
                 });
             }
@@ -2235,9 +2569,6 @@
         // Guardar configuración
         function saveSettings() {
             localStorage.setItem('appSettings', JSON.stringify(appSettings));
-            
-            // Aplicar cambios inmediatamente
-            applySettings();
         }
 
         // Configurar funcionalidades del header
@@ -2301,7 +2632,7 @@
             document.getElementById('header-container').classList.add('modal-open');
         }
 
-        // Abrir modal para editar usuario
+        // Abrir modal para editar usuario - MODIFICADO: AGREGADO ACADEMIA
         function openEditUserModal(userId) {
             const user = usersData.find(u => u.id === userId);
             if (!user) return;
@@ -2312,6 +2643,7 @@
             document.getElementById('edit-user-username').value = user.username;
             document.getElementById('edit-user-email').value = user.email;
             document.getElementById('edit-user-role').value = user.role;
+            document.getElementById('edit-user-academy').value = user.academy || '';
             document.getElementById('edit-user-status').value = user.status;
             
             // Cambiar título del modal
@@ -2609,47 +2941,107 @@
             });
         }
 
-        // Inicializar ocupación de horarios - CORREGIDA COMPLETAMENTE
-        function initializeScheduleOccupancy() {
-            scheduleOccupancy = {};
+        // === NUEVAS FUNCIONES PARA AGENDA POR LABORATORIO ===
+
+        // Inicializar selector de laboratorios
+        function initializeLabSelector() {
+            const labSelector = document.getElementById('lab-selector');
+            if (!labSelector) return;
             
-            // Procesar prácticas existentes para marcar horarios ocupados
-            practiceData.forEach(practice => {
-                if (practice.date && practice.time) {
-                    const day = getDayFromDate(practice.date);
-                    // Solo procesar si es un día laboral - CORREGIDO
-                    if (day) {
-                        if (!scheduleOccupancy[day]) {
-                            scheduleOccupancy[day] = {};
-                        }
-                        scheduleOccupancy[day][practice.time] = {
-                            practice: practice.practice,
-                            professor: practice.professor,
-                            id: practice.id // Agregar ID para referencia
-                        };
-                    }
+            // Limpiar opciones existentes
+            labSelector.innerHTML = '<option value="">Seleccione un laboratorio para ver su disponibilidad</option>';
+            
+            // Agregar laboratorios disponibles
+            laboratoriesData.forEach(lab => {
+                const option = document.createElement('option');
+                option.value = lab.id;
+                option.textContent = `${lab.name} - ${lab.building}`;
+                labSelector.appendChild(option);
+            });
+            
+            // Agregar event listener para cambiar laboratorio
+            labSelector.addEventListener('change', function() {
+                const labId = parseInt(this.value);
+                if (labId) {
+                    loadLabSchedule(labId);
+                } else {
+                    showNoLabSelected();
                 }
             });
             
-            console.log('Ocupación de horarios inicializada:', scheduleOccupancy);
+            // Configurar botón de refrescar
+            const refreshBtn = document.getElementById('refresh-schedule');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function() {
+                    if (selectedLabId) {
+                        loadLabSchedule(selectedLabId);
+                    } else {
+                        showNoLabSelected();
+                    }
+                });
+            }
         }
 
-        // Generar tabla de agenda - CORREGIDA COMPLETAMENTE
-        function generateAgendaSchedule() {
+        // Cargar horario de un laboratorio específico
+        function loadLabSchedule(labId) {
+            selectedLabId = labId;
+            
+            // Obtener información del laboratorio
+            const lab = laboratoriesData.find(l => l.id === labId);
+            if (!lab) return;
+            
+            // Mostrar información del laboratorio
+            document.getElementById('current-lab-name').textContent = lab.name;
+            document.getElementById('current-lab-building').textContent = lab.building;
+            document.getElementById('selected-lab-info').classList.remove('hidden');
+            
+            // Contar prácticas para este laboratorio
+            const labPractices = practiceData.filter(p => p.labId === labId);
+            document.getElementById('current-lab-practices-count').textContent = `${labPractices.length} prácticas`;
+            
+            // Actualizar título
+            document.getElementById('schedule-title').textContent = `Disponibilidad: ${lab.name}`;
+            document.getElementById('schedule-subtitle').textContent = `Horario semanal - ${lab.building}`;
+            document.getElementById('agenda-description').textContent = `La tabla muestra la disponibilidad del laboratorio "${lab.name}" para la semana actual.`;
+            
+            // Ocultar mensaje "seleccione laboratorio"
+            document.getElementById('no-lab-selected').classList.add('hidden');
+            document.getElementById('schedule-table').classList.remove('hidden');
+            
+            // Generar tabla de disponibilidad
+            generateLabSchedule(labId);
+        }
+
+        // Generar tabla de disponibilidad para un laboratorio específico
+        function generateLabSchedule(labId) {
             const scheduleBody = document.getElementById('schedule-body-agenda');
-            if (!scheduleBody) {
-                console.error('No se encontró el elemento schedule-body-agenda');
-                return;
-            }
+            if (!scheduleBody) return;
             
             scheduleBody.innerHTML = '';
+            
             const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
             const hours = ['7:00', '8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
             
-            // Asegurarse de que la ocupación esté actualizada
-            initializeScheduleOccupancy();
+            // Obtener prácticas para este laboratorio
+            const labPractices = practiceData.filter(p => p.labId === labId && p.date && p.time);
             
-            // Generar franjas horarias
+            // Construir estructura de ocupación
+            const labOccupancy = {};
+            labPractices.forEach(practice => {
+                const day = getDayFromDate(practice.date);
+                if (day) {
+                    if (!labOccupancy[day]) {
+                        labOccupancy[day] = {};
+                    }
+                    labOccupancy[day][practice.time] = {
+                        practice: practice.practice,
+                        professor: practice.professor,
+                        id: practice.id
+                    };
+                }
+            });
+            
+            // Generar filas de horarios
             hours.forEach(hour => {
                 const row = document.createElement('tr');
                 
@@ -2668,29 +3060,32 @@
                     slotDiv.className = 'time-slot';
                     slotDiv.dataset.day = day;
                     slotDiv.dataset.hour = hour;
+                    slotDiv.dataset.labId = labId;
                     
-                    // Verificar si el horario está ocupado
-                    const isOccupied = scheduleOccupancy[day] && scheduleOccupancy[day][hour];
+                    // Verificar si el horario está ocupado para este laboratorio
+                    const isOccupied = labOccupancy[day] && labOccupancy[day][hour];
                     if (isOccupied) {
                         slotDiv.classList.add('occupied');
                         slotDiv.innerHTML = '<i class="fas fa-ban"></i>';
                         slotDiv.title = `${isOccupied.practice} - ${isOccupied.professor}`;
-                        slotDiv.style.cursor = 'not-allowed';
+                        slotDiv.style.cursor = 'pointer';
                     } else {
                         slotDiv.classList.add('available');
                         slotDiv.innerHTML = '<i class="fas fa-check"></i>';
                         slotDiv.title = 'Disponible';
                         slotDiv.style.cursor = 'pointer';
+                        
+                        // Permitir seleccionar para nueva práctica
+                        slotDiv.addEventListener('click', function() {
+                            selectTimeSlotForLab(labId, day, hour);
+                        });
                     }
                     
-                    // Agregar evento de clic para seleccionar horario - CORREGIDO
-                    slotDiv.addEventListener('click', function() {
-                        if (this.classList.contains('available')) {
-                            // Si está disponible, seleccionar para nueva práctica
-                            selectTimeSlot(this);
-                        } else {
-                            // Si está ocupado, mostrar información de la práctica existente
-                            showPracticeInfo(this);
+                    // Agregar evento de clic para mostrar información
+                    slotDiv.addEventListener('click', function(e) {
+                        if (this.classList.contains('occupied')) {
+                            e.stopPropagation();
+                            showPracticeInfoForLab(labId, day, hour);
                         }
                     });
                     
@@ -2701,153 +3096,49 @@
                 scheduleBody.appendChild(row);
             });
             
-            console.log('Tabla de agenda generada con ocupación actualizada');
+            console.log(`Tabla generada para laboratorio ID: ${labId}`);
         }
 
-        // Función para mostrar información de práctica existente
-        function showPracticeInfo(slotElement) {
-            const day = slotElement.dataset.day;
-            const hour = slotElement.dataset.hour;
-            showPracticeDetails(day, hour);
-        }
-
-        // Función para mostrar detalles de práctica en modal
-        function showPracticeDetails(day, hour) {
-            const practiceInfo = scheduleOccupancy[day] && scheduleOccupancy[day][hour];
-            
-            if (practiceInfo) {
-                // Buscar la práctica completa en los datos
-                const practice = practiceData.find(p => p.id === practiceInfo.id);
-                if (practice) {
-                    // Crear un modal de información detallada
-                    const detailModal = document.createElement('div');
-                    detailModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 fade-in';
-                    detailModal.innerHTML = `
-                        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 slide-in">
-                            <div class="p-6 border-b border-gray-200">
-                                <div class="flex justify-between items-center">
-                                    <h3 class="text-xl font-bold text-gray-800">Información de Práctica</h3>
-                                    <button class="close-detail-modal text-gray-500 hover:text-gray-700">
-                                        <i class="fas fa-times text-xl"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="p-6">
-                                <div class="space-y-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Práctica:</label>
-                                        <p class="mt-1 text-sm text-gray-900">${practice.practice}</p>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Profesor:</label>
-                                        <p class="mt-1 text-sm text-gray-900">${practice.professor}</p>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Asignatura:</label>
-                                        <p class="mt-1 text-sm text-gray-900">${practice.subject}</p>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Estado:</label>
-                                        <span class="mt-1 inline-flex px-2 text-xs font-semibold rounded-full 
-                                            ${getStatusColor(practice.status)}">
-                                            ${getStatusText(practice.status)}
-                                        </span>
-                                    </div>
-                                    ${practice.objective ? `
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Objetivo:</label>
-                                        <p class="mt-1 text-sm text-gray-900">${practice.objective}</p>
-                                    </div>
-                                    ` : ''}
-                                    ${practice.lab ? `
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Laboratorio/Aula:</label>
-                                        <p class="mt-1 text-sm text-gray-900">${practice.lab}</p>
-                                    </div>
-                                    ` : ''}
-                                </div>
-                                <div class="mt-6 flex justify-end">
-                                    <button class="close-detail-modal px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-700 transition-colors">
-                                        Cerrar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    document.body.appendChild(detailModal);
-                    
-                    // Agregar event listeners para cerrar el modal
-                    const closeButtons = detailModal.querySelectorAll('.close-detail-modal');
-                    closeButtons.forEach(button => {
-                        button.addEventListener('click', function() {
-                            document.body.removeChild(detailModal);
-                        });
-                    });
-                    
-                    // Cerrar al hacer clic fuera del modal
-                    detailModal.addEventListener('click', function(e) {
-                        if (e.target === detailModal) {
-                            document.body.removeChild(detailModal);
-                        }
-                    });
-                }
-            }
-        }
-
-        // FUNCIONES AUXILIARES para estilos de estado
-        function getStatusColor(status) {
-            switch(status) {
-                case 'programada': return 'bg-green-100 text-green-800';
-                case 'confirmada': return 'bg-blue-100 text-blue-800';
-                case 'en-curso': return 'bg-yellow-100 text-yellow-800';
-                case 'completada': return 'bg-gray-100 text-gray-800';
-                case 'cancelada': return 'bg-red-100 text-red-800';
-                default: return 'bg-gray-100 text-gray-800';
-            }
-        }
-
-        function getStatusText(status) {
-            switch(status) {
-                case 'programada': return 'Programada';
-                case 'confirmada': return 'Confirmada';
-                case 'en-curso': return 'En curso';
-                case 'completada': return 'Completada';
-                case 'cancelada': return 'Cancelada';
-                default: return status;
-            }
-        }
-
-        // Seleccionar slot de tiempo para nueva práctica - CORREGIDA COMPLETAMENTE
-        function selectTimeSlot(slot) {
-            const day = slot.dataset.day;
-            const hour = slot.dataset.hour;
-            
-            // Verificar si ya está ocupado (doble verificación)
-            if (scheduleOccupancy[day] && scheduleOccupancy[day][hour]) {
-                alert('Este horario ya está ocupado. Por favor seleccione otro.');
-                return;
-            }
+        // Seleccionar slot de tiempo para nueva práctica en laboratorio específico
+        function selectTimeSlotForLab(labId, day, hour) {
+            const lab = laboratoriesData.find(l => l.id === labId);
+            if (!lab) return;
             
             // Guardar la selección temporalmente
             window.selectedTimeSlot = {
+                labId: labId,
+                labName: lab.name,
                 day: day,
-                hour: hour,
-                element: slot
+                hour: hour
             };
             
             // Abrir modal de nueva práctica con prellenado automático
-            openNewPracticeModal(day, hour);
+            openNewPracticeModalForLab(labId, lab.name, day, hour);
         }
 
-        // MODIFICAR la función openNewPracticeModal para aceptar parámetros
-        function openNewPracticeModal(day = null, hour = null) {
+        // Abrir modal para nueva práctica en laboratorio específico
+        function openNewPracticeModalForLab(labId, labName, day, hour) {
             // Limpiar el formulario
             document.getElementById('edit-practice-form').reset();
             document.getElementById('edit-practice-id').value = '';
             
             // Cambiar título
             document.getElementById('edit-modal-title').textContent = 'Nueva Práctica';
+            
+            // Cargar laboratorios en el select
+            loadLaboratoriesSelect();
+            
+            // Establecer el laboratorio seleccionado
+            const labSelect = document.getElementById('edit-practice-lab');
+            if (labSelect) {
+                // Buscar la opción correspondiente al laboratorio
+                for (let i = 0; i < labSelect.options.length; i++) {
+                    if (labSelect.options[i].value.includes(labName)) {
+                        labSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
             
             // Mostrar modal
             const editModal = document.getElementById('edit-modal');
@@ -2856,9 +3147,174 @@
             // Oscurecer el header
             document.getElementById('header-container').classList.add('modal-open');
             
-            // Si se proporcionaron día y hora, prellenar el formulario
+            // Prellenar formulario con día y hora seleccionados
             if (day && hour) {
                 prefillPracticeForm(day, hour);
+            }
+        }
+
+        // Mostrar información de práctica existente para laboratorio específico
+        function showPracticeInfoForLab(labId, day, hour) {
+            // Buscar práctica en este laboratorio, día y hora
+            const practice = practiceData.find(p => {
+                if (!p.date || !p.time || p.labId !== labId) return false;
+                const practiceDay = getDayFromDate(p.date);
+                return practiceDay === day && p.time === hour;
+            });
+            
+            if (practice) {
+                showPracticeDetailsModal(practice);
+            }
+        }
+
+        // Mostrar modal de detalles de práctica
+        function showPracticeDetailsModal(practice) {
+            // Crear un modal de información detallada
+            const detailModal = document.createElement('div');
+            detailModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 fade-in';
+            detailModal.innerHTML = `
+                <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 slide-in">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-gray-800">Información de Práctica</h3>
+                            <button class="close-detail-modal text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Práctica:</label>
+                                <p class="mt-1 text-sm text-gray-900">${practice.practice}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Profesor:</label>
+                                <p class="mt-1 text-sm text-gray-900">${practice.professor}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Asignatura:</label>
+                                <p class="mt-1 text-sm text-gray-900">${practice.subject}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Estado:</label>
+                                <span class="mt-1 inline-flex px-2 text-xs font-semibold rounded-full 
+                                    ${getStatusColor(practice.status)}">
+                                    ${getStatusText(practice.status)}
+                                </span>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Laboratorio:</label>
+                                <p class="mt-1 text-sm text-gray-900">${practice.lab}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Fecha:</label>
+                                <p class="mt-1 text-sm text-gray-900">${formatDate(practice.date)} ${practice.time || ''}</p>
+                            </div>
+                            ${practice.objective ? `
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Objetivo:</label>
+                                <p class="mt-1 text-sm text-gray-900">${practice.objective}</p>
+                            </div>
+                            ` : ''}
+                        </div>
+                        <div class="mt-6 flex justify-end space-x-3">
+                            <button class="edit-practice-from-modal px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-700 transition-colors" data-id="${practice.id}">
+                                Editar
+                            </button>
+                            <button class="close-detail-modal px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors">
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(detailModal);
+            
+            // Agregar event listeners para cerrar el modal
+            const closeButtons = detailModal.querySelectorAll('.close-detail-modal');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    document.body.removeChild(detailModal);
+                });
+            });
+            
+            // Agregar evento para editar desde el modal
+            const editButton = detailModal.querySelector('.edit-practice-from-modal');
+            if (editButton) {
+                editButton.addEventListener('click', function() {
+                    const practiceId = parseInt(this.getAttribute('data-id'));
+                    document.body.removeChild(detailModal);
+                    openEditModal(practiceId);
+                });
+            }
+            
+            // Cerrar al hacer clic fuera del modal
+            detailModal.addEventListener('click', function(e) {
+                if (e.target === detailModal) {
+                    document.body.removeChild(detailModal);
+                }
+            });
+        }
+
+        // Mostrar estado "no hay laboratorio seleccionado"
+        function showNoLabSelected() {
+            selectedLabId = null;
+            
+            // Ocultar información del laboratorio
+            document.getElementById('selected-lab-info').classList.add('hidden');
+            
+            // Mostrar mensaje "seleccione laboratorio"
+            document.getElementById('no-lab-selected').classList.remove('hidden');
+            document.getElementById('schedule-table').classList.add('hidden');
+            
+            // Actualizar títulos
+            document.getElementById('schedule-title').textContent = 'Seleccione un laboratorio';
+            document.getElementById('schedule-subtitle').textContent = 'La tabla mostrará la disponibilidad del laboratorio seleccionado';
+            document.getElementById('agenda-description').textContent = 'La tabla muestra la disponibilidad del laboratorio seleccionado para la semana actual.';
+        }
+
+        // Actualizar agenda después de guardar
+        function updateAgendaAfterSave(practice) {
+            if (practice.labId && selectedLabId === practice.labId) {
+                // Si el laboratorio guardado es el mismo que el mostrado, actualizar
+                loadLabSchedule(practice.labId);
+            }
+            
+            // Actualizar las vistas de actividades y próximas prácticas
+            loadRecentActivities();
+            loadUpcomingPractices();
+        }
+
+        // Actualizar agenda después de eliminar
+        function updateAgendaAfterDelete(practiceId) {
+            const deletedPractice = practiceData.find(p => p.id === practiceId);
+            if (deletedPractice && deletedPractice.labId && selectedLabId === deletedPractice.labId) {
+                // Si el laboratorio eliminado es el mismo que el mostrado, actualizar
+                loadLabSchedule(deletedPractice.labId);
+            }
+            
+            // Actualizar las vistas de actividades y próximas prácticas
+            loadRecentActivities();
+            loadUpcomingPractices();
+        }
+
+        // Obtener día de la semana a partir de una fecha
+        function getDayFromDate(dateString) {
+            try {
+                const date = new Date(dateString);
+                // Ajustar para problema de zona horaria
+                date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+                
+                const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+                const dayName = days[date.getDay()];
+                
+                // Solo considerar días laborales (Lunes a Viernes)
+                return ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'].includes(dayName) ? dayName : null;
+            } catch (error) {
+                console.error('Error al convertir fecha:', dateString, error);
+                return null;
             }
         }
 
@@ -2924,84 +3380,26 @@
             return `${year}-${month}-${dayOfMonth}`;
         }
 
-        // Función auxiliar para debug - CORREGIDA
-        function debugSchedule() {
-            console.log('=== DEBUG AGENDA ===');
-            console.log('Prácticas totales:', practiceData.length);
-            console.log('Prácticas con fecha y hora:');
-            practiceData.forEach(p => {
-                if (p.date && p.time) {
-                    const day = getDayFromDate(p.date);
-                    console.log(`- ${p.practice}: ${p.date} (${day}) ${p.time}`);
-                }
-            });
-            console.log('Horarios ocupados:', scheduleOccupancy);
-            alert('Información de debug mostrada en consola');
-        }
-
-        // Obtener día de la semana a partir de una fecha - CORREGIDA COMPLETAMENTE
-        function getDayFromDate(dateString) {
-            try {
-                const date = new Date(dateString);
-                // Ajustar para problema de zona horaria
-                date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
-                
-                const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-                const dayName = days[date.getDay()];
-                
-                console.log(`Convirtiendo fecha: ${dateString} -> ${dayName}`);
-                
-                // Solo considerar días laborales (Lunes a Viernes)
-                return ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'].includes(dayName) ? dayName : null;
-            } catch (error) {
-                console.error('Error al convertir fecha:', dateString, error);
-                return null;
+        // FUNCIONES AUXILIARES para estilos de estado
+        function getStatusColor(status) {
+            switch(status) {
+                case 'programada': return 'bg-green-100 text-green-800';
+                case 'confirmada': return 'bg-blue-100 text-blue-800';
+                case 'en-curso': return 'bg-yellow-100 text-yellow-800';
+                case 'completada': return 'bg-gray-100 text-gray-800';
+                case 'cancelada': return 'bg-red-100 text-red-800';
+                default: return 'bg-gray-100 text-gray-800';
             }
         }
 
-        // Actualizar agenda después de guardar
-        function updateAgendaAfterSave(practice) {
-            if (practice.date && practice.time) {
-                const day = getDayFromDate(practice.date);
-                if (day) {
-                    if (!scheduleOccupancy[day]) {
-                        scheduleOccupancy[day] = {};
-                    }
-                    scheduleOccupancy[day][practice.time] = {
-                        practice: practice.practice,
-                        professor: practice.professor,
-                        id: practice.id
-                    };
-                    
-                    console.log(`Agenda actualizada: ${day} ${practice.time} - ${practice.practice}`);
-                    
-                    // Regenerar la tabla de agenda
-                    generateAgendaSchedule();
-                    
-                    // Actualizar las vistas de actividades y próximas prácticas
-                    loadRecentActivities();
-                    loadUpcomingPractices();
-                }
-            }
-        }
-
-        // Actualizar agenda después de eliminar
-        function updateAgendaAfterDelete(practiceId) {
-            // Buscar la práctica eliminada
-            const deletedPractice = practiceData.find(p => p.id === practiceId);
-            if (deletedPractice && deletedPractice.date && deletedPractice.time) {
-                const day = getDayFromDate(deletedPractice.date);
-                if (day && scheduleOccupancy[day] && scheduleOccupancy[day][deletedPractice.time]) {
-                    delete scheduleOccupancy[day][deletedPractice.time];
-                    console.log(`Horario liberado: ${day} ${deletedPractice.time}`);
-                    
-                    // Regenerar la tabla de agenda
-                    generateAgendaSchedule();
-                    
-                    // Actualizar las vistas de actividades y próximas prácticas
-                    loadRecentActivities();
-                    loadUpcomingPractices();
-                }
+        function getStatusText(status) {
+            switch(status) {
+                case 'programada': return 'Programada';
+                case 'confirmada': return 'Confirmada';
+                case 'en-curso': return 'En curso';
+                case 'completada': return 'Completada';
+                case 'cancelada': return 'Cancelada';
+                default: return status;
             }
         }
 
@@ -3027,15 +3425,18 @@
                 showView('agenda-view');
                 updateActiveLink(this);
                 closeMobileMenu();
-                // Regenerar la tabla de agenda cuando se muestre la vista
-                setTimeout(() => {
-                    generateAgendaSchedule();
-                }, 100);
             });
             
             document.getElementById('users-link').addEventListener('click', function(e) {
                 e.preventDefault();
                 showView('users-view');
+                updateActiveLink(this);
+                closeMobileMenu();
+            });
+            
+            document.getElementById('laboratories-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                showView('laboratories-view');
                 updateActiveLink(this);
                 closeMobileMenu();
             });
@@ -3081,15 +3482,18 @@
                 showView('agenda-view');
                 updateActiveMobileLink(this);
                 closeMobileMenu();
-                // Regenerar la tabla de agenda cuando se muestre la vista
-                setTimeout(() => {
-                    generateAgendaSchedule();
-                }, 100);
             });
             
             document.getElementById('mobile-users-link').addEventListener('click', function(e) {
                 e.preventDefault();
                 showView('users-view');
+                updateActiveMobileLink(this);
+                closeMobileMenu();
+            });
+            
+            document.getElementById('mobile-laboratories-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                showView('laboratories-view');
                 updateActiveMobileLink(this);
                 closeMobileMenu();
             });
@@ -3122,6 +3526,11 @@
             
             document.getElementById('add-practice-agenda-btn').addEventListener('click', function() {
                 openNewPracticeModal(); // Modal vacío
+            });
+            
+            // Botón para agregar laboratorio
+            document.getElementById('add-laboratory-btn').addEventListener('click', function() {
+                openNewLaboratoryModal();
             });
             
             // Filtros de prácticas
@@ -3216,12 +3625,26 @@
             const cancelDeleteUser = document.getElementById('cancel-delete-user');
             const confirmDeleteUser = document.getElementById('confirm-delete-user');
             
+            // MODALES DE LABORATORIOS
+            const editLaboratoryModal = document.getElementById('edit-laboratory-modal');
+            const closeEditLaboratoryModal = document.getElementById('close-edit-laboratory-modal');
+            const cancelEditLaboratory = document.getElementById('cancel-edit-laboratory');
+            const editLaboratoryForm = document.getElementById('edit-laboratory-form');
+            
+            const deleteLaboratoryModal = document.getElementById('delete-laboratory-modal');
+            const closeDeleteLaboratoryModal = document.getElementById('close-delete-laboratory-modal');
+            const cancelDeleteLaboratory = document.getElementById('cancel-delete-laboratory');
+            const confirmDeleteLaboratory = document.getElementById('confirm-delete-laboratory');
+            
             // Cerrar modal de edición de práctica
             function closeEditModalFunc() {
                 editModal.classList.add('hidden');
                 document.body.style.overflow = 'auto';
                 // Restaurar el header
                 document.getElementById('header-container').classList.remove('modal-open');
+                
+                // Ocultar campo "Otro" si existe
+                manageOtherLabInput(false);
             }
 
             if (closeEditModal) {
@@ -3240,7 +3663,7 @@
                 });
             }
 
-            // Envío del formulario de edición - CORREGIDO COMPLETAMENTE
+            // Envío del formulario de edición
             if (editPracticeForm) {
                 editPracticeForm.addEventListener('submit', function(e) {
                     e.preventDefault();
@@ -3253,8 +3676,32 @@
                     const practiceProfessor = document.getElementById('edit-practice-professor').value;
                     const practiceSubject = document.getElementById('edit-practice-subject').value;
                     const practiceObjective = document.getElementById('edit-practice-objective').value;
-                    const practiceLab = document.getElementById('edit-practice-lab').value;
                     const practiceStatus = document.getElementById('edit-practice-status').value;
+                    
+                    // Obtener laboratorio
+                    let practiceLab = document.getElementById('edit-practice-lab').value;
+                    let practiceLabId = null;
+                    let practiceLabName = practiceLab;
+                    
+                    // Si se seleccionó "Otro", usar el campo de texto
+                    if (practiceLab === 'Otro') {
+                        const otherLabInput = document.getElementById('other-lab-input');
+                        if (otherLabInput) {
+                            practiceLab = otherLabInput.value;
+                            practiceLabName = practiceLab;
+                        }
+                    } else {
+                        // Obtener ID del laboratorio seleccionado
+                        const labSelect = document.getElementById('edit-practice-lab');
+                        const selectedOption = labSelect.options[labSelect.selectedIndex];
+                        practiceLabId = selectedOption.dataset.labId ? parseInt(selectedOption.dataset.labId) : null;
+                        
+                        // Buscar el laboratorio en la lista
+                        const lab = laboratoriesData.find(l => l.id === practiceLabId);
+                        if (lab) {
+                            practiceLabName = lab.name;
+                        }
+                    }
                     
                     let isNewPractice = false;
                     let newPractice = null;
@@ -3265,8 +3712,8 @@
                         if (practiceIndex !== -1) {
                             // Es una actualización, verificar si cambió la fecha/hora
                             const oldPractice = practiceData.find(p => p.id === practiceId);
-                            if (oldPractice && (oldPractice.date !== practiceDate || oldPractice.time !== practiceTime)) {
-                                // Si cambió la fecha/hora, liberar el horario anterior
+                            if (oldPractice && (oldPractice.date !== practiceDate || oldPractice.time !== practiceTime || oldPractice.labId !== practiceLabId)) {
+                                // Si cambió la fecha/hora o laboratorio, actualizar agenda
                                 updateAgendaAfterDelete(practiceId);
                             }
                             
@@ -3279,6 +3726,8 @@
                                 subject: practiceSubject,
                                 objective: practiceObjective,
                                 lab: practiceLab,
+                                labId: practiceLabId,
+                                labName: practiceLabName,
                                 status: practiceStatus
                             };
                             
@@ -3309,6 +3758,8 @@
                             subject: practiceSubject,
                             objective: practiceObjective,
                             lab: practiceLab,
+                            labId: practiceLabId,
+                            labName: practiceLabName,
                             status: practiceStatus
                         };
                         
@@ -3329,10 +3780,8 @@
                     }
                     
                     updateDashboardStats();
-                    loadRecentActivities();
-                    loadUpcomingPractices();
                     
-                    // Actualizar tablas - CORREGIDO: Usar los arrays actualizados
+                    // Actualizar tablas - Usar los arrays actualizados
                     currentData = [...practiceData];
                     currentReportsData = [...reportsData];
                     
@@ -3349,6 +3798,9 @@
                         name: practiceName,
                         date: practiceDate,
                         time: practiceTime,
+                        lab: practiceLab,
+                        labId: practiceLabId,
+                        labName: practiceLabName,
                         isNew: isNewPractice,
                         totalPractices: practiceData.length
                     });
@@ -3400,10 +3852,8 @@
                         
                         // Actualizar dashboard
                         updateDashboardStats();
-                        loadRecentActivities();
-                        loadUpcomingPractices();
                         
-                        // Actualizar tablas - CORREGIDO: llamar a initializePracticesTable()
+                        // Actualizar tablas - llamar a initializePracticesTable()
                         currentData = [...practiceData];
                         currentReportsData = [...reportsData];
                         initializePracticesTable();
@@ -3442,7 +3892,7 @@
                 });
             }
 
-            // Envío del formulario de edición de usuario
+            // Envío del formulario de edición de usuario - MODIFICADO: AGREGADO ACADEMIA
             if (editUserForm) {
                 editUserForm.addEventListener('submit', function(e) {
                     e.preventDefault();
@@ -3453,7 +3903,21 @@
                     const userUsername = document.getElementById('edit-user-username').value;
                     const userEmail = document.getElementById('edit-user-email').value;
                     const userRole = document.getElementById('edit-user-role').value;
+                    const userAcademy = document.getElementById('edit-user-academy').value;
                     const userStatus = document.getElementById('edit-user-status').value;
+                    
+                    // Validar: Si es Profesor, debe tener academia
+                    if (userRole === 'Profesor' && !userAcademy) {
+                        alert('Los profesores deben tener una academia asignada');
+                        return;
+                    }
+                    
+                    // Validar: Si es Administrador, no debe tener academia
+                    if (userRole === 'Administrador' && userAcademy) {
+                        alert('Los administradores no deben tener academia asignada');
+                        document.getElementById('edit-user-academy').value = '';
+                        userAcademy = '';
+                    }
                     
                     if (userId) {
                         // Actualizar usuario existente en los datos
@@ -3465,6 +3929,7 @@
                                 username: userUsername,
                                 email: userEmail,
                                 role: userRole,
+                                academy: userAcademy,
                                 status: userStatus
                             };
                             
@@ -3480,6 +3945,7 @@
                             username: userUsername,
                             email: userEmail,
                             role: userRole,
+                            academy: userAcademy,
                             status: userStatus,
                             lastAccess: 'Nunca'
                         };
@@ -3487,7 +3953,7 @@
                         usersData.push(newUser);
                         
                         // Mostrar mensaje de éxito
-                        showSuccessMessage('Usuario creado correctamente');
+                        showSuccessMessage('Usuario creada correctamente');
                     }
                     
                     // Actualizar tabla de usuarios
@@ -3543,6 +4009,203 @@
                     closeDeleteUserModalFunc();
                 });
             }
+            
+            // MODALES DE LABORATORIOS
+            // Cerrar modal de edición de laboratorio
+            function closeEditLaboratoryModalFunc() {
+                editLaboratoryModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                // Restaurar el header
+                document.getElementById('header-container').classList.remove('modal-open');
+            }
+
+            if (closeEditLaboratoryModal) {
+                closeEditLaboratoryModal.addEventListener('click', closeEditLaboratoryModalFunc);
+            }
+            if (cancelEditLaboratory) {
+                cancelEditLaboratory.addEventListener('click', closeEditLaboratoryModalFunc);
+            }
+
+            // Cerrar modal al hacer clic fuera del contenido
+            if (editLaboratoryModal) {
+                editLaboratoryModal.addEventListener('click', function(e) {
+                    if (e.target === editLaboratoryModal) {
+                        closeEditLaboratoryModalFunc();
+                    }
+                });
+            }
+
+            // Envío del formulario de edición de laboratorio
+            if (editLaboratoryForm) {
+                editLaboratoryForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Obtener datos del formulario
+                    const laboratoryId = parseInt(document.getElementById('edit-laboratory-id').value);
+                    const laboratoryName = document.getElementById('edit-laboratory-name').value;
+                    const laboratoryBuilding = document.getElementById('edit-laboratory-building').value;
+                    
+                    if (laboratoryId) {
+                        // Actualizar laboratorio existente en los datos
+                        const laboratoryIndex = laboratoriesData.findIndex(l => l.id === laboratoryId);
+                        if (laboratoryIndex !== -1) {
+                            // Actualizar también en las prácticas que usan este laboratorio
+                            practiceData.forEach(practice => {
+                                if (practice.labId === laboratoryId) {
+                                    practice.lab = laboratoryName;
+                                    practice.labName = laboratoryName;
+                                }
+                            });
+                            
+                            laboratoriesData[laboratoryIndex] = {
+                                ...laboratoriesData[laboratoryIndex],
+                                name: laboratoryName,
+                                building: laboratoryBuilding
+                            };
+                            
+                            // Mostrar mensaje de éxito
+                            showSuccessMessage('Laboratorio actualizada correctamente');
+                        }
+                    } else {
+                        // Crear nuevo laboratorio
+                        const newId = laboratoriesData.length > 0 ? Math.max(...laboratoriesData.map(l => l.id)) + 1 : 1;
+                        const newLaboratory = {
+                            id: newId,
+                            name: laboratoryName,
+                            building: laboratoryBuilding
+                        };
+                        
+                        laboratoriesData.push(newLaboratory);
+                        
+                        // Mostrar mensaje de éxito
+                        showSuccessMessage('Laboratorio creada correctamente');
+                    }
+                    
+                    // Actualizar tabla de laboratorios
+                    initializeLaboratoriesTable();
+                    
+                    // Actualizar selector de laboratorios en agenda
+                    initializeLabSelector();
+                    
+                    // Cerrar modal
+                    closeEditLaboratoryModalFunc();
+                });
+            }
+            
+            // Cerrar modal de eliminación de laboratorio
+            function closeDeleteLaboratoryModalFunc() {
+                deleteLaboratoryModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                // Restaurar el header
+                document.getElementById('header-container').classList.remove('modal-open');
+            }
+
+            if (closeDeleteLaboratoryModal) {
+                closeDeleteLaboratoryModal.addEventListener('click', closeDeleteLaboratoryModalFunc);
+            }
+            if (cancelDeleteLaboratory) {
+                cancelDeleteLaboratory.addEventListener('click', closeDeleteLaboratoryModalFunc);
+            }
+
+            // Cerrar modal al hacer clic fuera del contenido
+            if (deleteLaboratoryModal) {
+                deleteLaboratoryModal.addEventListener('click', function(e) {
+                    if (e.target === deleteLaboratoryModal) {
+                        closeDeleteLaboratoryModalFunc();
+                    }
+                });
+            }
+
+            // Confirmar eliminación de laboratorio
+            if (confirmDeleteLaboratory) {
+                confirmDeleteLaboratory.addEventListener('click', function() {
+                    const laboratoryId = parseInt(document.getElementById('delete-laboratory-id').value);
+                    
+                    // Verificar si hay prácticas usando este laboratorio
+                    const practicesUsingLab = practiceData.filter(p => p.labId === laboratoryId);
+                    if (practicesUsingLab.length > 0) {
+                        alert('No se puede eliminar el laboratorio porque tiene prácticas asignadas. Por favor, reasigne o elimine las prácticas primero.');
+                        return;
+                    }
+                    
+                    // Eliminar laboratorio de los datos
+                    const laboratoryIndex = laboratoriesData.findIndex(l => l.id === laboratoryId);
+                    if (laboratoryIndex !== -1) {
+                        laboratoriesData.splice(laboratoryIndex, 1);
+                        
+                        // Actualizar tabla de laboratorios
+                        initializeLaboratoriesTable();
+                        
+                        // Actualizar selector de laboratorios en agenda
+                        initializeLabSelector();
+                        
+                        // Si el laboratorio eliminado estaba seleccionado en agenda, limpiar
+                        if (selectedLabId === laboratoryId) {
+                            showNoLabSelected();
+                            document.getElementById('lab-selector').value = '';
+                        }
+                        
+                        // Mostrar mensaje de éxito
+                        showSuccessMessage('Laboratorio eliminada correctamente');
+                    }
+                    
+                    // Cerrar modal
+                    closeDeleteLaboratoryModalFunc();
+                });
+            }
+        }
+
+        // Abrir modal para nuevo laboratorio
+        function openNewLaboratoryModal() {
+            // Limpiar el formulario
+            document.getElementById('edit-laboratory-form').reset();
+            document.getElementById('edit-laboratory-id').value = '';
+            
+            // Cambiar título del modal
+            document.getElementById('edit-laboratory-modal-title').textContent = 'Agregar Laboratorio';
+            
+            // Mostrar modal
+            const editLaboratoryModal = document.getElementById('edit-laboratory-modal');
+            editLaboratoryModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            // Oscurecer el header
+            document.getElementById('header-container').classList.add('modal-open');
+        }
+
+        // Abrir modal para editar laboratorio
+        function openEditLaboratoryModal(laboratoryId) {
+            const laboratory = laboratoriesData.find(l => l.id === laboratoryId);
+            if (!laboratory) return;
+            
+            // Llenar el formulario con los datos actuales
+            document.getElementById('edit-laboratory-id').value = laboratory.id;
+            document.getElementById('edit-laboratory-name').value = laboratory.name;
+            document.getElementById('edit-laboratory-building').value = laboratory.building;
+            
+            // Cambiar título del modal
+            document.getElementById('edit-laboratory-modal-title').textContent = 'Editar Laboratorio';
+            
+            // Mostrar modal
+            const editLaboratoryModal = document.getElementById('edit-laboratory-modal');
+            editLaboratoryModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            // Oscurecer el header
+            document.getElementById('header-container').classList.add('modal-open');
+        }
+
+        // Abrir modal para eliminar laboratorio
+        function openDeleteLaboratoryModal(laboratoryId, laboratoryName, laboratoryBuilding) {
+            // Llenar la información del laboratorio a eliminar
+            document.getElementById('delete-laboratory-id').value = laboratoryId;
+            document.getElementById('delete-laboratory-name').textContent = laboratoryName;
+            document.getElementById('delete-laboratory-details').textContent = `Edificio: ${laboratoryBuilding}`;
+            
+            // Mostrar modal
+            const deleteLaboratoryModal = document.getElementById('delete-laboratory-modal');
+            deleteLaboratoryModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            // Oscurecer el header
+            document.getElementById('header-container').classList.add('modal-open');
         }
 
         // Mostrar mensaje de éxito
@@ -3566,11 +4229,34 @@
             document.getElementById('practices-view').classList.add('hidden');
             document.getElementById('agenda-view').classList.add('hidden');
             document.getElementById('users-view').classList.add('hidden');
+            document.getElementById('laboratories-view').classList.add('hidden');
             document.getElementById('reports-view').classList.add('hidden');
             document.getElementById('settings-view').classList.add('hidden');
             
             // Mostrar la vista seleccionada
             document.getElementById(viewId).classList.remove('hidden');
+            
+            // Si es la vista de configuración, actualizar tempSettings
+            if (viewId === 'settings-view') {
+                const emailNotificationsToggle = document.getElementById('email-notifications');
+                const languageSelect = document.getElementById('language');
+                
+                if (emailNotificationsToggle) {
+                    emailNotificationsToggle.checked = tempSettings.emailNotifications;
+                }
+                if (languageSelect) {
+                    languageSelect.value = tempSettings.language;
+                }
+            }
+            
+            // Si es la vista de agenda, inicializar selector si no está inicializado
+            if (viewId === 'agenda-view') {
+                // Verificar si el selector ya está inicializado
+                const labSelector = document.getElementById('lab-selector');
+                if (labSelector && labSelector.options.length <= 1) {
+                    initializeLabSelector();
+                }
+            }
         }
 
         // Actualizar enlace activo en el sidebar
@@ -3599,7 +4285,7 @@
             activeLink.classList.add('bg-primary', 'text-white');
         }
 
-        // Inicializar tabla de prácticas - CORREGIDA COMPLETAMENTE
+        // Inicializar tabla de prácticas
         function initializePracticesTable() {
             const tableBody = document.getElementById('table-body');
             if (!tableBody) {
@@ -3616,7 +4302,7 @@
                 const row = document.createElement('tr');
                 row.className = 'bg-white';
                 
-                // Determinar color del estado - CORREGIDO: usar los colores correctos
+                // Determinar color del estado
                 let statusColor = '';
                 let statusText = '';
                 switch(item.status) {
@@ -3691,14 +4377,14 @@
                 });
             });
             
-            // ✅ ACTUALIZAR CONTADORES Y FILTROS
+            // ACTUALIZAR CONTADORES Y FILTROS
             updateResultsCount();
             updateFilters();
             
             console.log('Tabla de prácticas actualizada correctamente');
         }
 
-        // Inicializar tabla de usuarios
+        // Inicializar tabla de usuarios - MODIFICADO: AGREGADO CAMPO ACADEMIA
         function initializeUsersTable() {
             const tableBody = document.getElementById('users-table-body');
             tableBody.innerHTML = '';
@@ -3735,10 +4421,6 @@
                         roleColor = 'bg-blue-100 text-blue-800';
                         roleText = 'Profesor';
                         break;
-                    case 'Estudiante':
-                        roleColor = 'bg-yellow-100 text-yellow-800';
-                        roleText = 'Estudiante';
-                        break;
                 }
                 
                 row.innerHTML = `
@@ -3766,6 +4448,9 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         ${item.email}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${item.academy || '-'}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">
@@ -3804,6 +4489,54 @@
                     const userId = parseInt(this.getAttribute('data-id'));
                     const userName = this.getAttribute('data-name');
                     openDeleteUserModal(userId, userName);
+                });
+            });
+        }
+
+        // Inicializar tabla de laboratorios
+        function initializeLaboratoriesTable() {
+            const tableBody = document.getElementById('laboratories-table-body');
+            tableBody.innerHTML = '';
+            
+            // Generar filas de la tabla
+            laboratoriesData.forEach((item) => {
+                const row = document.createElement('tr');
+                row.className = 'bg-white';
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.building}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button class="edit-laboratory-btn text-indigo-600 hover:text-indigo-900 mr-3"
+                                data-id="${item.id}">
+                            Editar
+                        </button>
+                        <button class="delete-laboratory-btn text-red-600 hover:text-red-900"
+                                data-id="${item.id}"
+                                data-name="${item.name}"
+                                data-building="${item.building}">
+                            Eliminar
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Agregar event listeners a los botones de editar y eliminar
+            document.querySelectorAll('.edit-laboratory-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const laboratoryId = parseInt(this.getAttribute('data-id'));
+                    openEditLaboratoryModal(laboratoryId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-laboratory-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const laboratoryId = parseInt(this.getAttribute('data-id'));
+                    const laboratoryName = this.getAttribute('data-name');
+                    const laboratoryBuilding = this.getAttribute('data-building');
+                    openDeleteLaboratoryModal(laboratoryId, laboratoryName, laboratoryBuilding);
                 });
             });
         }
@@ -3874,8 +4607,36 @@
             document.getElementById('edit-practice-professor').value = report.professor;
             document.getElementById('edit-practice-subject').value = report.subject;
             document.getElementById('edit-practice-objective').value = report.objective || '';
-            document.getElementById('edit-practice-lab').value = report.lab || '';
-            document.getElementById('edit-practice-status').value = report.status || 'programada';
+            
+            // Cargar laboratorios en el select
+            loadLaboratoriesSelect();
+            
+            // Buscar el laboratorio en practiceData
+            const practice = practiceData.find(p => p.id === reportId);
+            if (practice && practice.lab) {
+                const labSelect = document.getElementById('edit-practice-lab');
+                // Buscar si el laboratorio existe en la lista
+                let found = false;
+                for (let i = 0; i < labSelect.options.length; i++) {
+                    if (labSelect.options[i].value.includes(practice.lab)) {
+                        labSelect.selectedIndex = i;
+                        found = true;
+                        break;
+                    }
+                }
+                
+                // Si no se encuentra, seleccionar "Otro" y llenar el campo
+                if (!found && practice.lab) {
+                    labSelect.value = 'Otro';
+                    manageOtherLabInput(true);
+                    const otherLabInput = document.getElementById('other-lab-input');
+                    if (otherLabInput) {
+                        otherLabInput.value = practice.lab;
+                    }
+                }
+            }
+            
+            document.getElementById('edit-practice-status').value = practice ? practice.status : 'programada';
             
             // Mostrar modal
             const editModal = document.getElementById('edit-modal');
@@ -3913,8 +4674,34 @@
             document.getElementById('edit-practice-professor').value = practice.professor;
             document.getElementById('edit-practice-subject').value = practice.subject;
             document.getElementById('edit-practice-objective').value = practice.objective || '';
-            document.getElementById('edit-practice-lab').value = practice.lab || '';
             document.getElementById('edit-practice-status').value = practice.status;
+            
+            // Cargar laboratorios en el select
+            loadLaboratoriesSelect();
+            
+            // Buscar el laboratorio en la lista
+            const labSelect = document.getElementById('edit-practice-lab');
+            if (practice.lab) {
+                // Buscar si el laboratorio existe en la lista
+                let found = false;
+                for (let i = 0; i < labSelect.options.length; i++) {
+                    if (labSelect.options[i].value.includes(practice.lab)) {
+                        labSelect.selectedIndex = i;
+                        found = true;
+                        break;
+                    }
+                }
+                
+                // Si no se encuentra, seleccionar "Otro" y llenar el campo
+                if (!found && practice.lab) {
+                    labSelect.value = 'Otro';
+                    manageOtherLabInput(true);
+                    const otherLabInput = document.getElementById('other-lab-input');
+                    if (otherLabInput) {
+                        otherLabInput.value = practice.lab;
+                    }
+                }
+            }
             
             // Cambiar título
             document.getElementById('edit-modal-title').textContent = 'Editar Práctica';
@@ -3942,7 +4729,92 @@
             document.getElementById('header-container').classList.add('modal-open');
         }
 
-        // Filtrar datos de prácticas - CORREGIDO
+        // Cargar laboratorios en el select
+        function loadLaboratoriesSelect() {
+            const labSelect = document.getElementById('edit-practice-lab');
+            if (!labSelect) return;
+            
+            // Limpiar opciones existentes excepto la primera
+            while (labSelect.options.length > 1) {
+                labSelect.remove(1);
+            }
+            
+            // Agregar laboratorios disponibles
+            laboratoriesData.forEach(lab => {
+                const option = document.createElement('option');
+                option.value = `${lab.name} (${lab.building})`;
+                option.textContent = `${lab.name} - ${lab.building}`;
+                option.dataset.labId = lab.id;
+                labSelect.appendChild(option);
+            });
+            
+            // Agregar opción "Otro" para laboratorios no listados
+            const otherOption = document.createElement('option');
+            otherOption.value = 'Otro';
+            otherOption.textContent = 'Otro (especificar)';
+            labSelect.appendChild(otherOption);
+            
+            // Agregar event listener para mostrar campo de texto cuando se selecciona "Otro"
+            labSelect.addEventListener('change', function() {
+                manageOtherLabInput(this.value === 'Otro');
+            });
+        }
+
+        // Manejar campo de texto para "Otro" laboratorio
+        function manageOtherLabInput(show) {
+            // Buscar o crear el campo de texto
+            let otherLabInput = document.getElementById('other-lab-input');
+            const labSelect = document.getElementById('edit-practice-lab');
+            
+            if (show) {
+                if (!otherLabInput) {
+                    otherLabInput = document.createElement('input');
+                    otherLabInput.type = 'text';
+                    otherLabInput.id = 'other-lab-input';
+                    otherLabInput.placeholder = 'Especifique el laboratorio/aula';
+                    otherLabInput.className = 'w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors mt-2';
+                    
+                    // Insertar después del select
+                    labSelect.parentNode.appendChild(otherLabInput);
+                } else {
+                    otherLabInput.classList.remove('hidden');
+                }
+                
+                // Hacer que el select sea opcional cuando se selecciona "Otro"
+                labSelect.required = false;
+                otherLabInput.required = true;
+            } else {
+                if (otherLabInput) {
+                    otherLabInput.classList.add('hidden');
+                    otherLabInput.required = false;
+                }
+                
+                // Hacer que el select sea obligatorio
+                labSelect.required = true;
+            }
+        }
+
+        // Abrir modal para nueva práctica
+        function openNewPracticeModal() {
+            // Limpiar el formulario
+            document.getElementById('edit-practice-form').reset();
+            document.getElementById('edit-practice-id').value = '';
+            
+            // Cambiar título
+            document.getElementById('edit-modal-title').textContent = 'Nueva Práctica';
+            
+            // Cargar laboratorios en el select
+            loadLaboratoriesSelect();
+            
+            // Mostrar modal
+            const editModal = document.getElementById('edit-modal');
+            editModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            // Oscurecer el header
+            document.getElementById('header-container').classList.add('modal-open');
+        }
+
+        // Filtrar datos de prácticas
         function filterPracticesData() {
             let filteredData = [...practiceData];
             
@@ -4034,7 +4906,7 @@
             // Actualizar indicadores visuales de ordenamiento
             updateSortIndicators();
             
-            // Volver a renderizar la tabla - CORREGIDO: llamar a initializePracticesTable()
+            // Volver a renderizar la tabla
             initializePracticesTable();
         }
 
@@ -4099,7 +4971,7 @@
             initializePracticesTable();
         }
 
-        // Actualizar contador de resultados - CORREGIDO
+        // Actualizar contador de resultados
         function updateResultsCount() {
             const resultsCount = document.getElementById('results-count');
             const totalCount = document.getElementById('total-count');
@@ -4123,9 +4995,10 @@
             return new Date(dateString).toLocaleDateString('es-ES', options);
         }
 
-        // Hacer la función debug global
-        window.debugSchedule = debugSchedule;
+        // Hacer las funciones globales
         window.showView = showView;
+        window.openNewLaboratoryModal = openNewLaboratoryModal;
+        window.openEditLaboratoryModal = openEditLaboratoryModal;
     </script>
 </body>
 </html>

@@ -1,0 +1,317 @@
+/* Estilos específicos para la vista de agenda */
+.agenda-controls {
+    background-color: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.lab-selector-container {
+    margin-bottom: 1rem;
+}
+
+.lab-selector-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.lab-selector {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.lab-selector:focus {
+    outline: none;
+    border-color: #9BD86B;
+    box-shadow: 0 0 0 3px rgba(155, 216, 107, 0.2);
+}
+
+.lab-info-panel {
+    background-color: #eff6ff;
+    border: 1px solid #dbeafe;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-top: 1rem;
+    display: none;
+}
+
+.lab-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.lab-name {
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 1.125rem;
+}
+
+.lab-building {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.lab-practices-count {
+    background-color: #9BD86B;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Leyenda de disponibilidad */
+.availability-legend {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legend-color-box {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid;
+}
+
+.legend-text {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* Botones de agenda */
+.agenda-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.agenda-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.agenda-btn-primary {
+    background-color: #9BD86B;
+    color: white;
+    border: none;
+}
+
+.agenda-btn-primary:hover {
+    background-color: #8bc954;
+    transform: translateY(-1px);
+}
+
+.agenda-btn-secondary {
+    background-color: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.agenda-btn-secondary:hover {
+    background-color: #e5e7eb;
+}
+
+/* Mensaje cuando no hay laboratorio seleccionado */
+.no-lab-message {
+    text-align: center;
+    padding: 3rem 1rem;
+    background-color: #f9fafb;
+    border-radius: 0.75rem;
+    border: 2px dashed #d1d5db;
+}
+
+.no-lab-icon {
+    font-size: 3rem;
+    color: #9ca3af;
+    margin-bottom: 1rem;
+}
+
+.no-lab-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.no-lab-description {
+    color: #6b7280;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* Detalles de práctica en agenda */
+.practice-detail-modal {
+    background-color: white;
+    border-radius: 0.75rem;
+    max-width: 500px;
+    width: 90%;
+    margin: 0 auto;
+}
+
+.practice-detail-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.practice-detail-body {
+    padding: 1.5rem;
+}
+
+.practice-detail-field {
+    margin-bottom: 1rem;
+}
+
+.practice-detail-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+.practice-detail-value {
+    font-size: 1rem;
+    color: #1f2937;
+}
+
+.practice-detail-status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Responsive para agenda */
+@media (max-width: 768px) {
+    .agenda-controls {
+        padding: 1rem;
+    }
+    
+    .availability-legend {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .agenda-actions {
+        flex-direction: column;
+    }
+    
+    .agenda-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .schedule-wrapper {
+        padding: 0.5rem;
+    }
+    
+    .schedule-table th,
+    .schedule-table td {
+        padding: 0.25rem;
+        font-size: 0.75rem;
+    }
+    
+    .time-slot {
+        height: 30px;
+        font-size: 0.625rem;
+    }
+}
+
+/* Animaciones para agenda */
+@keyframes slotPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.time-slot.selected {
+    animation: slotPulse 1s ease-in-out;
+}
+
+/* Hover effects mejorados */
+.time-slot.available:hover {
+    background-color: #a7f3d0;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.time-slot.occupied:hover {
+    background-color: #fca5a5;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+/* Estilos para días de la semana en agenda */
+.day-header {
+    position: relative;
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+    font-weight: 600;
+    color: #374151;
+    background-color: #f3f4f6;
+}
+
+.day-header.today {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.day-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: transparent;
+}
+
+.day-header.today::after {
+    background-color: #3b82f6;
+}
+
+/* Indicador de hora actual */
+.current-time-indicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #ef4444;
+    z-index: 10;
+}
+
+.current-time-indicator::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: -4px;
+    width: 10px;
+    height: 10px;
+    background-color: #ef4444;
+    border-radius: 50%;
+}
