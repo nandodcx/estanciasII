@@ -1,23 +1,22 @@
 // ==============================================
-// MÓDULO DE GESTIÓN DE REPORTES - VERSIÓN CORREGIDA
-// Archivo: reports.js
+// MÓDULO DE GESTIÓN DE LABORATORIOS - VERSIÓN CORREGIDA
+// Archivo: laboratories.js
 // ==============================================
 
-console.log('reports.js cargando...');
+console.log('laboratories.js cargando...');
 
-// Datos de ejemplo para reportes
-const DEFAULT_REPORTS = [
-    { id: 1, date: '2024-01-15', practice: 'Laboratorio MAC', objective: 'Programación de hilos en web.', professor: 'Dr. Fued', subject: 'Programación Concurrente' },
-    { id: 2, date: '2024-01-15', practice: 'Laboratorio Linux', objective: 'Instalación de un sistema operativo dual.', professor: 'Prof. Estefano', subject: 'Sistemas Operativos' },
-    { id: 3, date: '2024-01-16', practice: 'Laboratorio Windows', objective: 'Instalación de un sistema operativo dual.', professor: 'Prof. Ricardo', subject: 'Programación I' },
-    { id: 4, date: '2024-01-17', practice: 'Laboratorio Windows', objective: 'Examen de conocimientos.', professor: 'Prof. Valeria', subject: 'Liderazgo eq. Alto desempeño' },
-    { id: 5, date: '2024-01-18', practice: 'Laboratorio Windows', objective: 'En cuesta de...', professor: 'Prof. Valeria', subject: 'Liderazgo eq. Alto desempeño' }
+// Datos iniciales para laboratorios
+const DEFAULT_LABORATORIES = [
+    { id: 1, name: 'Laboratorio de Química', building: 'Edificio de Ciencias' },
+    { id: 2, name: 'Laboratorio de Física', building: 'Edificio de Ciencias' },
+    { id: 3, name: 'Laboratorio de Computación', building: 'Edificio Tecnológico' },
+    { id: 4, name: 'Aula 4', building: 'Edificio Principal' }
 ];
 
 // ========== INICIALIZAR DATOS ==========
 
-function initializeReportsData() {
-    console.log('initializeReportsData ejecutado');
+function initializeLaboratoriesData() {
+    console.log('initializeLaboratoriesData ejecutado');
     
     // Asegurarse de que AppState existe
     if (!window.AppState) {
@@ -25,141 +24,48 @@ function initializeReportsData() {
         console.log('AppState creado');
     }
     
-    // Inicializar filtros si no existen
-    if (!window.AppState.currentReportsFilters) {
-        window.AppState.currentReportsFilters = {
-            search: '',
-            professor: '',
-            status: ''
-        };
-    }
-    
-    // Si no hay datos de reportes, inicializar con los datos por defecto
-    if (!window.AppState.reportsData || !Array.isArray(window.AppState.reportsData)) {
-        window.AppState.reportsData = [...DEFAULT_REPORTS];
-        console.log('Datos de reportes inicializados:', window.AppState.reportsData);
-    }
-    
-    // Inicializar datos actuales
-    if (!window.AppState.currentReportsData || !Array.isArray(window.AppState.currentReportsData)) {
-        window.AppState.currentReportsData = [...window.AppState.reportsData];
-    }
-}
-
-// ========== FUNCIONES AUXILIARES ==========
-
-// Formatear fecha
-function formatDate(dateString) {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
-}
-
-// Obtener texto del estado
-function getStatusText(status) {
-    switch(status) {
-        case 'programada': return 'Programada';
-        case 'confirmada': return 'Confirmada';
-        case 'en-curso': return 'En curso';
-        case 'completada': return 'Completada';
-        case 'cancelada': return 'Cancelada';
-        default: return status;
+    // Si no hay datos de laboratorios, inicializar con los datos por defecto
+    if (!window.AppState.laboratoriesData || !Array.isArray(window.AppState.laboratoriesData)) {
+        window.AppState.laboratoriesData = [...DEFAULT_LABORATORIES];
+        console.log('Datos de laboratorios inicializados:', window.AppState.laboratoriesData);
     }
 }
 
 // ========== RENDERIZAR VISTA ==========
 
-function renderReportsView() {
-    console.log('renderReportsView ejecutado');
+function renderLaboratoriesView() {
+    console.log('renderLaboratoriesView ejecutado');
     
     return `
-        <div id="reports-view" class="fade-in">
+        <div id="laboratories-view" class="fade-in">
             <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold text-gray-800" data-i18n="reports.title">Reportes de Prácticas</h1>
-                <button id="export-reports-btn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
-                    <i class="fas fa-file-export"></i>
-                    <span data-i18n="reports.exportReport">Exportar Reporte</span>
+                <h1 class="text-2xl font-bold text-gray-800" data-i18n="laboratories.title">Gestión de Laboratorios</h1>
+                <button id="add-laboratory-btn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
+                    <i class="fas fa-plus"></i>
+                    <span data-i18n="laboratories.addLaboratory">Agregar Laboratorio</span>
                 </button>
             </div>
             
-            <!-- Controles de Filtrado -->
-            <div class="mb-6 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Búsqueda -->
-                    <div>
-                        <label for="reports-search" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="common.search">Buscar</label>
-                        <input type="text" id="reports-search" placeholder="Buscar en la tabla..." 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
-                    </div>
-                    
-                    <!-- Filtro por profesor -->
-                    <div>
-                        <label for="reports-professor-filter" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="practices.filterByProfessor">Filtrar por profesor</label>
-                        <select id="reports-professor-filter" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
-                            <option value="" data-i18n="common.all">Todos los profesores</option>
-                            <option value="Dr. Fued">Dr. Fued</option>
-                            <option value="Prof. Estefano">Prof. Estefano</option>
-                            <option value="Prof. Ricardo">Prof. Ricardo</option>
-                            <option value="Prof. Valeria">Prof. Valeria</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Filtro por estado -->
-                    <div>
-                        <label for="reports-status-filter" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="practices.filterByStatus">Filtrar por estado</label>
-                        <select id="reports-status-filter" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
-                            <option value="" data-i18n="common.all">Todos los estados</option>
-                            <option value="programada" data-i18n="status.scheduled">Programada</option>
-                            <option value="confirmada" data-i18n="status.confirmed">Confirmada</option>
-                            <option value="en-curso" data-i18n="status.inProgress">En curso</option>
-                            <option value="completada" data-i18n="status.completed">Completada</option>
-                            <option value="cancelada" data-i18n="status.cancelled">Cancelada</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Tabla de Reportes -->
             <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                <div class="overflow-x-auto rounded-lg border border-gray-200">
-                    <table class="min-w-full divide-y divide-gray-200" id="reports-table">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200" id="laboratories-table">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="practices.table.date">
-                                    FECHA
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="laboratories.table.name">
+                                    Nombre
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="practices.table.practice">
-                                    PRÁCTICA
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="laboratories.table.building">
+                                    Edificio
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="reports.table.objective">
-                                    OBJETIVO
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="practices.table.professor">
-                                    PROFESOR
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="practices.table.subject">
-                                    ASIGNATURA
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="practices.table.actions">
-                                    ACCIONES
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="laboratories.table.actions">
+                                    Acciones
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200" id="reports-table-body">
-                            <!-- Las filas se generarán dinámicamente -->
+                        <tbody id="laboratories-table-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Los datos se cargarán dinámicamente -->
                         </tbody>
                     </table>
-                </div>
-                
-                <!-- Información de resultados -->
-                <div class="p-4 border-t border-gray-200 text-sm text-gray-500">
-                    <span data-i18n="common.showing">Mostrando</span> <span id="reports-results-count">0</span> <span data-i18n="common.of">de</span> <span id="reports-total-count">0</span> <span data-i18n="practices.practices">prácticas</span>
                 </div>
             </div>
         </div>
@@ -168,12 +74,12 @@ function renderReportsView() {
 
 // ========== INICIALIZAR TABLA ==========
 
-function initializeReportsTable() {
-    console.log('initializeReportsTable ejecutado');
+function initializeLaboratoriesTable() {
+    console.log('initializeLaboratoriesTable ejecutado');
     
-    const tableBody = document.getElementById('reports-table-body');
+    const tableBody = document.getElementById('laboratories-table-body');
     if (!tableBody) {
-        console.error('ERROR: No se encontró reports-table-body');
+        console.error('ERROR: No se encontró laboratories-table-body');
         return;
     }
     
@@ -183,439 +89,335 @@ function initializeReportsTable() {
         return;
     }
     
-    // Verificar que reportsData existe
-    if (!window.AppState.reportsData || !Array.isArray(window.AppState.reportsData)) {
-        console.error('ERROR: AppState.reportsData no es un array válido');
+    // Verificar que laboratoriesData existe
+    if (!window.AppState.laboratoriesData || !Array.isArray(window.AppState.laboratoriesData)) {
+        console.error('ERROR: AppState.laboratoriesData no es un array válido');
         return;
     }
     
-    console.log('Reportes a mostrar:', window.AppState.reportsData.length);
+    console.log('Laboratorios a mostrar:', window.AppState.laboratoriesData.length);
     
     // Limpiar tabla
     tableBody.innerHTML = '';
     
-    // Obtener datos filtrados
-    const filteredData = filterReportsData();
-    window.AppState.currentReportsData = filteredData;
-    
-    console.log('Reportes filtrados:', filteredData.length);
-    
     // Si no hay datos
-    if (filteredData.length === 0) {
+    if (window.AppState.laboratoriesData.length === 0) {
         const noDataRow = document.createElement('tr');
         noDataRow.innerHTML = `
-            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+            <td colspan="3" class="px-6 py-12 text-center text-gray-500">
                 <div class="flex flex-col items-center">
-                    <i class="fas fa-chart-bar text-4xl text-gray-300 mb-4"></i>
-                    <p class="text-gray-600">No hay reportes que coincidan con los filtros</p>
-                    <p class="text-gray-400 text-sm mt-1">Intenta con diferentes criterios de búsqueda</p>
+                    <i class="fas fa-inbox text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-600">No hay laboratorios registrados</p>
                 </div>
             </td>
         `;
         tableBody.appendChild(noDataRow);
-    } else {
-        // Generar filas de la tabla
-        filteredData.forEach((item) => {
-            const row = document.createElement('tr');
-            row.className = 'bg-white hover:bg-gray-50 transition-colors';
-            
-            row.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.date)}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.practice}</td>
-                <td class="px-6 py-4 text-sm text-gray-500">${item.objective}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.professor}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.subject}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button class="edit-report-btn text-indigo-600 hover:text-indigo-900 mr-3"
-                            data-id="${item.id}">
-                        Editar
-                    </button>
-                    <button class="delete-report-btn text-red-600 hover:text-red-900"
-                            data-id="${item.id}"
-                            data-practice="${item.practice}"
-                            data-professor="${item.professor}"
-                            data-date="${formatDate(item.date)}">
-                        Eliminar
-                    </button>
-                </td>
-            `;
-            
-            tableBody.appendChild(row);
-        });
+        return;
     }
     
-    console.log('Tabla renderizada con', filteredData.length, 'reportes');
+    // Generar filas de la tabla
+    window.AppState.laboratoriesData.forEach((item) => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50 transition-colors';
+        
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">${item.name}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-500">${item.building}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button class="edit-laboratory-btn text-indigo-600 hover:text-indigo-900 mr-3 px-2 py-1 hover:bg-indigo-50 rounded transition-colors"
+                        data-id="${item.id}">
+                    Editar
+                </button>
+                <button class="delete-laboratory-btn text-red-600 hover:text-red-900 px-2 py-1 hover:bg-red-50 rounded transition-colors"
+                        data-id="${item.id}"
+                        data-name="${item.name}"
+                        data-building="${item.building}">
+                    Eliminar
+                </button>
+            </td>
+        `;
+        
+        tableBody.appendChild(row);
+    });
     
-    // Actualizar contadores
-    updateReportsResultsCount();
+    console.log('Tabla renderizada con', window.AppState.laboratoriesData.length, 'laboratorios');
     
     // Configurar event listeners después de un pequeño delay
     setTimeout(() => {
-        setupReportsTableEventListeners();
-    }, 100);
-}
-
-// ========== FUNCIÓN DE FILTRADO ==========
-
-function filterReportsData() {
-    console.log('filterReportsData ejecutado');
-    
-    if (!window.AppState || !window.AppState.reportsData) {
-        return [];
-    }
-    
-    let filteredData = [...window.AppState.reportsData];
-    const filters = window.AppState.currentReportsFilters || {};
-    
-    console.log('Filtros aplicados:', filters);
-    
-    // Aplicar filtro de búsqueda
-    if (filters.search && filters.search.trim() !== '') {
-        const searchTerm = filters.search.toLowerCase();
-        console.log('Buscando término:', searchTerm);
-        
-        filteredData = filteredData.filter(report => {
-            const matches = 
-                (report.practice && report.practice.toLowerCase().includes(searchTerm)) ||
-                (report.professor && report.professor.toLowerCase().includes(searchTerm)) ||
-                (report.subject && report.subject.toLowerCase().includes(searchTerm)) ||
-                (report.objective && report.objective.toLowerCase().includes(searchTerm));
-            
-            return matches;
+        // Event listeners para botones de editar
+        document.querySelectorAll('.edit-laboratory-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const laboratoryId = parseInt(this.getAttribute('data-id'));
+                console.log('Editar laboratorio ID:', laboratoryId);
+                
+                // Buscar laboratorio
+                const lab = window.AppState.laboratoriesData.find(l => l.id === laboratoryId);
+                if (lab) {
+                    console.log('Laboratorio encontrado:', lab.name);
+                    
+                    // Abrir modal de edición si existe la función
+                    if (typeof window.openEditLaboratoryModal === 'function') {
+                        console.log('Llamando a openEditLaboratoryModal...');
+                        window.openEditLaboratoryModal(laboratoryId);
+                    } else {
+                        console.error('openEditLaboratoryModal no está disponible');
+                        alert(`Editar laboratorio: ${lab.name}\nID: ${laboratoryId}\n\nFunción openEditLaboratoryModal no disponible`);
+                    }
+                }
+            });
         });
         
-        console.log('Después de búsqueda:', filteredData.length);
-    }
-    
-    // Aplicar filtro por profesor
-    if (filters.professor && filters.professor !== '') {
-        console.log('Filtrando por profesor:', filters.professor);
-        filteredData = filteredData.filter(report => 
-            report.professor === filters.professor
-        );
-        console.log('Después de filtrar por profesor:', filteredData.length);
-    }
-    
-    // Aplicar filtro por estado (buscando en practiceData si existe)
-    if (filters.status && filters.status !== '') {
-        console.log('Filtrando por estado:', filters.status);
+        // Event listeners para botones de eliminar
+        document.querySelectorAll('.delete-laboratory-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const laboratoryId = parseInt(this.getAttribute('data-id'));
+                const laboratoryName = this.getAttribute('data-name');
+                const laboratoryBuilding = this.getAttribute('data-building');
+                console.log('Eliminar laboratorio ID:', laboratoryId, 'Nombre:', laboratoryName);
+                
+                // Abrir modal de eliminación si existe la función
+                if (typeof window.openDeleteLaboratoryModal === 'function') {
+                    console.log('Llamando a openDeleteLaboratoryModal...');
+                    window.openDeleteLaboratoryModal(laboratoryId, laboratoryName, laboratoryBuilding);
+                } else {
+                    console.error('openDeleteLaboratoryModal no está disponible');
+                    if (confirm(`¿Está seguro de eliminar el laboratorio "${laboratoryName}"?`)) {
+                        alert(`Laboratorio "${laboratoryName}" eliminado (simulado)`);
+                    }
+                }
+            });
+        });
         
-        // Si existe practiceData, filtrar por estado
-        if (window.practiceData && Array.isArray(window.practiceData)) {
-            console.log('Usando practiceData para filtrar por estado');
-            filteredData = filteredData.filter(report => {
-                const practice = window.practiceData.find(p => p.id === report.id);
-                return practice && practice.status === filters.status;
+        // Botón para agregar nuevo laboratorio
+        const addLabBtn = document.getElementById('add-laboratory-btn');
+        if (addLabBtn) {
+            console.log('Botón de agregar laboratorio encontrado');
+            addLabBtn.addEventListener('click', function() {
+                console.log('Agregar nuevo laboratorio - Botón clickeado');
+                
+                if (typeof window.openNewLaboratoryModal === 'function') {
+                    console.log('Llamando a openNewLaboratoryModal...');
+                    window.openNewLaboratoryModal();
+                } else {
+                    console.error('openNewLaboratoryModal no está disponible');
+                    alert('Funcionalidad de agregar laboratorio no disponible');
+                }
             });
         } else {
-            // Si no hay practiceData, no podemos filtrar por estado
-            console.log('No hay practiceData disponible para filtrar por estado');
-            // Si queremos mantener solo los datos que no pueden ser filtrados por estado
-            // filteredData = [];
+            console.error('Botón add-laboratory-btn no encontrado');
         }
         
-        console.log('Después de filtrar por estado:', filteredData.length);
-    }
-    
-    return filteredData;
-}
-
-// ========== CONFIGURAR EVENT LISTENERS ==========
-
-function setupReportsTableEventListeners() {
-    console.log('setupReportsTableEventListeners ejecutado');
-    
-    // Event listeners para botones de editar
-    document.querySelectorAll('.edit-report-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const reportId = parseInt(this.getAttribute('data-id'));
-            console.log('Editar reporte ID:', reportId);
-            
-            // Buscar reporte
-            const report = window.AppState.reportsData.find(r => r.id === reportId);
-            if (report) {
-                console.log('Reporte encontrado:', report.practice);
-                
-                // Abrir modal de edición si existe la función
-                if (typeof window.openEditReportModal === 'function') {
-                    console.log('Llamando a openEditReportModal...');
-                    window.openEditReportModal(reportId);
-                } else if (typeof window.openEditModal === 'function') {
-                    // Usar el modal de prácticas si está disponible
-                    console.log('Usando openEditModal como fallback...');
-                    window.openEditModal(reportId);
-                } else {
-                    console.error('Funciones de modal no disponibles');
-                    alert(`Editar reporte: ${report.practice}\nID: ${reportId}\n\nFuncionalidad no disponible`);
-                }
-            }
-        });
-    });
-    
-    // Event listeners para botones de eliminar
-    document.querySelectorAll('.delete-report-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const reportId = parseInt(this.getAttribute('data-id'));
-            const practiceName = this.getAttribute('data-practice');
-            const professor = this.getAttribute('data-professor');
-            const date = this.getAttribute('data-date');
-            
-            console.log('Eliminar reporte ID:', reportId, 'Práctica:', practiceName);
-            
-            // Abrir modal de eliminación si existe la función
-            if (typeof window.openDeleteReportModal === 'function') {
-                console.log('Llamando a openDeleteReportModal...');
-                window.openDeleteReportModal(reportId, practiceName, professor, date);
-            } else if (typeof window.openDeleteModal === 'function') {
-                // Usar el modal de prácticas si está disponible
-                console.log('Usando openDeleteModal como fallback...');
-                window.openDeleteModal(reportId, practiceName, professor, date);
-            } else {
-                console.error('Funciones de modal no disponibles');
-                if (confirm(`¿Está seguro de eliminar el reporte de "${practiceName}"?`)) {
-                    deleteReportFromTable(reportId);
-                }
-            }
-        });
-    });
-    
-    console.log('Event listeners de tabla configurados');
-}
-
-function setupReportsEventListeners() {
-    console.log('setupReportsEventListeners ejecutado');
-    
-    // Botón de exportar reportes
-    const exportReportsBtn = document.getElementById('export-reports-btn');
-    if (exportReportsBtn) {
-        exportReportsBtn.addEventListener('click', function() {
-            console.log('Exportar reportes');
-            if (typeof window.exportReportsToPDF === 'function') {
-                window.exportReportsToPDF();
-            } else {
-                exportReportsToPDF();
-            }
-        });
-    }
-    
-    // Event listeners para filtros
-    const searchInput = document.getElementById('reports-search');
-    const professorFilter = document.getElementById('reports-professor-filter');
-    const statusFilter = document.getElementById('reports-status-filter');
-    
-    // Filtro de búsqueda
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            console.log('Búsqueda cambiada:', this.value);
-            if (window.AppState.currentReportsFilters) {
-                window.AppState.currentReportsFilters.search = this.value.toLowerCase();
-            }
-            initializeReportsTable();
-        });
-    }
-    
-    // Filtro por profesor
-    if (professorFilter) {
-        professorFilter.addEventListener('change', function() {
-            console.log('Profesor seleccionado:', this.value);
-            if (window.AppState.currentReportsFilters) {
-                window.AppState.currentReportsFilters.professor = this.value;
-            }
-            initializeReportsTable();
-        });
-    }
-    
-    // Filtro por estado
-    if (statusFilter) {
-        statusFilter.addEventListener('change', function() {
-            console.log('Estado seleccionado:', this.value);
-            if (window.AppState.currentReportsFilters) {
-                window.AppState.currentReportsFilters.status = this.value;
-            }
-            initializeReportsTable();
-        });
-    }
-    
-    console.log('Event listeners de filtros configurados');
+        console.log('Event listeners configurados para la tabla de laboratorios');
+    }, 100);
 }
 
 // ========== FUNCIONES DE GESTIÓN DE DATOS ==========
 
-function getReportById(reportId) {
-    if (!window.AppState || !window.AppState.reportsData) {
+function getLaboratoryById(laboratoryId) {
+    if (!window.AppState || !window.AppState.laboratoriesData) {
         return null;
     }
-    return window.AppState.reportsData.find(report => report.id === reportId);
+    return window.AppState.laboratoriesData.find(lab => lab.id === laboratoryId);
 }
 
-function deleteReport(reportId) {
-    if (!window.AppState || !window.AppState.reportsData) {
-        return false;
+function addLaboratory(laboratoryData) {
+    if (!window.AppState || !window.AppState.laboratoriesData) {
+        return null;
     }
     
-    const reportIndex = window.AppState.reportsData.findIndex(report => report.id === reportId);
+    // Verificar si ya existe un laboratorio con el mismo nombre y edificio
+    const duplicate = window.AppState.laboratoriesData.find(lab => 
+        lab.name.toLowerCase() === laboratoryData.name.toLowerCase() && 
+        lab.building.toLowerCase() === laboratoryData.building.toLowerCase()
+    );
     
-    if (reportIndex === -1) {
-        console.error('Reporte no encontrado:', reportId);
-        return false;
+    if (duplicate) {
+        console.warn('Ya existe un laboratorio con ese nombre en el mismo edificio');
+        return null;
     }
     
-    // Eliminar el reporte
-    window.AppState.reportsData.splice(reportIndex, 1);
+    // Generar nuevo ID
+    const newId = window.AppState.laboratoriesData.length > 0 
+        ? Math.max(...window.AppState.laboratoriesData.map(l => l.id)) + 1 
+        : 1;
+    
+    const newLaboratory = {
+        id: newId,
+        ...laboratoryData
+    };
+    
+    // Agregar al array
+    window.AppState.laboratoriesData.push(newLaboratory);
     
     // Actualizar tabla
-    initializeReportsTable();
+    initializeLaboratoriesTable();
     
-    console.log('Reporte eliminado:', reportId);
-    return true;
-}
-
-// Función auxiliar para eliminar reporte desde tabla
-function deleteReportFromTable(reportId) {
-    const deleted = deleteReport(reportId);
-    if (deleted) {
-        showSuccessMessage('Reporte eliminado correctamente');
-    }
-    return deleted;
-}
-
-// ========== FUNCIÓN DE EXPORTACIÓN ==========
-
-function exportReportsToPDF() {
-    console.log('exportReportsToPDF ejecutado');
-    
-    if (!window.AppState.currentReportsData || window.AppState.currentReportsData.length === 0) {
-        alert('No hay datos para exportar');
-        return;
+    // Actualizar selector de laboratorios en agenda si existe
+    if (window.loadLaboratoriesSelect && typeof window.loadLaboratoriesSelect === 'function') {
+        window.loadLaboratoriesSelect();
     }
     
-    // Crear contenido para el reporte
-    let content = 'REPORTE DE PRÁCTICAS\n\n';
-    content += 'Universidad Politécnica de Durango\n';
-    content += `Fecha de generación: ${new Date().toLocaleDateString()}\n\n`;
-    content += '=================================================================\n\n';
+    console.log('Laboratorio agregado:', newLaboratory);
+    return newLaboratory;
+}
+
+function updateLaboratory(laboratoryId, updatedData) {
+    if (!window.AppState || !window.AppState.laboratoriesData) {
+        return null;
+    }
     
-    window.AppState.currentReportsData.forEach((item, index) => {
-        content += `PRÁCTICA ${index + 1}\n`;
-        content += `Fecha: ${formatDate(item.date)}\n`;
-        content += `Nombre: ${item.practice}\n`;
-        content += `Objetivo: ${item.objective}\n`;
-        content += `Profesor: ${item.professor}\n`;
-        content += `Asignatura: ${item.subject}\n`;
-        
-        // Buscar información adicional en practiceData si existe
-        if (window.practiceData) {
-            const practice = window.practiceData.find(p => p.id === item.id);
-            if (practice) {
-                content += `Estado: ${getStatusText(practice.status)}\n`;
-                content += `Laboratorio: ${practice.lab || 'No asignado'}\n`;
+    const laboratoryIndex = window.AppState.laboratoriesData.findIndex(lab => lab.id === laboratoryId);
+    
+    if (laboratoryIndex === -1) {
+        console.error('Laboratorio no encontrado:', laboratoryId);
+        return null;
+    }
+    
+    // Verificar si ya existe otro laboratorio con el mismo nombre y edificio
+    const duplicate = window.AppState.laboratoriesData.find(lab => 
+        lab.id !== laboratoryId &&
+        lab.name.toLowerCase() === updatedData.name.toLowerCase() && 
+        lab.building.toLowerCase() === updatedData.building.toLowerCase()
+    );
+    
+    if (duplicate) {
+        console.warn('Ya existe otro laboratorio con ese nombre en el mismo edificio');
+        return null;
+    }
+    
+    // Actualizar el laboratorio
+    window.AppState.laboratoriesData[laboratoryIndex] = {
+        ...window.AppState.laboratoriesData[laboratoryIndex],
+        ...updatedData
+    };
+    
+    // Actualizar también en las prácticas que usan este laboratorio
+    if (window.practiceData && Array.isArray(window.practiceData)) {
+        window.practiceData.forEach(practice => {
+            if (practice.labId === laboratoryId) {
+                practice.lab = `${updatedData.name} (${updatedData.building})`;
+                practice.labName = updatedData.name;
             }
+        });
+    }
+    
+    // Actualizar tabla
+    initializeLaboratoriesTable();
+    
+    // Actualizar selector de laboratorios en agenda si existe
+    if (window.loadLaboratoriesSelect && typeof window.loadLaboratoriesSelect === 'function') {
+        window.loadLaboratoriesSelect();
+    }
+    
+    console.log('Laboratorio actualizado:', window.AppState.laboratoriesData[laboratoryIndex]);
+    return window.AppState.laboratoriesData[laboratoryIndex];
+}
+
+function deleteLaboratory(laboratoryId) {
+    if (!window.AppState || !window.AppState.laboratoriesData) {
+        return false;
+    }
+    
+    const laboratoryIndex = window.AppState.laboratoriesData.findIndex(lab => lab.id === laboratoryId);
+    
+    if (laboratoryIndex === -1) {
+        console.error('Laboratorio no encontrado:', laboratoryId);
+        return false;
+    }
+    
+    // Verificar si hay prácticas usando este laboratorio
+    if (window.practiceData && Array.isArray(window.practiceData)) {
+        const practicesUsingLab = window.practiceData.filter(p => p.labId === laboratoryId);
+        if (practicesUsingLab.length > 0) {
+            console.warn('No se puede eliminar el laboratorio porque tiene prácticas asignadas');
+            return false;
         }
-        
-        content += '\n-----------------------------------------------------------------\n\n';
-    });
-    
-    content += `Total de prácticas: ${window.AppState.currentReportsData.length}\n`;
-    
-    // Crear un blob con el contenido
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-    
-    // Crear un enlace de descarga
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `reporte_practicas_${new Date().toISOString().split('T')[0]}.txt`;
-    
-    // Simular clic en el enlace
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    // Mostrar mensaje de éxito
-    showSuccessMessage('Reporte exportado correctamente');
-    
-    console.log('Reporte exportado con', window.AppState.currentReportsData.length, 'prácticas');
-}
-
-// ========== FUNCIONES AUXILIARES ==========
-
-function updateReportsResultsCount() {
-    const resultsCount = document.getElementById('reports-results-count');
-    const totalCount = document.getElementById('reports-total-count');
-    
-    if (resultsCount && totalCount) {
-        const filteredCount = window.AppState.currentReportsData ? window.AppState.currentReportsData.length : 0;
-        const total = window.AppState.reportsData ? window.AppState.reportsData.length : 0;
-        
-        resultsCount.textContent = filteredCount;
-        totalCount.textContent = total;
-        
-        console.log('Contadores actualizados:', { filteredCount, total });
     }
-}
-
-function showSuccessMessage(message) {
-    const successMsg = document.getElementById('success-message');
-    const successText = document.getElementById('success-text');
     
-    if (successMsg && successText) {
-        successText.textContent = message;
-        successMsg.classList.remove('hidden');
-        
-        // Ocultar mensaje después de 3 segundos
-        setTimeout(() => {
-            successMsg.classList.add('hidden');
-        }, 3000);
-    } else {
-        alert(message);
+    // Eliminar el laboratorio
+    window.AppState.laboratoriesData.splice(laboratoryIndex, 1);
+    
+    // Actualizar tabla
+    initializeLaboratoriesTable();
+    
+    // Actualizar selector de laboratorios en agenda si existe
+    if (window.loadLaboratoriesSelect && typeof window.loadLaboratoriesSelect === 'function') {
+        window.loadLaboratoriesSelect();
     }
+    
+    console.log('Laboratorio eliminado:', laboratoryId);
+    return true;
 }
 
 // ========== FUNCIONES SIMULADAS PARA MODALES (si no existen) ==========
 
-// Función para abrir modal de editar reporte (simulada si no existe)
-if (typeof window.openEditReportModal === 'undefined') {
-    window.openEditReportModal = function(reportId) {
-        console.log('openEditReportModal simulado llamado para ID:', reportId);
-        const report = getReportById(reportId);
-        if (report) {
-            alert(`Editar reporte:\n\nID: ${report.id}\nPráctica: ${report.practice}\nObjetivo: ${report.objective}\nProfesor: ${report.professor}\nAsignatura: ${report.subject}\n\nEsta funcionalidad está en desarrollo.`);
+// Función para abrir modal de nuevo laboratorio (simulada si no existe)
+if (typeof window.openNewLaboratoryModal === 'undefined') {
+    window.openNewLaboratoryModal = function() {
+        console.log('openNewLaboratoryModal simulado llamado');
+        alert('Modal para agregar nuevo laboratorio\n\nEsta funcionalidad está en desarrollo.');
+    };
+}
+
+// Función para abrir modal de editar laboratorio (simulada si no existe)
+if (typeof window.openEditLaboratoryModal === 'undefined') {
+    window.openEditLaboratoryModal = function(laboratoryId) {
+        console.log('openEditLaboratoryModal simulado llamado para ID:', laboratoryId);
+        const lab = getLaboratoryById(laboratoryId);
+        if (lab) {
+            alert(`Editar laboratorio:\n\nID: ${lab.id}\nNombre: ${lab.name}\nEdificio: ${lab.building}\n\nEsta funcionalidad está en desarrollo.`);
         }
     };
 }
 
-// Función para abrir modal de eliminar reporte (simulada si no existe)
-if (typeof window.openDeleteReportModal === 'undefined') {
-    window.openDeleteReportModal = function(reportId, practiceName, professor, date) {
-        console.log('openDeleteReportModal simulado llamado para ID:', reportId);
-        if (confirm(`¿Está seguro de eliminar el reporte de "${practiceName}"?\n\nProfesor: ${professor}\nFecha: ${date}\n\nEsta acción no se puede deshacer.`)) {
-            deleteReportFromTable(reportId);
+// Función para abrir modal de eliminar laboratorio (simulada si no existe)
+if (typeof window.openDeleteLaboratoryModal === 'undefined') {
+    window.openDeleteLaboratoryModal = function(laboratoryId, laboratoryName, laboratoryBuilding) {
+        console.log('openDeleteLaboratoryModal simulado llamado para ID:', laboratoryId);
+        if (confirm(`¿Está seguro de eliminar el laboratorio "${laboratoryName}"?\n\nEsta acción no se puede deshacer.`)) {
+            // Simular eliminación
+            alert(`Laboratorio "${laboratoryName}" eliminado exitosamente (simulado).`);
+            console.log('Laboratorio eliminado (simulado):', laboratoryName);
         }
     };
+}
+
+// ========== FUNCIONES DE CONFIGURACIÓN ==========
+
+function setupLaboratoriesEventListeners() {
+    console.log('setupLaboratoriesEventListeners ejecutado');
+    
+    // Los event listeners ya se configuran en initializeLaboratoriesTable
+    // Esta función se mantiene por compatibilidad
+    
+    // NOTA: Los event listeners reales se configuran en initializeLaboratoriesTable
+    // porque necesitan que la tabla esté renderizada primero
 }
 
 // ========== EXPORTAR FUNCIONES ==========
 
 // Asegurarse de que las funciones estén disponibles globalmente
 if (typeof window !== 'undefined') {
-    window.renderReportsView = renderReportsView;
-    window.initializeReportsTable = initializeReportsTable;
-    window.setupReportsEventListeners = setupReportsEventListeners;
-    window.initializeReportsData = initializeReportsData;
-    window.filterReportsData = filterReportsData;
+    window.renderLaboratoriesView = renderLaboratoriesView;
+    window.initializeLaboratoriesTable = initializeLaboratoriesTable;
+    window.setupLaboratoriesEventListeners = setupLaboratoriesEventListeners;
     
     // Funciones de gestión de datos
-    window.getReportById = getReportById;
-    window.deleteReport = deleteReport;
-    window.deleteReportFromTable = deleteReportFromTable;
+    window.getLaboratoryById = getLaboratoryById;
+    window.addLaboratory = addLaboratory;
+    window.updateLaboratory = updateLaboratory;
+    window.deleteLaboratory = deleteLaboratory;
     
-    // Funciones de utilidad
-    window.formatDate = formatDate;
-    window.getStatusText = getStatusText;
-    window.exportReportsToPDF = exportReportsToPDF;
+    // Función de inicialización de datos
+    window.initializeLaboratoriesData = initializeLaboratoriesData;
     
-    console.log('reports.js cargado correctamente - Funciones exportadas');
+    console.log('laboratories.js cargado correctamente - Funciones exportadas');
 }
 
 // Inicializar datos cuando se carga el script
-initializeReportsData();
-console.log('reports.js completamente cargado');
+initializeLaboratoriesData();
+console.log('laboratories.js completamente cargado');
